@@ -383,7 +383,7 @@ small {
   margin-bottom: 10px;
   color: var(--gold);
 }
-.unit-detail > span:last-child {
+.unit-detail > span:nth-child(n + 3) {
   flex-basis: 100%;
 }
 .prepare-actions,

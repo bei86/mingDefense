@@ -24,6 +24,7 @@ import {
 } from './combat-skills';
 import type { Combat, Packet, Spawn } from './combat-model';
 import { recordUnitStat } from './battle-report';
+import { releaseLineHit } from './combat-projectiles';
 export type { Ally, Attack, Combat, Enemy, Field, Flash } from './combat-model';
 export { contact, enemyTarget, chooseCombatBuff } from './combat-skills';
 
@@ -247,6 +248,10 @@ function resolveHits(s: Combat): void {
   s.attacks = s.attacks.filter((a) => a.due > s.time);
   for (const a of due) releaseAttack(s, a, packets);
   for (const hit of s.released.filter((h) => h.due <= s.time)) {
+    if (hit.shape === 'line') {
+      releaseLineHit(s, hit, packets);
+      continue;
+    }
     const target = s.enemies.find((e) => e.id === hit.target && e.hp > 0);
     if (target) {
       area(s, target, hit.radius, hit.damage, packets, hit.source);
@@ -285,6 +290,7 @@ function resolveHits(s: Combat): void {
         packets.push({ team: 'ally', id: ally.id, damage: config.boss.cleaveHitDamage });
   }
   s.warnings = s.warnings.filter((w) => w.due > s.time);
+  const vulnerabilities = new Map<number, { percent: number; durationMs: number }>();
   for (const packet of packets) {
     const target =
       packet.team === 'ally'
@@ -295,7 +301,16 @@ function resolveHits(s: Combat): void {
       packet.team === 'enemy' && 'kind' in target && target.kind === 'croc'
         ? enemyDefinitions.croc.skills.damageReductionPercent! / 100
         : 0;
-    let damage = Math.max(config.damage.minHitDamage, Math.floor(packet.damage * (1 - reduction)));
+    const vulnerability =
+      packet.team === 'enemy' &&
+      'vulnerabilityUntil' in target &&
+      (target.vulnerabilityUntil ?? 0) > s.time
+        ? (target.vulnerabilityPercent ?? 0)
+        : 0;
+    let damage = Math.max(
+      config.damage.minHitDamage,
+      Math.floor(packet.damage * (1 + vulnerability / 100) * (1 - reduction)),
+    );
     if (packet.team === 'ally') {
       const ally = target as Combat['allies'][number];
       const absorb = Math.min(ally.shield ?? 0, damage);
@@ -316,8 +331,23 @@ function resolveHits(s: Combat): void {
           s.time +
           heroes.ice_fish.skills.freezeDurationMs! *
             (enemy.kind === 'boss' ? heroes.ice_fish.skills.bossFreezeMultiplierPercent! / 100 : 1);
+      if (packet.vulnerability) {
+        const previous = vulnerabilities.get(enemy.id);
+        vulnerabilities.set(enemy.id, {
+          percent: Math.max(previous?.percent ?? 0, packet.vulnerability.percent),
+          durationMs: Math.max(previous?.durationMs ?? 0, packet.vulnerability.durationMs),
+        });
+      }
     }
     target.hp = Math.max(0, target.hp - damage);
+  }
+  // New marks start after this batch, so same-tick damage is independent of attacker order.
+  for (const [id, effect] of vulnerabilities) {
+    const enemy = s.enemies.find((e) => e.id === id)!;
+    const previous =
+      (enemy.vulnerabilityUntil ?? 0) > s.time ? (enemy.vulnerabilityPercent ?? 0) : 0;
+    enemy.vulnerabilityPercent = Math.max(previous, effect.percent);
+    enemy.vulnerabilityUntil = s.time + effect.durationMs;
   }
 }
 export function stepCombat(s: Combat, held = false): void {

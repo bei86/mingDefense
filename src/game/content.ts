@@ -9,6 +9,8 @@ export const heroIds = [
   'fortune_peach',
   'ice_fish',
   'shield_fox',
+  'piercing_monkey',
+  'scatter_bear',
 ] as const;
 export type HeroId = (typeof heroIds)[number];
 export type Point = { x: number; y: number };
@@ -25,6 +27,8 @@ export const appearances: Record<
   fortune_peach: { name: '灵金桃', color: '#f3b7b2', glyph: '桃', role: '产钱 · 1 格' },
   ice_fish: { name: '霜尾鲤', color: '#a4c9f2', glyph: '冰', role: '控制 · 竖 3 格' },
   shield_fox: { name: '月音狐', color: '#dcc6ec', glyph: '盾', role: '护盾 · 1 格' },
+  piercing_monkey: { name: '穿林猿', color: '#dfbe83', glyph: '贯', role: '贯穿 · 横 3 格' },
+  scatter_bear: { name: '磐拳熊', color: '#b9bdcf', glyph: '拳', role: '散射 · 竖 2 格' },
 };
 export type EnemyKind = 'wolf' | 'runner' | 'croc' | 'summoned_wolf' | 'boss';
 export type Stage = {
@@ -40,6 +44,29 @@ export const enemyDefinitions = Object.fromEntries(config.enemies.map((e) => [e.
 export const stageNames = ['林间初袭', '疾影来袭', '霜径追逐', '石鳞重围', '古木之怒'];
 export function tauntValue(kind: HeroId): number {
   return config.targeting.tauntTieOrder.length - config.targeting.tauntTieOrder.indexOf(kind);
+}
+export function projectileSkillDescription(
+  kind: HeroId,
+  rank: number,
+  vulnerabilityBonus = 0,
+): string | null {
+  const skill = heroes[kind].skills;
+  if (kind === 'piercing_monkey') {
+    const effects = ['直线贯穿'];
+    if (rank >= skill.vulnerabilityFromRank!)
+      effects.push(
+        `命中易伤 ${skill.vulnerabilityPercent! + vulnerabilityBonus}% · ${skill.vulnerabilityDurationMs! / 1000}秒`,
+      );
+    if (rank >= skill.doubleHitFromRank!) effects.push('每次攻击两段');
+    return effects.join(' · ');
+  }
+  if (kind === 'scatter_bear') {
+    const effects = [`${skill.projectileAnglesDegrees!.length}道拳罡 · 每道首个敌人受击`];
+    if (rank >= skill.splitsFromRank!)
+      effects.push(`命中分裂${skill.splitCount}道 · 各${skill.splitDamagePercent}%伤害 · 不再分裂`);
+    return effects.join(' · ');
+  }
+  return null;
 }
 export function enemyCount(stageId: number): number {
   const value = stages[stageId - 1];

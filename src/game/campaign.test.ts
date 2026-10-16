@@ -59,8 +59,8 @@ function finish(session: Session) {
 }
 
 describe('成长与内容', () => {
-  it('六英雄六阶配置、混合波次及Boss数值入口', () => {
-    expect(heroIds).toHaveLength(6);
+  it('八英雄六阶配置、混合波次及Boss数值入口', () => {
+    expect(heroIds).toHaveLength(8);
     for (const id of heroIds) expect(heroes[id].hp).toHaveLength(6);
     expect(stages.map((s) => waveSpawns(s.id).length)).toEqual([18, 28, 26, 26, 9]);
     expect(

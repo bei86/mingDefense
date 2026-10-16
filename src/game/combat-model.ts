@@ -25,6 +25,8 @@ export type Enemy = Point & {
   nextCleave?: number;
   nextSummon?: number;
   owner?: number;
+  vulnerabilityUntil?: number;
+  vulnerabilityPercent?: number;
 };
 export type Attack = {
   due: number;
@@ -33,15 +35,28 @@ export type Attack = {
   team: 'ally' | 'enemy';
   ordinal: number;
 };
-export type ReleasedHit = {
+type ReleasedBase = {
   due: number;
-  target: number;
-  point: Point;
   damage: number;
-  radius: number;
   kind: HeroId;
   source: number;
 };
+export type LineHit = ReleasedBase & {
+  shape: 'line';
+  point: Point;
+  direction: Point;
+  range: number;
+  halfWidth: number;
+  vulnerability?: { percent: number; durationMs: number };
+};
+export type ReleasedHit =
+  | LineHit
+  | (ReleasedBase & {
+      shape: 'area';
+      target: number;
+      point: Point;
+      radius: number;
+    });
 export type Field = Point & {
   id: number;
   born: number;
@@ -98,4 +113,5 @@ export type Packet = {
   slow?: boolean;
   freeze?: boolean;
   source?: number;
+  vulnerability?: { percent: number; durationMs: number };
 };

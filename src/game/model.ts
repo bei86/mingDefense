@@ -11,6 +11,7 @@ export type BuffId =
   | 'eagle_residue'
   | 'boar_attack'
   | 'bear_attack'
+  | 'monkey_vulnerability'
   | 'fox_shield'
   | 'mouse_finisher'
   | 'mouse_execute';

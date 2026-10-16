@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { loadSession, saveSession, validSave, type StoragePort } from '../game/persistence';
 import { Session } from '../game/session';
 import bossCheckpoint from '../game/fixtures/boss-checkpoint.json';
+import { rosterPlaytest } from '../game/fixtures/roster-playtest';
 
 const browserStorage: StoragePort = {
   getItem: (key) => window.localStorage.getItem(key),
@@ -10,6 +11,16 @@ const browserStorage: StoragePort = {
 };
 let initialLoad: ReturnType<typeof loadSession> | null = null;
 export function loadBrowserSession() {
+  if (
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get('playtest') === 'roster'
+  )
+    return {
+      session: rosterPlaytest(),
+      message: '开发八灵技能验收场景：固定阵容，不写入存档。',
+      recovered: false,
+      blocked: true,
+    };
   if (
     import.meta.env.DEV &&
     new URLSearchParams(window.location.search).get('playtest') === 'boss'

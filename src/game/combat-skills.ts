@@ -14,6 +14,7 @@ import type { BuffId, Progression, Unit } from './model';
 import { bonus, buffDefinitions, drawBuffs, gainExperience } from './progression';
 import type { Ally, Attack, Combat, Enemy, Packet } from './combat-model';
 import { recordUnitStat } from './battle-report';
+import { releaseBearAttack, releaseMonkeyAttack } from './combat-projectiles';
 
 export function maxHeroHp(u: Unit, p: Progression): number {
   return Math.floor((heroes[u.kind].hp[u.rank - 1] * (100 + bonus(p, 'health'))) / 100);
@@ -51,6 +52,7 @@ export function shieldTarget(s: Combat, source: Ally): Ally | undefined {
 export function attackDamage(s: Combat, source: Ally): number {
   let additive = bonus(s.progression, 'attack');
   if (source.kind === 'boar') additive += bonus(s.progression, 'boar_attack');
+  if (source.kind === 'scatter_bear') additive += bonus(s.progression, 'bear_attack');
   const p = center(source.kind, source.position);
   if (
     s.allies.some(
@@ -151,6 +153,14 @@ export function releaseAttack(s: Combat, a: Attack, packets: Packet[]): void {
   if (!target) return;
   let damage = attackDamage(s, source);
   const point = { x: target.x, y: target.y };
+  if (source.kind === 'piercing_monkey') {
+    releaseMonkeyAttack(s, source, target, damage, packets);
+    return;
+  }
+  if (source.kind === 'scatter_bear') {
+    releaseBearAttack(s, source, target, damage, packets);
+    return;
+  }
   s.flashes.push({
     from: center(source.kind, source.position),
     to: point,
@@ -174,6 +184,7 @@ export function releaseAttack(s: Combat, a: Attack, packets: Packet[]): void {
       });
     if (source.rank >= skill.doubleMainHitFromRank!)
       s.released.push({
+        shape: 'area',
         due: s.time + skill.doubleMainHitOffsetMs!,
         target: target.id,
         point,

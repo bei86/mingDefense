@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "contentVersion": "prototype-2026-10-16-v6",
-  "status": "prototype-front-row-rank-threat-v6",
+  "contentVersion": "prototype-2026-10-16-v7",
+  "status": "prototype-eight-beasts-v7",
   "provenance": {
     "A": "活动公告或截图明确",
     "B": "第三方攻略记载",
@@ -949,6 +949,16 @@
       "provenance": "A-value/P-cap"
     },
     {
+      "id": "monkey_vulnerability",
+      "quality": "rare",
+      "requiresUnit": "piercing_monkey",
+      "requiresMinRank": 3,
+      "effect": "vulnerabilityBonusPercentagePoints",
+      "valuePerLevel": 5,
+      "maxLevel": 3,
+      "provenance": "P"
+    },
+    {
       "id": "fox_shield",
       "quality": "rare",
       "requiresUnit": "shield_fox",
@@ -1009,7 +1019,9 @@
         "sword_eagle",
         "fortune_peach",
         "ice_fish",
-        "shield_fox"
+        "shield_fox",
+        "piercing_monkey",
+        "scatter_bear"
       ],
       "maxRank": 6,
       "buffsEnabled": true,

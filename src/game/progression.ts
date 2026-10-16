@@ -32,7 +32,11 @@ export const buffLabels: Record<BuffId, { name: string; description: string }> =
   },
   bear_attack: {
     name: '拳意',
-    description: `熊系攻击 +${buffDefinitions.bear_attack.valuePerLevel}%`,
+    description: `磐拳熊的拳罡伤害 +${buffDefinitions.bear_attack.valuePerLevel}%`,
+  },
+  monkey_vulnerability: {
+    name: '破势',
+    description: `穿林猿施加的易伤额外 +${buffDefinitions.monkey_vulnerability.valuePerLevel} 个百分点`,
   },
   fox_shield: {
     name: '灵盾',

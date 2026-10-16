@@ -20,12 +20,14 @@ describe('逐排推进与类型仇恨', () => {
     allies[1].hp = 0;
     expect(enemyTarget(allies, { x: 4.5, y: 3.5 })).toBeUndefined();
   });
-  it('同排同阶按用户指定桃、狐、鼠、豚、鲤、隼的顺序选敌，忽略阵亡单位', () => {
+  it('同排同阶保留用户六灵顺序，熊猴沿用豚鲤之间预留位，忽略阵亡单位', () => {
     const kinds: HeroId[] = [
       'fortune_peach',
       'shield_fox',
       'ember_mouse',
       'boar',
+      'scatter_bear',
+      'piercing_monkey',
       'ice_fish',
       'sword_eagle',
     ];

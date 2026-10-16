@@ -90,6 +90,31 @@ function animal(
       .fillTriangle(x - 14, y - 3, x - 15, y - 24, x - 2, y - 9)
       .fillTriangle(x + 14, y - 3, x + 15, y - 24, x + 2, y - 9);
     g.fillStyle(0xf2e5ef, dead ? 0.1 : 0.8).fillTriangle(x - 10, y + 3, x + 10, y + 3, x, y + 15);
+  } else if (kind === 'piercing_monkey') {
+    g.fillCircle(x - 17, y - 6, 8)
+      .fillCircle(x + 17, y - 6, 8)
+      .fillEllipse(x, y + 2, 32, 36);
+    g.fillStyle(0xffe9bc, dead ? 0.1 : 0.9).fillEllipse(x, y, 24, 23);
+    g.lineStyle(4, color, dead ? 0.1 : 1)
+      .beginPath()
+      .moveTo(x - 12, y + 12)
+      .lineTo(x - 28, y + 16)
+      .lineTo(x - 34, y + 6)
+      .lineTo(x - 28, y)
+      .strokePath();
+    g.lineStyle(4, 0xf1d48d, dead ? 0.1 : 1).lineBetween(x - 48, y + 14, x + 48, y + 14);
+    g.lineStyle(6, 0x9c7250, dead ? 0.1 : 1).lineBetween(x - 35, y + 14, x + 35, y + 14);
+  } else if (kind === 'scatter_bear') {
+    g.fillCircle(x - 14, y - 20, 9)
+      .fillCircle(x + 14, y - 20, 9)
+      .fillRoundedRect(x - 19, y - 17, 38, 44, 13)
+      .fillCircle(x - 23, y + 7, 10)
+      .fillCircle(x + 23, y + 7, 10);
+    g.fillStyle(0xeff0e4, dead ? 0.1 : 0.9).fillEllipse(x, y + 3, 24, 19);
+    g.lineStyle(3, 0x747e94, dead ? 0.1 : 1)
+      .lineBetween(x - 28, y + 3, x - 19, y + 3)
+      .lineBetween(x + 19, y + 3, x + 28, y + 3);
+    g.fillStyle(0x53616d, dead ? 0.1 : 1).fillTriangle(x - 4, y, x + 4, y, x, y + 5);
   } else {
     g.fillTriangle(x - 6, y - 5, x - 34, y - 14, x - 23, y + 14).fillTriangle(
       x + 6,
@@ -321,6 +346,16 @@ export function Battlefield({
             g.lineStyle(2, 0xbae9f4, 0.95).strokeRoundedRect(p.x - 19, p.y - 24, 38, 44, 5);
           else if ((e.slowUntil ?? 0) > battle.time)
             g.lineStyle(1, 0x9cceef, 0.7).strokeCircle(p.x, p.y, 18);
+          if ((e.vulnerabilityUntil ?? 0) > battle.time) {
+            g.lineStyle(2, 0xf4c879, 0.95).strokeTriangle(
+              p.x - 5,
+              p.y - 31,
+              p.x + 5,
+              p.y - 31,
+              p.x,
+              p.y - 23,
+            );
+          }
         }
         for (const f of battle.flashes) {
           const from = pixel(f.from);
@@ -330,7 +365,7 @@ export function Battlefield({
               ? 0xeb947e
               : Phaser.Display.Color.HexStringToColor(appearances[f.kind!].color).color;
           g.lineStyle(
-            f.kind === 'sword_eagle' ? 3 : 2,
+            f.kind === 'sword_eagle' || f.kind === 'piercing_monkey' ? 3 : 2,
             color,
             Math.max(0, 1 - (battle.time - f.at) / 300),
           ).lineBetween(from.x, from.y, to.x, to.y);

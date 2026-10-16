@@ -1,5 +1,12 @@
-import { appearances, config, heroes, tauntValue } from '../game/content';
+import {
+  appearances,
+  config,
+  heroes,
+  projectileSkillDescription,
+  tauntValue,
+} from '../game/content';
 import { maxHeroHp } from '../game/combat-skills';
+import { bonus } from '../game/progression';
 import type { Session, Source } from '../game/session';
 
 export type Confirmation = { title: string; body: string; action: () => void; label: string };
@@ -30,6 +37,13 @@ export function PreparationPanel({
   const chosen = selected?.type === 'unit' ? p.units.find((u) => u.id === selected.id) : null;
   const offer = selected?.type === 'offer' ? p.offers.find((o) => o.id === selected.id) : null;
   const kind = chosen?.kind ?? (offer?.kind === 'cell' ? null : offer?.kind);
+  const skill = kind
+    ? projectileSkillDescription(
+        kind,
+        chosen?.rank ?? 1,
+        bonus(p.progression, 'monkey_vulnerability'),
+      )
+    : null;
   const refresh = () => {
     const action = () => run(session.refresh(true), '新招募已到，可以直接部署或合成。');
     if (p.offers.some((o) => !o.claimed))
@@ -47,7 +61,7 @@ export function PreparationPanel({
         <div>
           <h2>灵兽招募</h2>
           <small>
-            {p.offers.length === 4 ? '初次赠送 4 只 · 领取免费' : '六灵等概率 · 领取免费'}
+            {p.offers.length === 4 ? '初次赠送 4 只 · 领取免费' : '八灵等概率 · 领取免费'}
           </small>
         </div>
         <button
@@ -129,6 +143,7 @@ export function PreparationPanel({
                 : `基础伤害 ${heroes[kind].hitDamage[(chosen?.rank ?? 1) - 1]}`}
           </span>
           <span>仇恨 {tauntValue(kind)} · 同排先低阶，同阶越高越先受击</span>
+          {skill && <span>{skill}</span>}
         </div>
       )}
       <div className="prepare-actions">
