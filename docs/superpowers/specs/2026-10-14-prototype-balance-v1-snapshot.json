@@ -1,0 +1,1020 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": "prototype-2026-10-14-v1",
+  "status": "prototype-m1-browser-playtested",
+  "provenance": {
+    "A": "活动公告或截图明确",
+    "B": "第三方攻略记载",
+    "C": "来源修复候选",
+    "P": "用户授权的临时设计；不代表原作",
+    "default": "P"
+  },
+  "runtime": {
+    "tickMs": 50,
+    "stageLimitMs": 180000,
+    "maxHeroRank": 6,
+    "m1MaxHeroRank": 3,
+    "simulationSpeeds": [
+      1,
+      2
+    ]
+  },
+  "board": {
+    "columns": 6,
+    "rows": 6,
+    "initialUnlocked": [
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        4,
+        5
+      ]
+    ],
+    "rotate": false,
+    "reserveUnitLimit": 2,
+    "cellExpansionWeight": 20,
+    "unitOfferWeight": 80
+  },
+  "shop": {
+    "initialCurrency": 45,
+    "tutorialOfferCount": 4,
+    "refreshCost": 15,
+    "offerCount": 3,
+    "claimCost": 0,
+    "discardRefund": 0,
+    "freeTutorialUnits": [
+      "ember_mouse",
+      "ember_mouse",
+      "boar",
+      "sword_eagle"
+    ],
+    "rankWeights": [
+      {
+        "stages": [
+          1,
+          5
+        ],
+        "weights": [
+          100,
+          0,
+          0
+        ]
+      },
+      {
+        "stages": [
+          6,
+          10
+        ],
+        "weights": [
+          85,
+          15,
+          0
+        ]
+      },
+      {
+        "stages": [
+          11,
+          20
+        ],
+        "weights": [
+          70,
+          25,
+          5
+        ]
+      },
+      {
+        "stages": [
+          21,
+          50
+        ],
+        "weights": [
+          50,
+          35,
+          15
+        ]
+      }
+    ]
+  },
+  "heroHpMultipliers": [
+    1,
+    1.7,
+    2.4,
+    3.2,
+    5,
+    8
+  ],
+  "units": [
+    {
+      "id": "fortune_peach",
+      "referenceName": "招财桃",
+      "shape": [
+        [
+          0,
+          0
+        ]
+      ],
+      "hp": [
+        240,
+        408,
+        576,
+        768,
+        1200,
+        1920
+      ],
+      "hitDamage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "actionIntervalMs": 1000,
+      "rangeCells": 0,
+      "windupMs": 0,
+      "incomeIntervalMs": [
+        20000,
+        18000,
+        16000,
+        14000,
+        6000,
+        5000
+      ],
+      "provenance": {
+        "hpRank1": "B",
+        "hpRank2to6": "P",
+        "incomeIntervals": "B/C"
+      },
+      "skills": {
+        "incomeOnlyDuringCombat": true,
+        "incomeStopsWhenInjured": true
+      }
+    },
+    {
+      "id": "ice_fish",
+      "referenceName": "北冥鱼",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "hp": [
+        160,
+        272,
+        384,
+        512,
+        800,
+        1280
+      ],
+      "hitDamage": [
+        150,
+        300,
+        390,
+        520,
+        840,
+        1680
+      ],
+      "actionIntervalMs": 1400,
+      "rangeCells": 5,
+      "windupMs": 200,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "slowPercent": 20,
+        "slowDurationMs": 1500,
+        "freezeFromRank": 3,
+        "freezeEveryAttacks": 3,
+        "freezeDurationMs": 500,
+        "bossFreezeMultiplierPercent": 50
+      }
+    },
+    {
+      "id": "sword_eagle",
+      "referenceName": "御剑鹰",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "hp": [
+        140,
+        238,
+        336,
+        448,
+        700,
+        1120
+      ],
+      "hitDamage": [
+        120,
+        240,
+        270,
+        360,
+        480,
+        960
+      ],
+      "actionIntervalMs": 1600,
+      "rangeCells": 5.5,
+      "windupMs": 250,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B",
+        "hitDamageRank5": "C",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "splashRadiusCells": 1.1,
+        "residueFromRank": 3,
+        "residueDurationMs": 2000,
+        "residueHitOffsetsMs": [
+          1000,
+          2000
+        ],
+        "residueDamagePercent": 48,
+        "doubleMainHitFromRank": 5,
+        "doubleMainHitOffsetMs": 100
+      }
+    },
+    {
+      "id": "piercing_monkey",
+      "referenceName": "齐天猴",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "hp": [
+        180,
+        306,
+        432,
+        576,
+        900,
+        1440
+      ],
+      "hitDamage": [
+        100,
+        200,
+        270,
+        360,
+        420,
+        840
+      ],
+      "actionIntervalMs": 1400,
+      "rangeCells": 5,
+      "windupMs": 200,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "lineWidthCells": 0.6,
+        "vulnerabilityFromRank": 3,
+        "vulnerabilityPercent": 10,
+        "vulnerabilityDurationMs": 3000,
+        "doubleHitFromRank": 5,
+        "doubleHitOffsetMs": 100
+      }
+    },
+    {
+      "id": "boar",
+      "referenceName": "天蓬猪",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "hp": [
+        200,
+        340,
+        480,
+        640,
+        1000,
+        1600
+      ],
+      "hitDamage": [
+        150,
+        300,
+        324,
+        432,
+        800,
+        1440
+      ],
+      "actionIntervalMs": 1300,
+      "rangeCells": 4.5,
+      "windupMs": 200,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B-includes-120-percent",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "criticalFromRank": 3,
+        "criticalEveryAttacks": 3,
+        "criticalEveryAttacksFromRank5": 2,
+        "criticalDamagePercent": 150,
+        "criticalReplacesNormalHit": true,
+        "splashDamageNumerator": 5,
+        "splashDamageDenominator": 6,
+        "splashRadiusCells": 1,
+        "splashIncludesMainTarget": true
+      }
+    },
+    {
+      "id": "scatter_bear",
+      "referenceName": "熊大师",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "hp": [
+        190,
+        323,
+        456,
+        608,
+        950,
+        1520
+      ],
+      "hitDamage": [
+        80,
+        160,
+        210,
+        280,
+        360,
+        720
+      ],
+      "actionIntervalMs": 1500,
+      "rangeCells": 4,
+      "windupMs": 200,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B-per-projectile-candidate",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "projectileAnglesDegrees": [
+          -12,
+          0,
+          12
+        ],
+        "projectileHalfWidthCells": 0.2,
+        "splitsFromRank": 3,
+        "splitCount": 2,
+        "splitDamagePercent": 35,
+        "splitAnglesDegrees": [
+          -25,
+          25
+        ],
+        "splitRangeCells": 1.5,
+        "maxSplitDepth": 1
+      }
+    },
+    {
+      "id": "ember_mouse",
+      "referenceName": "火云鼠",
+      "shape": [
+        [
+          0,
+          0
+        ]
+      ],
+      "hp": [
+        120,
+        204,
+        288,
+        384,
+        600,
+        960
+      ],
+      "hitDamage": [
+        60,
+        120,
+        180,
+        240,
+        480,
+        960
+      ],
+      "actionIntervalMs": 1000,
+      "rangeCells": 4.5,
+      "windupMs": 150,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {}
+    },
+    {
+      "id": "shield_fox",
+      "referenceName": "仙乐狐",
+      "shape": [
+        [
+          0,
+          0
+        ]
+      ],
+      "hp": [
+        100,
+        170,
+        240,
+        320,
+        500,
+        800
+      ],
+      "hitDamage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "actionIntervalMs": 1200,
+      "rangeCells": 2.5,
+      "windupMs": 150,
+      "provenance": {
+        "hp": "P",
+        "shieldPercent": "B",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "shieldPercentOfTargetMaxHp": 3,
+        "shieldCapPercentOfTargetMaxHp": 30,
+        "shieldDurationMs": 6000,
+        "auraFromRank": 3,
+        "auraRadiusCells": 2.5,
+        "auraAttackPercent": 10,
+        "aurasStack": false,
+        "startEnergyFromRank": 5,
+        "startEnergy": 15
+      }
+    }
+  ],
+  "targeting": {
+    "alliesMove": false,
+    "enemyContactRangeCells": 0.6,
+    "enemyWindupMs": 200,
+    "enemyBodyRadiusCells": 0.2,
+    "enemyBodyCollision": false,
+    "tauntRadiusCells": 2,
+    "tauntTieOrder": [
+      "fortune_peach",
+      "boar",
+      "ember_mouse",
+      "shield_fox",
+      "scatter_bear",
+      "piercing_monkey",
+      "ice_fish",
+      "sword_eagle"
+    ],
+    "targetRecheckMs": 250,
+    "heroTieBreak": "nearest-then-instance-id",
+    "enemyTieBreak": "lower-rank-then-taunt-order-then-distance-then-instance-id"
+  },
+  "energy": {
+    "capacity": 100,
+    "initial": 0,
+    "perKill": 5,
+    "holdCostPerSecond": 20,
+    "attackSpeedBonusPercent": 50,
+    "bossKillGain": 0
+  },
+  "damage": {
+    "minHitDamage": 1,
+    "shieldCapPercent": 30,
+    "roundAtFinalHit": "floor",
+    "attackSpeedBonusCapPercent": 200,
+    "slowCapPercent": 60,
+    "enemyAttackSpeedBuffs": false
+  },
+  "enemies": [
+    {
+      "id": "wolf",
+      "referenceName": "奔雷狼",
+      "hp": 220,
+      "hitDamage": 14,
+      "actionIntervalMs": 1200,
+      "speedCellsPerSecond": 0.55,
+      "rangeCells": 0.6,
+      "xp": 5,
+      "skills": {
+        "rageEveryMs": 10000,
+        "rageAttackPercent": 5,
+        "rageMaxStacks": 6,
+        "rageEnabledFromStage": 6
+      }
+    },
+    {
+      "id": "croc",
+      "referenceName": "鳄霸",
+      "hp": 600,
+      "hitDamage": 20,
+      "actionIntervalMs": 1800,
+      "speedCellsPerSecond": 0.35,
+      "rangeCells": 0.6,
+      "xp": 8,
+      "skills": {
+        "damageReductionPercent": 15
+      }
+    },
+    {
+      "id": "summoner",
+      "referenceName": "啸地犬",
+      "hp": 320,
+      "hitDamage": 12,
+      "actionIntervalMs": 1600,
+      "speedCellsPerSecond": 0.45,
+      "rangeCells": 0.6,
+      "xp": 8,
+      "skills": {
+        "summonEveryMs": 20000,
+        "summonId": "summoned_wolf",
+        "summonCount": 2
+      }
+    },
+    {
+      "id": "runner",
+      "referenceName": "雷动犬",
+      "hp": 170,
+      "hitDamage": 10,
+      "actionIntervalMs": 800,
+      "speedCellsPerSecond": 1,
+      "rangeCells": 0.6,
+      "xp": 5,
+      "skills": {}
+    },
+    {
+      "id": "splitter",
+      "referenceName": "石灵犀",
+      "hp": 400,
+      "hitDamage": 16,
+      "actionIntervalMs": 1400,
+      "speedCellsPerSecond": 0.45,
+      "rangeCells": 0.6,
+      "xp": 8,
+      "skills": {
+        "onDeathSpawnId": "split_fragment",
+        "onDeathSpawnCount": 2
+      }
+    },
+    {
+      "id": "ranged",
+      "referenceName": "鲲小鹏",
+      "hp": 280,
+      "hitDamage": 18,
+      "actionIntervalMs": 1500,
+      "speedCellsPerSecond": 0.45,
+      "rangeCells": 4,
+      "xp": 8,
+      "skills": {}
+    },
+    {
+      "id": "summoned_wolf",
+      "referenceName": "临时召唤小怪",
+      "hp": 120,
+      "hitDamage": 8,
+      "actionIntervalMs": 1200,
+      "speedCellsPerSecond": 0.6,
+      "rangeCells": 0.6,
+      "xp": 0,
+      "energyGain": 0,
+      "skills": {}
+    },
+    {
+      "id": "split_fragment",
+      "referenceName": "临时分裂小怪",
+      "hp": 100,
+      "hitDamage": 6,
+      "actionIntervalMs": 1000,
+      "speedCellsPerSecond": 0.8,
+      "rangeCells": 0.6,
+      "xp": 2,
+      "energyGain": 2,
+      "skills": {}
+    }
+  ],
+  "boss": {
+    "id": "prototype_boss_1",
+    "referenceName": "首个临时Boss（不代表原作）",
+    "hp": 24000,
+    "hitDamage": 45,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 30,
+    "cleaveIntervalMs": 12000,
+    "cleaveWarningMs": 1200,
+    "cleaveHitDamage": 60,
+    "phase2HpPercent": 40,
+    "phase2AttackSpeedBonusPercent": 25,
+    "summonIntervalMs": 20000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 6
+  },
+  "stages": [
+    {
+      "id": 1,
+      "hpMultiplier": 1,
+      "attackMultiplier": 1,
+      "reward": 25,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 18000,
+          "enemies": {
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 36000,
+          "enemies": {
+            "wolf": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "hpMultiplier": 1.12,
+      "attackMultiplier": 1.05,
+      "reward": 30,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 6,
+            "runner": 2
+          }
+        },
+        {
+          "atMs": 20000,
+          "enemies": {
+            "wolf": 8,
+            "runner": 2
+          }
+        },
+        {
+          "atMs": 40000,
+          "enemies": {
+            "wolf": 8,
+            "runner": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "hpMultiplier": 1.25,
+      "attackMultiplier": 1.1,
+      "reward": 35,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4
+          }
+        },
+        {
+          "atMs": 22000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4
+          }
+        },
+        {
+          "atMs": 44000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "hpMultiplier": 1.4,
+      "attackMultiplier": 1.15,
+      "reward": 40,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "croc": 2,
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 25000,
+          "enemies": {
+            "croc": 2,
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 50000,
+          "enemies": {
+            "croc": 2,
+            "wolf": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "hpMultiplier": 1.6,
+      "attackMultiplier": 1.2,
+      "reward": 60,
+      "bossId": "prototype_boss_1",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4
+          }
+        },
+        {
+          "atMs": 25000,
+          "enemies": {
+            "wolf": 4
+          }
+        }
+      ]
+    }
+  ],
+  "waves": {
+    "spawnIntervalMs": 1000,
+    "spawnColumns": [
+      1,
+      3,
+      5
+    ],
+    "spawnRow": -1,
+    "mixedEnemyOrder": "alternate-types-by-id",
+    "summonerLivingSummonCap": 6
+  },
+  "progression": {
+    "xpThresholdsForNextLevel": [
+      60,
+      80,
+      100,
+      120,
+      150,
+      180,
+      210,
+      240,
+      280,
+      320
+    ],
+    "afterThresholdsIncrement": 40,
+    "buffOptions": 3,
+    "commonWeight": 70,
+    "rareWeight": 25,
+    "epicWeight": 5,
+    "pauseOnLevelUp": true
+  },
+  "buffs": [
+    {
+      "id": "attack",
+      "quality": "common",
+      "effect": "attackBonusPercent",
+      "valuePerLevel": 10,
+      "maxLevel": 10,
+      "provenance": "P"
+    },
+    {
+      "id": "attack_speed",
+      "quality": "common",
+      "effect": "attackSpeedBonusPercent",
+      "valuePerLevel": 10,
+      "maxLevel": 10,
+      "provenance": "P"
+    },
+    {
+      "id": "health",
+      "quality": "common",
+      "effect": "maxHpBonusPercent",
+      "valuePerLevel": 15,
+      "maxLevel": 5,
+      "provenance": "P"
+    },
+    {
+      "id": "range",
+      "quality": "common",
+      "effect": "rangeBonusCells",
+      "valuePerLevel": 0.2,
+      "maxLevel": 3,
+      "provenance": "P"
+    },
+    {
+      "id": "slow",
+      "quality": "common",
+      "effect": "globalEnemySlowPercent",
+      "valuePerLevel": 5,
+      "maxLevel": 5,
+      "provenance": "B-value/P-cap"
+    },
+    {
+      "id": "reward",
+      "quality": "common",
+      "effect": "extraStageCurrency",
+      "valuePerLevel": 5,
+      "maxLevel": 3,
+      "provenance": "P"
+    },
+    {
+      "id": "eagle_residue",
+      "requiresMinRank": 3,
+      "quality": "rare",
+      "requiresUnit": "sword_eagle",
+      "effect": "residueDamageBonusPercent",
+      "valuePerLevel": 15,
+      "maxLevel": 3,
+      "provenance": "P"
+    },
+    {
+      "id": "boar_attack",
+      "quality": "rare",
+      "requiresUnit": "boar",
+      "effect": "attackDamageBonusPercent",
+      "valuePerLevel": 12,
+      "maxLevel": 3,
+      "provenance": "A-value/P-cap"
+    },
+    {
+      "id": "bear_attack",
+      "quality": "rare",
+      "requiresUnit": "scatter_bear",
+      "effect": "attackBonusPercent",
+      "valuePerLevel": 10,
+      "maxLevel": 3,
+      "provenance": "A-value/P-cap"
+    },
+    {
+      "id": "fox_shield",
+      "quality": "rare",
+      "requiresUnit": "shield_fox",
+      "effect": "shieldAmountBonusPercent",
+      "valuePerLevel": 8,
+      "maxLevel": 3,
+      "provenance": "A-value/P-cap"
+    },
+    {
+      "id": "mouse_finisher",
+      "quality": "rare",
+      "requiresUnit": "ember_mouse",
+      "effect": "damageBonusBelowHpPercent",
+      "thresholdHpPercent": 30,
+      "valuePerLevel": 50,
+      "maxLevel": 1,
+      "provenance": "B"
+    },
+    {
+      "id": "mouse_execute",
+      "quality": "epic",
+      "requiresUnit": "ember_mouse",
+      "requiresBuff": "mouse_finisher",
+      "minStage": 6,
+      "effect": "executeChancePercent",
+      "thresholdHpPercent": 30,
+      "valuePerLevel": 10,
+      "maxLevel": 1,
+      "bossImmune": true,
+      "provenance": "B-value/P-unlock"
+    }
+  ],
+  "scope": {
+    "M1": {
+      "stageIds": [
+        1
+      ],
+      "unitIds": [
+        "ember_mouse",
+        "boar",
+        "sword_eagle"
+      ],
+      "maxRank": 3,
+      "buffsEnabled": false,
+      "bossEnabled": false
+    },
+    "M2M3": {
+      "stageIds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "unitIds": [
+        "ember_mouse",
+        "boar",
+        "sword_eagle",
+        "fortune_peach",
+        "ice_fish",
+        "shield_fox"
+      ],
+      "maxRank": 6,
+      "buffsEnabled": true,
+      "bossEnabled": true
+    }
+  }
+}
