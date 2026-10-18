@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "contentVersion": "prototype-2026-10-16-v7",
-  "status": "prototype-eight-beasts-v7",
+  "contentVersion": "prototype-2026-10-16-v9",
+  "status": "prototype-mid-campaign-balance-v9",
   "provenance": {
     "A": "活动公告或截图明确",
     "B": "第三方攻略记载",
@@ -135,7 +135,9 @@
           15
         ]
       }
-    ]
+    ],
+    "rank2FromStage": 6,
+    "rank2ChancePercent": 15
   },
   "heroHpMultipliers": [
     1,
@@ -612,7 +614,7 @@
     {
       "id": "summoner",
       "referenceName": "啸地犬",
-      "hp": 320,
+      "hp": 4000,
       "hitDamage": 12,
       "actionIntervalMs": 1600,
       "speedCellsPerSecond": 0.45,
@@ -620,8 +622,10 @@
       "xp": 8,
       "skills": {
         "summonEveryMs": 20000,
+        "firstSummonDelayMs": 10000,
         "summonId": "summoned_wolf",
-        "summonCount": 2
+        "summonCount": 2,
+        "maxLivingSummons": 6
       }
     },
     {
@@ -838,6 +842,160 @@
           }
         }
       ]
+    },
+    {
+      "id": 6,
+      "hpMultiplier": 2.7,
+      "attackMultiplier": 1.5,
+      "reward": 45,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 10000,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 20000,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "hpMultiplier": 3,
+      "attackMultiplier": 1.56,
+      "reward": 50,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "hpMultiplier": 3.3,
+      "attackMultiplier": 1.62,
+      "reward": 55,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "hpMultiplier": 3.6,
+      "attackMultiplier": 1.68,
+      "reward": 60,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "splitter": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "splitter": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "splitter": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "hpMultiplier": 2.6,
+      "attackMultiplier": 1.45,
+      "reward": 90,
+      "bossId": "prototype_boss_2",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 2
+          }
+        },
+        {
+          "atMs": 6000,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 2
+          }
+        }
+      ]
     }
   ],
   "waves": {
@@ -1011,7 +1169,12 @@
         2,
         3,
         4,
-        5
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
       ],
       "unitIds": [
         "ember_mouse",
@@ -1027,5 +1190,25 @@
       "buffsEnabled": true,
       "bossEnabled": true
     }
+  },
+  "secondBoss": {
+    "id": "prototype_boss_2",
+    "referenceName": "第二个临时Boss（不代表原作）",
+    "hp": 240000,
+    "hitDamage": 90,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 40,
+    "cleaveIntervalMs": 16000,
+    "cleaveWarningMs": 1600,
+    "cleaveHitDamage": 125,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 15,
+    "summonIntervalMs": 14000,
+    "summonCount": 3,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 9,
+    "summonFromStart": true
   }
 }

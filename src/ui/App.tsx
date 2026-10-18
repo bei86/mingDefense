@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { appearances, config, enemyCount, stageNames, type Point } from '../game/content';
+import {
+  appearances,
+  config,
+  enemyCount,
+  enemyAppearances,
+  bossName,
+  stages,
+  stageNames,
+  type Point,
+} from '../game/content';
 import { Session, unitAt, type Source } from '../game/session';
 import { GameClock } from '../game/clock';
 import { Battlefield } from '../render/Battlefield';
@@ -17,7 +26,7 @@ function phaseLabel(session: Session): string {
     case 'combat':
       return session.paused ? '已暂停' : '守阵中';
     case 'victory':
-      return session.complete ? '五关完成' : '已守住';
+      return session.complete ? '十关完成' : '已守住';
     case 'defeat':
       return '阵线失守';
   }
@@ -210,7 +219,7 @@ export function App() {
   const reset = () => {
     pauseForMenu();
     setDialog({
-      title: '重新开始五关挑战',
+      title: '重新开始十关挑战',
       body: '清空本轮阵容、修行和灵钱，回到第 1 关。',
       label: '重新开始',
       action: () => {
@@ -232,7 +241,7 @@ export function App() {
       <header className="titlebar">
         <div className="brand-mark">林</div>
         <div>
-          <span className="eyebrow">MING DEFENSE · 五关原型</span>
+          <span className="eyebrow">MING DEFENSE · 十关原型</span>
           <h1>灵林守阵</h1>
         </div>
         <button
@@ -256,11 +265,13 @@ export function App() {
       )}
       <section className="stage-strip">
         <div>
-          <span className="chapter">{['壹', '贰', '叁', '肆', '伍'][p.stageId - 1]}</span>
+          <span className="chapter">
+            {['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾'][p.stageId - 1]}
+          </span>
           <div>
             <strong>{stageNames[p.stageId - 1]}</strong>
             <small>
-              第 {p.stageId} / 5 关 · {stage.waves.length} 波敌袭
+              第 {p.stageId} / {stages.length} 关 · {stage.waves.length} 波敌袭
               {stage.bossId ? ' + 首领' : ` · ${enemyCount(p.stageId)} 只敌人`}
             </small>
           </div>
@@ -302,7 +313,9 @@ export function App() {
       {boss && (
         <div className={`boss-hud ${boss.phase2 ? 'enraged' : ''}`}>
           <div>
-            <strong>古木之灵 {boss.phase2 ? '· 怒意苏醒' : ''}</strong>
+            <strong>
+              {bossName(p.stageId)} {boss.phase2 ? '· 怒意苏醒' : ''}
+            </strong>
             <small>
               {Math.ceil(boss.hp)} / {boss.maxHp}
             </small>
@@ -312,6 +325,24 @@ export function App() {
           </div>
         </div>
       )}
+      <details className="enemy-intel" key={p.stageId}>
+        <summary>本关敌情 · {stage.bossId ? bossName(p.stageId) : '查看敌人特性'}</summary>
+        <ul>
+          {[...new Set(stage.waves.flatMap((w) => Object.keys(w.enemies)))].map((id) => (
+            <li key={id}>
+              <strong>{enemyAppearances[id as keyof typeof enemyAppearances].name}</strong>：
+              {enemyAppearances[id as keyof typeof enemyAppearances].description}
+            </li>
+          ))}
+        </ul>
+        {stage.bossId && (
+          <p>
+            {p.stageId === 10
+              ? '开场起周期召唤，半血后攻速提高；横扫预警后攻击前排。'
+              : '低血后召唤小怪并加速；横扫预警后攻击前排。'}
+          </p>
+        )}
+      </details>
       <section className="field-panel">
         <Battlefield
           session={session}
@@ -461,7 +492,7 @@ export function App() {
         )}
       </section>
       <footer>
-        <span>五关原型 · 临时数值待校准 · 自动保存检查点</span>
+        <span>十关原型 · 临时数值待校准 · 自动保存检查点</span>
         <button className="text-button" onClick={reset}>
           重新开始
         </button>
@@ -529,7 +560,7 @@ export function App() {
             aria-labelledby="help-title"
           >
             <span className="eyebrow">守阵手札</span>
-            <h2 id="help-title">守过五境，灵林长安</h2>
+            <h2 id="help-title">守过十境，灵林长安</h2>
             <ol>
               <li>点招募再点空格部署，或拖动放置。同种同阶叠放合成，最高六阶；3/5阶会解锁技能。</li>
               <li>
@@ -539,18 +570,23 @@ export function App() {
                   .join(' / ')}
                 。桃产钱，鱼减速/冰冻，狐提供护盾与光环，猴贯穿/易伤，熊散射/分裂。备战席最多两只，不参战。
               </li>
-              <li>刷新15灵钱，三张招募；扩地令解锁边相邻的一格。格子全开后只抽英雄。</li>
+              <li>
+                刷新15灵钱，三张招募；扩地令解锁边相邻的一格。格子全开后只抽英雄；第6关起英雄招募有15%概率为二阶。
+              </li>
               <li>
                 敌人先清最前一排，再攻击下一排；同排先攻击低阶灵兽，同阶按桃、狐、鼠、豚、熊、猴、鲤、隼的仇恨顺序选择，相同则选择距离更近的灵兽。
               </li>
               <li>击杀积累经验，升级暂停三选一。按住聚灵石提升攻速；切出页面或打开菜单会暂停。</li>
-              <li>第5关古木之灵会预警横扫，低血后召唤小怪；首领和小怪全部清空才能获胜。</li>
+              <li>
+                第5关古木之灵、第10关鸣咒统领是首领关。第6关起加入远程怪、二阶招募和狼的狂暴，第8/9关加入召唤与分裂怪；清空全部敌人才获胜。
+                鸣咒犬出生10秒后首次召2只咒影，之后每20秒再召2只，每只鸣咒犬最多保有6只咒影；冻结会推迟召唤，击杀父怪可阻止后续召唤。
+              </li>
               <li>
                 进入下一关时全员恢复，并免费刷新一轮招募。失败/返回/战斗中刷新，回到开战检查点；本关收益回滚。
               </li>
             </ol>
             <p>
-              自动保存整备、关后天赋和完成状态。不同内容版本的旧档会备份并提示新局。数值尚待原作实机校准；本地数据只保存在当前浏览器。
+              自动保存整备、关后天赋和完成状态。已知旧版先备份再迁移，无法兼容的旧档会提示新局。数值尚待原作实机校准；本地数据只保存在当前浏览器。
             </p>
             <button className="primary" onClick={() => setHelp(false)}>
               开始布阵

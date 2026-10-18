@@ -92,6 +92,7 @@ function validPreparation(v: unknown, mode: string): v is Preparation {
       !record(o) ||
       !integer(o.id, 1) ||
       typeof o.claimed !== 'boolean' ||
+      (o.rank !== undefined && (o.kind === 'cell' || !integer(o.rank, 1, 2))) ||
       !(o.kind === 'cell' || pool.includes(o.kind as never))
     )
       return false;
@@ -264,6 +265,8 @@ export function loadSession(storage: StoragePort, seed = 20261014): LoadResult {
       'prototype-2026-10-16-v4',
       'prototype-2026-10-16-v5',
       'prototype-2026-10-16-v6',
+      'prototype-2026-10-16-v7',
+      'prototype-2026-10-16-v8',
     ].includes(parsed.contentVersion as string)
   ) {
     const candidate = { ...parsed, contentVersion: config.contentVersion };

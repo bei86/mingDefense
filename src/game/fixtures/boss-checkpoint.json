@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "contentVersion": "prototype-2026-10-16-v7",
+  "contentVersion": "prototype-2026-10-16-v9",
   "seed": 20261014,
   "mode": "campaign",
   "phase": "prepare",
@@ -156,12 +156,7 @@
       "rng": 748831549
     },
     "combatRng": 3375633970,
-    "rewardedStages": [
-      1,
-      2,
-      3,
-      4
-    ]
+    "rewardedStages": [1, 2, 3, 4]
   },
   "battle": null,
   "settled": false,

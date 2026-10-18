@@ -37,12 +37,9 @@ export function PreparationPanel({
   const chosen = selected?.type === 'unit' ? p.units.find((u) => u.id === selected.id) : null;
   const offer = selected?.type === 'offer' ? p.offers.find((o) => o.id === selected.id) : null;
   const kind = chosen?.kind ?? (offer?.kind === 'cell' ? null : offer?.kind);
+  const rank = chosen?.rank ?? offer?.rank ?? 1;
   const skill = kind
-    ? projectileSkillDescription(
-        kind,
-        chosen?.rank ?? 1,
-        bonus(p.progression, 'monkey_vulnerability'),
-      )
+    ? projectileSkillDescription(kind, rank, bonus(p.progression, 'monkey_vulnerability'))
     : null;
   const refresh = () => {
     const action = () => run(session.refresh(true), '新招募已到，可以直接部署或合成。');
@@ -90,7 +87,9 @@ export function PreparationPanel({
               <span className="sigil">{o.claimed ? '✓' : skin.glyph}</span>
               <strong>{skin.name}</strong>
               <small>{o.claimed ? '已领取' : skin.role}</small>
-              <span className="card-rank">{o.kind === 'cell' ? '＋' : 'Ⅰ 阶'}</span>
+              <span className="card-rank">
+                {o.kind === 'cell' ? '＋' : `${o.rank === 2 ? 'Ⅱ' : 'Ⅰ'} 阶`}
+              </span>
             </button>
           );
         })}
@@ -131,16 +130,15 @@ export function PreparationPanel({
       {kind && (
         <div className="unit-detail">
           <span>
-            {appearances[kind].name} · {chosen?.rank ?? 1}阶
+            {appearances[kind].name} · {rank}阶
           </span>
           <span>
-            生命{' '}
-            {maxHeroHp({ id: 0, kind, rank: chosen?.rank ?? 1, position: null }, p.progression)} ·{' '}
+            生命 {maxHeroHp({ id: 0, kind, rank: rank, position: null }, p.progression)} ·{' '}
             {kind === 'shield_fox'
               ? '提供护盾'
               : kind === 'fortune_peach'
                 ? '定时产钱'
-                : `基础伤害 ${heroes[kind].hitDamage[(chosen?.rank ?? 1) - 1]}`}
+                : `基础伤害 ${heroes[kind].hitDamage[rank - 1]}`}
           </span>
           <span>仇恨 {tauntValue(kind)} · 同排先低阶，同阶越高越先受击</span>
           {skill && <span>{skill}</span>}

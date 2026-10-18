@@ -3,6 +3,9 @@ import { loadSession, saveSession, validSave, type StoragePort } from '../game/p
 import { Session } from '../game/session';
 import bossCheckpoint from '../game/fixtures/boss-checkpoint.json';
 import { rosterPlaytest } from '../game/fixtures/roster-playtest';
+import stage6Checkpoint from '../game/fixtures/stage-6-checkpoint.json';
+import stage10Checkpoint from '../game/fixtures/stage-10-checkpoint.json';
+import stage8Checkpoint from '../game/fixtures/stage-8-checkpoint.json';
 
 const browserStorage: StoragePort = {
   getItem: (key) => window.localStorage.getItem(key),
@@ -11,10 +14,10 @@ const browserStorage: StoragePort = {
 };
 let initialLoad: ReturnType<typeof loadSession> | null = null;
 export function loadBrowserSession() {
-  if (
-    import.meta.env.DEV &&
-    new URLSearchParams(window.location.search).get('playtest') === 'roster'
-  )
+  const playtest = import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get('playtest')
+    : null;
+  if (playtest === 'roster')
     return {
       session: rosterPlaytest(),
       message: '开发八灵技能验收场景：固定阵容，不写入存档。',
@@ -22,16 +25,26 @@ export function loadBrowserSession() {
       blocked: true,
     };
   if (
-    import.meta.env.DEV &&
-    new URLSearchParams(window.location.search).get('playtest') === 'boss'
+    playtest === 'boss' ||
+    playtest === 'stage6' ||
+    playtest === 'stage8' ||
+    playtest === 'stage10'
   ) {
-    if (validSave(bossCheckpoint))
-      return {
-        session: Session.restore(bossCheckpoint),
-        message: '开发验收场景：正常经济模拟的第五关检查点；不写入存档。',
-        recovered: false,
-        blocked: true,
-      };
+    const checkpoint = {
+      boss: bossCheckpoint,
+      stage6: stage6Checkpoint,
+      stage8: stage8Checkpoint,
+      stage10: stage10Checkpoint,
+    }[playtest];
+    const valid = validSave(checkpoint);
+    return {
+      session: valid ? Session.restore(checkpoint) : new Session(),
+      message: valid
+        ? `开发验收场景：正常经济模拟的第${checkpoint.preparation.stageId}关检查点；不写入存档。`
+        : '开发检查点无效，已进入临时新局；不读取或写入正常存档。',
+      recovered: false,
+      blocked: true,
+    };
   }
   return (initialLoad ??= loadSession(browserStorage));
 }

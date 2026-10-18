@@ -30,7 +30,16 @@ export const appearances: Record<
   piercing_monkey: { name: '穿林猿', color: '#dfbe83', glyph: '贯', role: '贯穿 · 横 3 格' },
   scatter_bear: { name: '磐拳熊', color: '#b9bdcf', glyph: '拳', role: '散射 · 竖 2 格' },
 };
-export type EnemyKind = 'wolf' | 'runner' | 'croc' | 'summoned_wolf' | 'boss';
+export type EnemyKind =
+  | 'wolf'
+  | 'runner'
+  | 'croc'
+  | 'summoned_wolf'
+  | 'summoner'
+  | 'splitter'
+  | 'split_fragment'
+  | 'ranged'
+  | 'boss';
 export type Stage = {
   id: number;
   hpMultiplier: number;
@@ -41,7 +50,40 @@ export type Stage = {
 };
 export const stages = config.stages as Stage[];
 export const enemyDefinitions = Object.fromEntries(config.enemies.map((e) => [e.id, e]));
-export const stageNames = ['林间初袭', '疾影来袭', '霜径追逐', '石鳞重围', '古木之怒'];
+export const stageNames = [
+  '林间初袭',
+  '疾影来袭',
+  '霜径追逐',
+  '石鳞重围',
+  '古木之怒',
+  '翎羽侵林',
+  '疾羽交锋',
+  '鸣咒来袭',
+  '裂岩重围',
+  '群啸之主',
+];
+export function bossDefinition(
+  stageId: number,
+): typeof config.boss & { summonFromStart?: boolean } {
+  return stages[stageId - 1].bossId === config.secondBoss.id ? config.secondBoss : config.boss;
+}
+export const enemyAppearances: Record<EnemyKind, { name: string; description: string }> = {
+  wolf: { name: '奔雷狼', description: '近战；第6关起存活越久攻击越高' },
+  runner: { name: '疾影犬', description: '高速近战' },
+  croc: { name: '岩甲兽', description: '高生命，减伤15%' },
+  ranged: { name: '翎羽客', description: '远程攻击，仍先清前排' },
+  summoner: {
+    name: '鸣咒犬',
+    description: `出生${enemyDefinitions.summoner.skills.firstSummonDelayMs! / 1000}秒后首次召唤，之后每20秒召2只，每只鸣咒犬上限6只`,
+  },
+  splitter: { name: '裂岩犀', description: '死亡分裂2只碎岩灵' },
+  split_fragment: { name: '碎岩灵', description: '不会再次分裂' },
+  summoned_wolf: { name: '咒影', description: '召唤物，不提供经验和灵气' },
+  boss: { name: '首领', description: '技能预警后攻击前排' },
+};
+export function bossName(stageId: number): string {
+  return stageId === 10 ? '鸣咒统领' : '古木之灵';
+}
 export function tauntValue(kind: HeroId): number {
   return config.targeting.tauntTieOrder.length - config.targeting.tauntTieOrder.indexOf(kind);
 }
@@ -77,7 +119,7 @@ export function enemyCount(stageId: number): number {
 }
 export const wolf = balance.enemies.find((e) => e.id === 'wolf')!;
 export const stage = balance.stages[0];
-export const totalEnemies = stage.waves.reduce((total, wave) => total + wave.enemies.wolf, 0);
+export const totalEnemies = enemyCount(1);
 export const key = (p: Point) => `${p.x},${p.y}`;
 export const cells = (kind: HeroId, p: Point): Point[] =>
   heroes[kind].shape.map(([x, y]) => ({ x: p.x + x, y: p.y + y }));

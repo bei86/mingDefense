@@ -1,5 +1,6 @@
 import {
   center,
+  bossDefinition,
   clone,
   config,
   distance,
@@ -25,6 +26,7 @@ import {
 import type { Combat, Packet, Spawn } from './combat-model';
 import { recordUnitStat } from './battle-report';
 import { releaseLineHit } from './combat-projectiles';
+import { updateBossPhase as bossPhase, updateSummoner } from './enemy-abilities';
 export type { Ally, Attack, Combat, Enemy, Field, Flash } from './combat-model';
 export { contact, enemyTarget, chooseCombatBuff } from './combat-skills';
 
@@ -119,37 +121,24 @@ export function createCombat(units: Unit[], options: CombatOptions = {}): Combat
     },
   };
 }
-function bossPhase(s: Combat): void {
-  for (const boss of s.enemies.filter((e) => e.kind === 'boss' && e.hp > 0)) {
-    if (!boss.phase2 && boss.hp <= (config.boss.hp * config.boss.phase2HpPercent) / 100) {
-      boss.phase2 = true;
-      boss.nextSummon = s.time;
-    }
-    if (boss.phase2 && (boss.frozenUntil ?? 0) <= s.time && s.time >= (boss.nextSummon ?? 0)) {
-      const alive = s.enemies.filter(
-        (e) => e.kind === 'summoned_wolf' && e.owner === boss.id && e.hp > 0,
-      ).length;
-      const count = Math.min(config.boss.summonCount, config.boss.maxLivingSummons - alive);
-      for (let i = 0; i < count; i++)
-        spawnEnemy(s, 'summoned_wolf', { x: boss.x + (i ? 0.3 : -0.3), y: boss.y }, boss.id);
-      boss.nextSummon = s.time + config.boss.summonIntervalMs;
-    }
-  }
-}
 function updateEnemies(s: Combat, dt: number): void {
   bossPhase(s);
-  for (const e of s.enemies) {
-    const definition = e.kind === 'boss' ? config.boss : enemyDefinitions[e.kind ?? 'wolf'];
+  const bossSkill = bossDefinition(s.stageId);
+  for (const e of [...s.enemies]) {
+    if (e.hp <= 0 || (e.owner !== undefined && e.born === s.time)) continue;
+    const definition = e.kind === 'boss' ? bossSkill : enemyDefinitions[e.kind ?? 'wolf'];
     if ((e.frozenUntil ?? 0) > s.time) {
       for (const attack of s.attacks)
         if (attack.team === 'enemy' && attack.source === e.id) attack.due += dt;
       if (e.kind === 'boss') {
         e.nextCleave = (e.nextCleave ?? 0) + dt;
-        if (e.phase2) e.nextSummon = (e.nextSummon ?? 0) + dt;
+        if (e.phase2 || bossSkill.summonFromStart) e.nextSummon = (e.nextSummon ?? 0) + dt;
         for (const w of s.warnings) if (w.source === e.id) w.due += dt;
       }
+      if (e.kind === 'summoner') e.nextSummon = (e.nextSummon ?? s.time) + dt;
       continue;
     }
+    updateSummoner(s, e);
     e.cooldown -= dt;
     if (s.time >= e.recheckAt || !s.allies.some((u) => u.id === e.target && u.hp > 0)) {
       e.target = enemyTarget(s.allies, e)?.id ?? null;
@@ -170,7 +159,7 @@ function updateEnemies(s: Combat, dt: number): void {
       e.x += ((p.x - e.x) / d) * movement;
       e.y += ((p.y - e.y) / d) * movement;
     } else if (e.cooldown <= 0) {
-      const speed = e.phase2 ? config.boss.phase2AttackSpeedBonusPercent / 100 : 0;
+      const speed = e.phase2 ? bossSkill.phase2AttackSpeedBonusPercent / 100 : 0;
       s.attacks.push({
         team: 'enemy',
         source: e.id,
@@ -189,9 +178,9 @@ function updateEnemies(s: Combat, dt: number): void {
         s.warnings.push({
           source: e.id,
           row: front.position.y,
-          due: s.time + config.boss.cleaveWarningMs,
+          due: s.time + bossSkill.cleaveWarningMs,
         });
-      e.nextCleave = s.time + config.boss.cleaveIntervalMs;
+      e.nextCleave = s.time + bossSkill.cleaveIntervalMs;
     }
   }
 }
@@ -287,7 +276,11 @@ function resolveHits(s: Combat): void {
         ally.hp > 0 &&
         heroes[ally.kind].shape.some(([, dy]) => ally.position.y + dy === warning.row)
       )
-        packets.push({ team: 'ally', id: ally.id, damage: config.boss.cleaveHitDamage });
+        packets.push({
+          team: 'ally',
+          id: ally.id,
+          damage: bossDefinition(s.stageId).cleaveHitDamage,
+        });
   }
   s.warnings = s.warnings.filter((w) => w.due > s.time);
   const vulnerabilities = new Map<number, { percent: number; durationMs: number }>();
@@ -307,10 +300,12 @@ function resolveHits(s: Combat): void {
       (target.vulnerabilityUntil ?? 0) > s.time
         ? (target.vulnerabilityPercent ?? 0)
         : 0;
-    let damage = Math.max(
-      config.damage.minHitDamage,
-      Math.floor(packet.damage * (1 + vulnerability / 100) * (1 - reduction)),
-    );
+    let damage = packet.execute
+      ? target.hp
+      : Math.max(
+          config.damage.minHitDamage,
+          Math.floor(packet.damage * (1 + vulnerability / 100) * (1 - reduction)),
+        );
     if (packet.team === 'ally') {
       const ally = target as Combat['allies'][number];
       const absorb = Math.min(ally.shield ?? 0, damage);

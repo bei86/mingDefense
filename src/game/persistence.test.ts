@@ -207,7 +207,7 @@ describe('本地检查点存档', () => {
     s.start();
     finish(s);
     expect(s.preparation.currency).toBeGreaterThan(70);
-    expect(config.contentVersion).toContain('v7');
+    expect(config.contentVersion).toContain('v9');
     const aborted = Session.restore({
       ...s.exportSave(),
       phase: 'prepare',
@@ -245,6 +245,8 @@ describe('战报存档与v2迁移', () => {
     'prototype-2026-10-16-v4',
     'prototype-2026-10-16-v5',
     'prototype-2026-10-16-v6',
+    'prototype-2026-10-16-v7',
+    'prototype-2026-10-16-v8',
   ])('%s整备和旧胜利档迁移前备份，保留阵容成长及已结算奖励，不伪造战报', (version) => {
     const s = deployed();
     const prepare = s.exportSave();
@@ -277,7 +279,7 @@ describe('战报存档与v2迁移', () => {
   });
   it('迁移备份或主档写入失败时保留原始主档，并停止自动覆盖', () => {
     const save = deployed().exportSave();
-    save.contentVersion = 'prototype-2026-10-15-v2';
+    save.contentVersion = 'prototype-2026-10-16-v8';
     const raw = JSON.stringify(save);
     for (const failAt of [1, 2]) {
       const memory = new MemoryStorage();

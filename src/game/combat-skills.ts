@@ -1,5 +1,6 @@
 import {
   cells,
+  bossDefinition,
   center,
   config,
   distance,
@@ -15,6 +16,8 @@ import { bonus, buffDefinitions, drawBuffs, gainExperience } from './progression
 import type { Ally, Attack, Combat, Enemy, Packet } from './combat-model';
 import { recordUnitStat } from './battle-report';
 import { releaseBearAttack, releaseMonkeyAttack } from './combat-projectiles';
+import { random } from './random';
+import { recordEnemyBirth, recordEnemyDeath } from './combat-diagnostics';
 
 export function maxHeroHp(u: Unit, p: Progression): number {
   return Math.floor((heroes[u.kind].hp[u.rank - 1] * (100 + bonus(p, 'health'))) / 100);
@@ -80,7 +83,7 @@ export function area(
 }
 export function spawnEnemy(s: Combat, kind: EnemyKind, point: Point, owner?: number): Enemy {
   const boss = kind === 'boss';
-  const definition = boss ? config.boss : enemyDefinitions[kind];
+  const definition = boss ? bossDefinition(s.stageId) : enemyDefinitions[kind];
   const stage = stages[s.stageId - 1];
   const hp = Math.round(definition.hp * (boss ? 1 : stage.hpMultiplier));
   const enemy: Enemy = {
@@ -93,13 +96,21 @@ export function spawnEnemy(s: Combat, kind: EnemyKind, point: Point, owner?: num
     target: null,
     recheckAt: 0,
     owner,
+    born: s.time,
   };
   if (boss) {
-    enemy.nextCleave = s.time + config.boss.cleaveIntervalMs;
-    enemy.nextSummon = 0;
+    const skill = bossDefinition(s.stageId);
+    enemy.nextCleave = s.time + skill.cleaveIntervalMs;
+    enemy.nextSummon = skill.summonFromStart ? s.time + skill.summonIntervalMs : 0;
     enemy.phase2 = false;
   }
+  if (kind === 'summoner') {
+    const skill: { firstSummonDelayMs?: number; summonEveryMs?: number } =
+      enemyDefinitions.summoner.skills;
+    enemy.nextSummon = s.time + (skill.firstSummonDelayMs ?? skill.summonEveryMs!);
+  }
   s.enemies.push(enemy);
+  recordEnemyBirth(s, enemy);
   return enemy;
 }
 export function releaseAttack(s: Combat, a: Attack, packets: Packet[]): void {
@@ -107,13 +118,21 @@ export function releaseAttack(s: Combat, a: Attack, packets: Packet[]): void {
     const source = s.enemies.find((e) => e.id === a.source && e.hp > 0);
     const target = s.allies.find((u) => u.id === a.target && u.hp > 0);
     if (!source || !target) return;
-    const damage =
+    let damage =
       source.kind === 'boss'
-        ? config.boss.hitDamage
+        ? bossDefinition(s.stageId).hitDamage
         : Math.round(
             enemyDefinitions[source.kind ?? 'wolf'].hitDamage *
               stages[s.stageId - 1].attackMultiplier,
           );
+    if (source.kind === 'wolf' && s.stageId >= enemyDefinitions.wolf.skills.rageEnabledFromStage!) {
+      const skill = enemyDefinitions.wolf.skills;
+      const stacks = Math.min(
+        skill.rageMaxStacks!,
+        Math.floor((s.time - (source.born ?? 0)) / skill.rageEveryMs!),
+      );
+      damage = Math.floor(damage * (1 + (stacks * skill.rageAttackPercent!) / 100));
+    }
     packets.push({ team: 'ally', id: target.id, damage });
     s.flashes.push({
       from: { x: source.x, y: source.y },
@@ -233,7 +252,14 @@ export function releaseAttack(s: Combat, a: Attack, packets: Packet[]): void {
       source.kind === 'ember_mouse'
     )
       damage *= 1 + bonus(s.progression, 'mouse_finisher') / 100;
-    packets.push({ team: 'enemy', id: target.id, damage, source: source.id });
+    const execute =
+      source.kind === 'ember_mouse' &&
+      target.kind !== 'boss' &&
+      target.maxHp !== undefined &&
+      target.hp < (target.maxHp * buffDefinitions.mouse_execute.thresholdHpPercent!) / 100 &&
+      bonus(s.progression, 'mouse_execute') > 0 &&
+      random(s) * 100 < bonus(s.progression, 'mouse_execute');
+    packets.push({ team: 'enemy', id: target.id, damage, source: source.id, execute });
   }
 }
 export function updateMaximumHealth(s: Combat): void {
@@ -269,18 +295,27 @@ export function chooseCombatBuff(s: Combat, id: BuffId): string | null {
 export function collectDeaths(s: Combat): void {
   const dead = s.enemies.filter((e) => e.hp <= 0);
   for (const e of dead) {
+    recordEnemyDeath(s, e);
     const kind = e.kind ?? 'wolf';
-    const xp = kind === 'boss' ? config.boss.xp : enemyDefinitions[kind].xp;
+    const xp = kind === 'boss' ? bossDefinition(s.stageId).xp : enemyDefinitions[kind].xp;
     const energy =
       kind === 'boss'
         ? config.energy.bossKillGain
-        : kind === 'summoned_wolf'
-          ? 0
-          : config.energy.perKill;
+        : (enemyDefinitions[kind].energyGain ?? config.energy.perKill);
     s.kills++;
     s.energy = Math.min(config.energy.capacity, s.energy + energy);
     s.xpEarned += xp;
     if (s.progressionEnabled) s.pendingChoices += gainExperience(s.progression, xp);
+    if (kind === 'splitter') {
+      const skill = enemyDefinitions.splitter.skills;
+      for (let i = 0; i < skill.onDeathSpawnCount!; i++)
+        spawnEnemy(
+          s,
+          skill.onDeathSpawnId as EnemyKind,
+          { x: Math.max(0.2, Math.min(5.8, e.x + (i ? 0.25 : -0.25))), y: e.y },
+          e.id,
+        );
+    }
   }
   s.enemies = s.enemies.filter((e) => e.hp > 0);
   s.attacks = s.attacks.filter((a) =>

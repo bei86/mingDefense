@@ -522,6 +522,26 @@ footer {
   padding: 14px 0 6px;
   letter-spacing: 0.5px;
 }
+.enemy-intel {
+  margin: 10px 0;
+  padding: 9px 12px;
+  border: 1px solid #76927b55;
+  border-radius: 9px;
+  color: #cfdbc1;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.enemy-intel summary {
+  cursor: pointer;
+  color: #e1d39d;
+}
+.enemy-intel ul {
+  padding-left: 18px;
+  margin: 8px 0;
+}
+.enemy-intel p {
+  margin: 8px 0 0;
+}
 .pause-cover {
   position: absolute;
   inset: 0;

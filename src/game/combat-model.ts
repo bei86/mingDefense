@@ -25,6 +25,7 @@ export type Enemy = Point & {
   nextCleave?: number;
   nextSummon?: number;
   owner?: number;
+  born?: number;
   vulnerabilityUntil?: number;
   vulnerabilityPercent?: number;
 };
@@ -110,6 +111,7 @@ export type Packet = {
   team: 'ally' | 'enemy';
   id: number;
   damage: number;
+  execute?: boolean;
   slow?: boolean;
   freeze?: boolean;
   source?: number;

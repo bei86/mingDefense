@@ -16,7 +16,7 @@ import { random } from './random';
 import type { BuffId, Progression, Unit } from './model';
 export type { Unit } from './model';
 
-export type Offer = { id: number; kind: HeroId | 'cell'; claimed: boolean };
+export type Offer = { id: number; kind: HeroId | 'cell'; claimed: boolean; rank?: number };
 export type Preparation = {
   currency: number;
   unlocked: string[];
@@ -155,7 +155,7 @@ export class Session {
       const unit: Unit = existing ?? {
         id: p.nextId,
         kind: offer!.kind as HeroId,
-        rank: 1,
+        rank: offer?.rank ?? 1,
         position: null,
       };
       if (typeof destination === 'object' && 'merge' in destination) {
@@ -221,7 +221,18 @@ export class Session {
           ? config.board.cellExpansionWeight / 100
           : 0);
       const kind = cell ? 'cell' : this.heroPool[Math.floor(random(p) * this.heroPool.length)];
-      return { id: p.nextId++, kind, claimed: false };
+      const rank =
+        !cell &&
+        p.stageId >= config.shop.rank2FromStage &&
+        random(p) < config.shop.rank2ChancePercent / 100
+          ? 2
+          : 1;
+      return {
+        id: p.nextId++,
+        kind,
+        claimed: false,
+        ...(!cell && p.stageId >= config.shop.rank2FromStage ? { rank } : {}),
+      };
     });
   }
   discard(id: number): string | null {

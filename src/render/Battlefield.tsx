@@ -17,6 +17,10 @@ const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
 const pixel = (p: Point) => ({ x: ORIGIN.x + p.x * SIZE, y: ORIGIN.y + p.y * SIZE });
 const enemyColors: Record<EnemyKind, number> = {
+  ranged: 0xc2a5df,
+  summoner: 0xddab7f,
+  splitter: 0x8baca5,
+  split_fragment: 0xb7c9ae,
   boss: 0x967b52,
   croc: 0x9bac70,
   runner: 0xceaa85,
@@ -241,7 +245,7 @@ export function Battlefield({
             const destination = boardDrop(prep, choice, over, offset ?? undefined);
             const target =
               'merge' in destination ? prep.units.find((u) => u.id === destination.merge) : null;
-            const rank = chosen?.rank ?? 1;
+            const rank = chosen?.rank ?? offer?.rank ?? 1;
             const merge =
               target &&
               target.id !== chosen?.id &&
@@ -327,6 +331,17 @@ export function Battlefield({
             g.fillStyle(0x79935c)
               .fillCircle(p.x - 29, p.y - 27, 13)
               .fillCircle(p.x + 29, p.y - 27, 13);
+            if (battle.stageId === 10) {
+              g.lineStyle(3, 0xc9b0e0, 0.9).strokeCircle(p.x, p.y, 38);
+              g.fillStyle(0xd7c1ee).fillTriangle(
+                p.x - 13,
+                p.y - 29,
+                p.x + 13,
+                p.y - 29,
+                p.x,
+                p.y - 44,
+              );
+            }
             g.fillStyle(e.phase2 ? 0xffb18a : 0xe4d9a1)
               .fillCircle(p.x - 10, p.y - 4, 4)
               .fillCircle(p.x + 10, p.y - 4, 4);
@@ -339,6 +354,30 @@ export function Battlefield({
             g.fillStyle(0xe9ad89)
               .fillCircle(p.x - 5, p.y - 3, 2)
               .fillCircle(p.x + 5, p.y - 3, 2);
+            if (e.kind === 'ranged') {
+              g.fillStyle(color)
+                .fillTriangle(p.x - 8, p.y, p.x - 24, p.y - 14, p.x - 19, p.y + 10)
+                .fillTriangle(p.x + 8, p.y, p.x + 24, p.y - 14, p.x + 19, p.y + 10);
+              g.lineStyle(2, 0xe4d2f2).lineBetween(p.x + 18, p.y - 16, p.x + 18, p.y + 17);
+            } else if (e.kind === 'summoner') {
+              g.lineStyle(2, 0xf0c591).strokeCircle(p.x, p.y, 18);
+              g.fillStyle(0xf0c591).fillTriangle(
+                p.x - 6,
+                p.y - 12,
+                p.x + 6,
+                p.y - 12,
+                p.x,
+                p.y - 25,
+              );
+            } else if (e.kind === 'splitter') {
+              g.fillStyle(color).fillRoundedRect(p.x - 18, p.y - 8, 36, 26, 5);
+              g.fillStyle(0xe1e4c4).fillTriangle(p.x - 5, p.y - 5, p.x + 5, p.y - 5, p.x, p.y - 24);
+              g.lineStyle(2, 0x4f6f67)
+                .lineBetween(p.x - 5, p.y + 2, p.x + 1, p.y + 7)
+                .lineBetween(p.x + 1, p.y + 7, p.x - 3, p.y + 15);
+            } else if (e.kind === 'split_fragment') {
+              g.fillStyle(0xe1e4c4).fillTriangle(p.x - 9, p.y + 9, p.x + 9, p.y + 9, p.x, p.y - 9);
+            }
             g.fillStyle(0x133529).fillRect(p.x - 12, p.y - 24, 24, 3);
             g.fillStyle(0xe8a482).fillRect(p.x - 12, p.y - 24, (24 * e.hp) / (e.maxHp ?? 220), 3);
           }
