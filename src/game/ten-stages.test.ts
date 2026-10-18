@@ -25,7 +25,12 @@ describe('十关循环', () => {
     expect(stages.slice(0, 10).map((s) => s.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     for (const stage of stages) {
       if (stage.bossId)
-        expect([config.boss.id, config.secondBoss.id, config.thirdBoss.id]).toContain(stage.bossId);
+        expect([
+          config.boss.id,
+          config.secondBoss.id,
+          config.thirdBoss.id,
+          config.fourthBoss.id,
+        ]).toContain(stage.bossId);
       for (const wave of stage.waves)
         for (const [kind, count] of Object.entries(wave.enemies)) {
           expect(enemyDefinitions[kind]).toBeDefined();

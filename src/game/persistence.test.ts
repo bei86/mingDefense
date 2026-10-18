@@ -207,7 +207,7 @@ describe('本地检查点存档', () => {
     s.start();
     finish(s);
     expect(s.preparation.currency).toBeGreaterThan(70);
-    expect(config.contentVersion).toContain('v10');
+    expect(config.contentVersion).toContain('v11');
     const aborted = Session.restore({
       ...s.exportSave(),
       phase: 'prepare',
@@ -248,6 +248,7 @@ describe('战报存档与v2迁移', () => {
     'prototype-2026-10-16-v7',
     'prototype-2026-10-16-v8',
     'prototype-2026-10-16-v9',
+    'prototype-2026-10-18-v10',
   ])('%s整备和旧胜利档迁移前备份，保留阵容成长及已结算奖励，不伪造战报', (version) => {
     const s = deployed();
     const prepare = s.exportSave();

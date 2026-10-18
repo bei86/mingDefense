@@ -355,6 +355,21 @@ export function Battlefield({
                 .fillTriangle(p.x - 25, p.y - 19, p.x - 39, p.y - 38, p.x - 10, p.y - 19)
                 .fillTriangle(p.x + 25, p.y - 19, p.x + 39, p.y - 38, p.x + 10, p.y - 19);
             }
+            if (definition.phase2SummonCount) {
+              g.fillStyle(0x738ba6).fillRoundedRect(p.x - 24, p.y - 25, 48, 55, 9);
+              g.lineStyle(3, e.phase2 ? 0xe9b4d8 : 0xb4e5ed, 0.9)
+                .strokeCircle(p.x, p.y, 37)
+                .lineBetween(p.x + 35, p.y - 29, p.x + 35, p.y + 28);
+              g.fillStyle(e.phase2 ? 0xe9b4d8 : 0xb4e5ed).fillCircle(p.x + 35, p.y - 31, 7);
+              g.fillStyle(0xd9e7ef).fillTriangle(
+                p.x - 22,
+                p.y - 22,
+                p.x + 22,
+                p.y - 22,
+                p.x,
+                p.y - 46,
+              );
+            }
             g.fillStyle(e.phase2 ? 0xffb18a : 0xe4d9a1)
               .fillCircle(p.x - 10, p.y - 4, 4)
               .fillCircle(p.x + 10, p.y - 4, 4);

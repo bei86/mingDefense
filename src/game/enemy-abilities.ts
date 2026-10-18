@@ -27,7 +27,10 @@ export function updateBossPhase(s: Combat): void {
       (boss.frozenUntil ?? 0) <= s.time &&
       s.time >= (boss.nextSummon ?? 0)
     ) {
-      summon(s, boss, skill.summonCount, skill.maxLivingSummons);
+      const count = boss.phase2
+        ? (skill.phase2SummonCount ?? skill.summonCount)
+        : skill.summonCount;
+      summon(s, boss, count, skill.maxLivingSummons);
       boss.nextSummon = s.time + skill.summonIntervalMs;
     }
   }

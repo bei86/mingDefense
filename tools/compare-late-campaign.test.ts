@@ -31,7 +31,7 @@ test.skipIf(process.env.COMPARE_LATE !== '1')(
     try {
       for (const candidate of candidates) {
         if (process.env.LATE_CANDIDATE && candidate.name !== process.env.LATE_CANDIDATE) continue;
-        config.stages.slice(10).forEach((s, i) => {
+        config.stages.slice(10, 15).forEach((s, i) => {
           s.hpMultiplier = Number(
             (baseHp[i] * (candidate.stageHp?.[i] ?? candidate.hp)).toFixed(4),
           );
@@ -59,7 +59,7 @@ test.skipIf(process.env.COMPARE_LATE !== '1')(
             policy,
             complete: runs.filter((r) => r.policy === policy && r.complete).length,
           })),
-          stages: config.stages.slice(10).map(({ id }) => {
+          stages: config.stages.slice(10, 15).map(({ id }) => {
             const battles = runs.flatMap((r) => r.results.filter((b) => b.stage === id));
             return {
               stage: id,

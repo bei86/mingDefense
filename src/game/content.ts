@@ -66,12 +66,23 @@ export const stageNames = [
   '咒影围林',
   '裂岩狂潮',
   '岩铠之主',
+  '疾羽围猎',
+  '咒影追袭',
+  '碎岩奔潮',
+  '鸣咒重围',
+  '霜咒之主',
 ];
 type BossDefinition = typeof config.boss & {
   summonFromStart?: boolean;
   damageReductionPercent?: number;
+  phase2SummonCount?: number;
 };
-const bossDefinitions: BossDefinition[] = [config.boss, config.secondBoss, config.thirdBoss];
+const bossDefinitions: BossDefinition[] = [
+  config.boss,
+  config.secondBoss,
+  config.thirdBoss,
+  config.fourthBoss,
+];
 export function bossDefinition(stageId: number): BossDefinition {
   const id = stages[stageId - 1].bossId;
   if (!id) return config.boss;
@@ -99,6 +110,8 @@ export function bossName(stageId: number): string {
       return '鸣咒统领';
     case config.thirdBoss.id:
       return '岩铠领主';
+    case config.fourthBoss.id:
+      return '霜咒祭司';
     default:
       return '古木之灵';
   }
@@ -114,6 +127,11 @@ export function bossDescription(stageId: number): string {
     `生命降至${skill.phase2HpPercent}%时攻速提高${skill.phase2AttackSpeedBonusPercent}%`,
   );
   effects.push(`横扫预警${skill.cleaveWarningMs / 1000}秒后攻击前排`);
+  effects.push(
+    `每${skill.summonIntervalMs / 1000}秒召${skill.summonCount}只咒影，上限${skill.maxLivingSummons}只`,
+  );
+  if (skill.phase2SummonCount)
+    effects.push(`生命降至${skill.phase2HpPercent}%后每次召${skill.phase2SummonCount}只`);
   return effects.join('；') + '。';
 }
 export function tauntValue(kind: HeroId): number {

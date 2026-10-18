@@ -37,7 +37,7 @@ function won(stageId: number) {
 
 describe('十五关与岩铠领主', () => {
   it('仅追加后五关和第三首领，原有内容完全保留', () => {
-    const { thirdBoss: _boss, ...old } = config;
+    const { thirdBoss: _boss, fourthBoss: _fourth, ...old } = config;
     expect({
       ...old,
       contentVersion: v9.contentVersion,
@@ -45,9 +45,16 @@ describe('十五关与岩铠领主', () => {
       stages: old.stages.slice(0, 10),
       scope: v9.scope,
     }).toEqual(v9);
-    expect(stages.map((s) => s.id)).toEqual(Array.from({ length: 15 }, (_, i) => i + 1));
+    expect(stages.slice(0, 15).map((s) => s.id)).toEqual(
+      Array.from({ length: 15 }, (_, i) => i + 1),
+    );
     expect(config.scope.M2M3.stageIds).toEqual(stages.map((s) => s.id));
-    expect(stages.filter((s) => s.bossId).map((s) => s.id)).toEqual([5, 10, 15]);
+    expect(
+      stages
+        .slice(0, 15)
+        .filter((s) => s.bossId)
+        .map((s) => s.id),
+    ).toEqual([5, 10, 15]);
     expect(bossDefinition(5)).toBe(config.boss);
     expect(bossDefinition(10)).toBe(config.secondBoss);
     expect(bossDefinition(15)).toBe(config.thirdBoss);
@@ -201,16 +208,17 @@ describe('十五关与岩铠领主', () => {
     expect(s.preparation).toEqual(after);
     expect(validSave(s.exportSave())).toBe(true);
   });
-  it('15关失败/中止回滚；仅15胜利完成，存档往返不重复奖励', () => {
+  it('15关失败/中止回滚；胜利后可继续16，存档往返不重复奖励', () => {
     const s = won(15);
-    expect(s.complete).toBe(true);
+    expect(s.complete).toBe(false);
     const save = s.exportSave();
     expect(validSave(save)).toBe(true);
     const restored = Session.restore(save);
-    expect(restored.complete).toBe(true);
-    expect(restored.nextStage()).toBeTruthy();
+    expect(restored.complete).toBe(false);
     restored.tick();
     expect(restored.preparation).toEqual(save.preparation);
+    expect(restored.nextStage()).toBeNull();
+    expect(restored.preparation.stageId).toBe(16);
     s.backToPreparation();
     const before = clone(s.preparation);
     s.start();

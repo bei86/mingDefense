@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "contentVersion": "prototype-2026-10-18-v10",
-  "status": "prototype-fifteen-stages-v10",
+  "contentVersion": "prototype-2026-10-18-v11",
+  "status": "prototype-twenty-stages-v11",
   "provenance": {
     "A": "活动公告或截图明确",
     "B": "第三方攻略记载",
@@ -1152,6 +1152,160 @@
           }
         }
       ]
+    },
+    {
+      "id": 16,
+      "hpMultiplier": 18.2,
+      "attackMultiplier": 5.04,
+      "reward": 100,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 8
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 8
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "hpMultiplier": 13,
+      "attackMultiplier": 4.08,
+      "reward": 105,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "hpMultiplier": 24,
+      "attackMultiplier": 6.3,
+      "reward": 110,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "hpMultiplier": 12.6,
+      "attackMultiplier": 4.32,
+      "reward": 115,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "hpMultiplier": 16.25,
+      "attackMultiplier": 4.8,
+      "reward": 150,
+      "bossId": "prototype_boss_4",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        }
+      ]
     }
   ],
   "waves": {
@@ -1335,7 +1489,12 @@
         12,
         13,
         14,
-        15
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
       ],
       "unitIds": [
         "ember_mouse",
@@ -1392,5 +1551,26 @@
     "maxLivingSummons": 6,
     "summonFromStart": true,
     "damageReductionPercent": 15
+  },
+  "fourthBoss": {
+    "id": "prototype_boss_4",
+    "referenceName": "第四个临时Boss（不代表原作）",
+    "hp": 950000,
+    "hitDamage": 165,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 40,
+    "cleaveIntervalMs": 12000,
+    "cleaveWarningMs": 2000,
+    "cleaveHitDamage": 210,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 25,
+    "summonIntervalMs": 16000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 8,
+    "summonFromStart": true,
+    "phase2SummonCount": 4
   }
 }

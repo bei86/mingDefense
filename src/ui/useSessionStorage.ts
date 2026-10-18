@@ -8,6 +8,8 @@ import stage10Checkpoint from '../game/fixtures/stage-10-checkpoint.json';
 import stage8Checkpoint from '../game/fixtures/stage-8-checkpoint.json';
 import stage11Checkpoint from '../game/fixtures/stage-11-checkpoint.json';
 import stage15Checkpoint from '../game/fixtures/stage-15-checkpoint.json';
+import stage16Checkpoint from '../game/fixtures/stage-16-checkpoint.json';
+import stage20Checkpoint from '../game/fixtures/stage-20-checkpoint.json';
 
 const browserStorage: StoragePort = {
   getItem: (key) => window.localStorage.getItem(key),
@@ -32,7 +34,9 @@ export function loadBrowserSession() {
     playtest === 'stage8' ||
     playtest === 'stage10' ||
     playtest === 'stage11' ||
-    playtest === 'stage15'
+    playtest === 'stage15' ||
+    playtest === 'stage16' ||
+    playtest === 'stage20'
   ) {
     const checkpoint = {
       boss: bossCheckpoint,
@@ -41,6 +45,8 @@ export function loadBrowserSession() {
       stage10: stage10Checkpoint,
       stage11: stage11Checkpoint,
       stage15: stage15Checkpoint,
+      stage16: stage16Checkpoint,
+      stage20: stage20Checkpoint,
     }[playtest];
     const valid = validSave(checkpoint);
     return {

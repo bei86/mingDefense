@@ -63,7 +63,7 @@ describe('成长与内容', () => {
     expect(heroIds).toHaveLength(8);
     for (const id of heroIds) expect(heroes[id].hp).toHaveLength(6);
     expect(stages.map((s) => waveSpawns(s.id).length)).toEqual([
-      18, 28, 26, 26, 9, 30, 36, 36, 36, 13, 36, 36, 36, 42, 17,
+      18, 28, 26, 26, 9, 30, 36, 36, 36, 13, 36, 36, 36, 42, 17, 42, 36, 42, 42, 17,
     ]);
     expect(
       waveSpawns(2)
