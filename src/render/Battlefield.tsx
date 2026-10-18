@@ -355,7 +355,7 @@ export function Battlefield({
                 .fillTriangle(p.x - 25, p.y - 19, p.x - 39, p.y - 38, p.x - 10, p.y - 19)
                 .fillTriangle(p.x + 25, p.y - 19, p.x + 39, p.y - 38, p.x + 10, p.y - 19);
             }
-            if (definition.phase2SummonCount) {
+            if (definition.id === config.fourthBoss.id) {
               g.fillStyle(0x738ba6).fillRoundedRect(p.x - 24, p.y - 25, 48, 55, 9);
               g.lineStyle(3, e.phase2 ? 0xe9b4d8 : 0xb4e5ed, 0.9)
                 .strokeCircle(p.x, p.y, 37)
@@ -369,6 +369,19 @@ export function Battlefield({
                 p.x,
                 p.y - 46,
               );
+            }
+            if (definition.id === config.fifthBoss.id) {
+              const rune = e.phase2 ? 0xff925b : 0xe4c378;
+              g.fillStyle(0x4c6064).fillRoundedRect(p.x - 24, p.y - 24, 48, 53, 6);
+              g.lineStyle(3, rune, 0.95)
+                .strokeRoundedRect(p.x - 26, p.y - 26, 52, 57, 6)
+                .strokeCircle(p.x, p.y, 39)
+                .lineBetween(p.x, p.y - 20, p.x, p.y + 26)
+                .lineBetween(p.x + 37, p.y - 38, p.x + 37, p.y + 31);
+              g.fillStyle(rune)
+                .fillTriangle(p.x + 29, p.y - 27, p.x + 45, p.y - 27, p.x + 37, p.y - 47)
+                .fillTriangle(p.x - 18, p.y - 23, p.x - 12, p.y - 43, p.x - 5, p.y - 23)
+                .fillTriangle(p.x + 5, p.y - 23, p.x + 12, p.y - 43, p.x + 18, p.y - 23);
             }
             g.fillStyle(e.phase2 ? 0xffb18a : 0xe4d9a1)
               .fillCircle(p.x - 10, p.y - 4, 4)

@@ -36,7 +36,7 @@ function won(stageId: number) {
 
 describe('二十关与霜咒祭司', () => {
   it('前十五关完整配置不变，关卡和四首领引用完整，每秒连续出怪', () => {
-    const { fourthBoss: _boss, ...old } = config;
+    const { fourthBoss: _boss, fifthBoss: _fifth, ...old } = config;
     expect({
       ...old,
       contentVersion: v10.contentVersion,
@@ -44,9 +44,16 @@ describe('二十关与霜咒祭司', () => {
       stages: old.stages.slice(0, 15),
       scope: v10.scope,
     }).toEqual(v10);
-    expect(stages.map((s) => s.id)).toEqual(Array.from({ length: 20 }, (_, i) => i + 1));
+    expect(stages.slice(0, 20).map((s) => s.id)).toEqual(
+      Array.from({ length: 20 }, (_, i) => i + 1),
+    );
     expect(config.scope.M2M3.stageIds).toEqual(stages.map((s) => s.id));
-    expect(stages.filter((s) => s.bossId).map((s) => s.id)).toEqual([5, 10, 15, 20]);
+    expect(
+      stages
+        .slice(0, 20)
+        .filter((s) => s.bossId)
+        .map((s) => s.id),
+    ).toEqual([5, 10, 15, 20]);
     expect(bossDefinition(20)).toBe(config.fourthBoss);
     expect(bossName(20)).toBe('霜咒祭司');
     expect(bossDescription(20)).toContain('每次召4只');
@@ -218,16 +225,17 @@ describe('二十关与霜咒祭司', () => {
     expect(s.preparation).toEqual(after);
     expect(validSave(s.exportSave())).toBe(true);
   });
-  it('20关是最终完成点，重载不重复领奖，失败和中止回滚', () => {
+  it('20关可继续21，重载不重复领奖，失败和中止回滚', () => {
     const s = won(20),
       save = s.exportSave();
-    expect(s.complete).toBe(true);
+    expect(s.complete).toBe(false);
     expect(validSave(save)).toBe(true);
     const loaded = Session.restore(save);
-    expect(loaded.complete).toBe(true);
-    expect(loaded.nextStage()).toBeTruthy();
+    expect(loaded.complete).toBe(false);
     loaded.tick();
     expect(loaded.preparation).toEqual(save.preparation);
+    expect(loaded.nextStage()).toBeNull();
+    expect(loaded.preparation.stageId).toBe(21);
     s.backToPreparation();
     const before = clone(s.preparation);
     s.start();
