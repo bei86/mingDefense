@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
 import {
   appearances,
+  bossDefinition,
+  config,
   cells,
   center,
   key,
@@ -331,7 +333,8 @@ export function Battlefield({
             g.fillStyle(0x79935c)
               .fillCircle(p.x - 29, p.y - 27, 13)
               .fillCircle(p.x + 29, p.y - 27, 13);
-            if (battle.stageId === 10) {
+            const definition = bossDefinition(battle.stageId);
+            if (definition.id === config.secondBoss.id) {
               g.lineStyle(3, 0xc9b0e0, 0.9).strokeCircle(p.x, p.y, 38);
               g.fillStyle(0xd7c1ee).fillTriangle(
                 p.x - 13,
@@ -341,6 +344,16 @@ export function Battlefield({
                 p.x,
                 p.y - 44,
               );
+            }
+            if (definition.damageReductionPercent) {
+              g.fillStyle(0x819b9d).fillRoundedRect(p.x - 24, p.y - 20, 48, 47, 6);
+              g.lineStyle(3, 0xd7e3dc, 0.95)
+                .strokeRoundedRect(p.x - 27, p.y - 23, 54, 53, 8)
+                .lineBetween(p.x, p.y - 19, p.x, p.y + 26)
+                .lineBetween(p.x - 22, p.y + 8, p.x + 22, p.y + 8);
+              g.fillStyle(0xd7e3dc)
+                .fillTriangle(p.x - 25, p.y - 19, p.x - 39, p.y - 38, p.x - 10, p.y - 19)
+                .fillTriangle(p.x + 25, p.y - 19, p.x + 39, p.y - 38, p.x + 10, p.y - 19);
             }
             g.fillStyle(e.phase2 ? 0xffb18a : 0xe4d9a1)
               .fillCircle(p.x - 10, p.y - 4, 4)

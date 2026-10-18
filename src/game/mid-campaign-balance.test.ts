@@ -1,13 +1,14 @@
 import { expect, test } from 'vitest';
-import { clone, config, enemyDefinitions } from './content';
+import { clone, enemyDefinitions } from './content';
 import { createCombat, stepCombat } from './combat';
 import { spawnEnemy } from './combat-skills';
 import previous from '../../docs/superpowers/specs/2026-10-16-prototype-balance-v8-snapshot.json';
+import v9 from '../../docs/superpowers/specs/2026-10-18-prototype-balance-v9-snapshot.json';
 
 test('v9只调整6–9系数、普通召唤者生命及首延迟；其余配置保持v8', () => {
   const expected = clone(previous);
-  expected.contentVersion = config.contentVersion;
-  expected.status = config.status;
+  expected.contentVersion = v9.contentVersion;
+  expected.status = v9.status;
   for (let i = 5; i <= 8; i++) {
     expected.stages[i].hpMultiplier = Number((expected.stages[i].hpMultiplier * 1.5).toFixed(4));
     expected.stages[i].attackMultiplier = Number(
@@ -17,8 +18,8 @@ test('v9只调整6–9系数、普通召唤者生命及首延迟；其余配置�
   const summoner = expected.enemies.find((e) => e.id === 'summoner')!;
   summoner.hp = 4000;
   Object.assign(summoner.skills, { firstSummonDelayMs: 10000 });
-  expect(config).toEqual(expected);
-  expect(config.contentVersion).toBe('prototype-2026-10-16-v9');
+  expect(v9).toEqual(expected);
+  expect(v9.contentVersion).toBe('prototype-2026-10-16-v9');
 });
 
 test('非零出生时刻先等10秒，之后20秒；新生孩子下一步才行动', () => {

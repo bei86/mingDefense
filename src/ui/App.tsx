@@ -5,6 +5,8 @@ import {
   enemyCount,
   enemyAppearances,
   bossName,
+  bossDefinition,
+  bossDescription,
   stages,
   stageNames,
   type Point,
@@ -26,7 +28,7 @@ function phaseLabel(session: Session): string {
     case 'combat':
       return session.paused ? '已暂停' : '守阵中';
     case 'victory':
-      return session.complete ? '十关完成' : '已守住';
+      return session.complete ? '十五关完成' : '已守住';
     case 'defeat':
       return '阵线失守';
   }
@@ -219,7 +221,7 @@ export function App() {
   const reset = () => {
     pauseForMenu();
     setDialog({
-      title: '重新开始十关挑战',
+      title: '重新开始十五关挑战',
       body: '清空本轮阵容、修行和灵钱，回到第 1 关。',
       label: '重新开始',
       action: () => {
@@ -241,7 +243,7 @@ export function App() {
       <header className="titlebar">
         <div className="brand-mark">林</div>
         <div>
-          <span className="eyebrow">MING DEFENSE · 十关原型</span>
+          <span className="eyebrow">MING DEFENSE · 十五关原型</span>
           <h1>灵林守阵</h1>
         </div>
         <button
@@ -266,7 +268,9 @@ export function App() {
       <section className="stage-strip">
         <div>
           <span className="chapter">
-            {['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾'][p.stageId - 1]}
+            {p.stageId <= 10
+              ? ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾'][p.stageId - 1]
+              : p.stageId}
           </span>
           <div>
             <strong>{stageNames[p.stageId - 1]}</strong>
@@ -315,6 +319,9 @@ export function App() {
           <div>
             <strong>
               {bossName(p.stageId)} {boss.phase2 ? '· 怒意苏醒' : ''}
+              {bossDefinition(p.stageId).damageReductionPercent
+                ? ` · 岩铠 −${bossDefinition(p.stageId).damageReductionPercent}%`
+                : ''}
             </strong>
             <small>
               {Math.ceil(boss.hp)} / {boss.maxHp}
@@ -335,13 +342,7 @@ export function App() {
             </li>
           ))}
         </ul>
-        {stage.bossId && (
-          <p>
-            {p.stageId === 10
-              ? '开场起周期召唤，半血后攻速提高；横扫预警后攻击前排。'
-              : '低血后召唤小怪并加速；横扫预警后攻击前排。'}
-          </p>
-        )}
+        {stage.bossId && <p>{bossDescription(p.stageId)}</p>}
       </details>
       <section className="field-panel">
         <Battlefield
@@ -492,7 +493,7 @@ export function App() {
         )}
       </section>
       <footer>
-        <span>十关原型 · 临时数值待校准 · 自动保存检查点</span>
+        <span>十五关原型 · 临时数值待校准 · 自动保存检查点</span>
         <button className="text-button" onClick={reset}>
           重新开始
         </button>
@@ -560,7 +561,7 @@ export function App() {
             aria-labelledby="help-title"
           >
             <span className="eyebrow">守阵手札</span>
-            <h2 id="help-title">守过十境，灵林长安</h2>
+            <h2 id="help-title">守过十五境，灵林长安</h2>
             <ol>
               <li>点招募再点空格部署，或拖动放置。同种同阶叠放合成，最高六阶；3/5阶会解锁技能。</li>
               <li>
@@ -578,7 +579,7 @@ export function App() {
               </li>
               <li>击杀积累经验，升级暂停三选一。按住聚灵石提升攻速；切出页面或打开菜单会暂停。</li>
               <li>
-                第5关古木之灵、第10关鸣咒统领是首领关。第6关起加入远程怪、二阶招募和狼的狂暴，第8/9关加入召唤与分裂怪；清空全部敌人才获胜。
+                第5关古木之灵、第10关鸣咒统领、第15关岩铠领主是首领关。岩铠领主常驻15%减伤，横扫有1.8秒预警，半血后加速；第11–14关为既有敌人的混合攻势。第6关起加入远程怪、二阶招募和狼的狂暴，第8/9关加入召唤与分裂怪；清空全部敌人才获胜。
                 鸣咒犬出生10秒后首次召2只咒影，之后每20秒再召2只，每只鸣咒犬最多保有6只咒影；冻结会推迟召唤，击杀父怪可阻止后续召唤。
               </li>
               <li>

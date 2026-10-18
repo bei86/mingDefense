@@ -290,10 +290,13 @@ function resolveHits(s: Combat): void {
         ? s.allies.find((u) => u.id === packet.id)
         : s.enemies.find((e) => e.id === packet.id);
     if (!target) continue;
-    const reduction =
-      packet.team === 'enemy' && 'kind' in target && target.kind === 'croc'
-        ? enemyDefinitions.croc.skills.damageReductionPercent! / 100
-        : 0;
+    let reduction = 0;
+    if (packet.team === 'enemy' && 'kind' in target) {
+      if (target.kind === 'croc')
+        reduction = enemyDefinitions.croc.skills.damageReductionPercent! / 100;
+      if (target.kind === 'boss')
+        reduction = (bossDefinition(s.stageId).damageReductionPercent ?? 0) / 100;
+    }
     const vulnerability =
       packet.team === 'enemy' &&
       'vulnerabilityUntil' in target &&

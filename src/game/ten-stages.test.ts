@@ -22,9 +22,10 @@ describe('十关循环', () => {
     expect(config.stages.slice(0, 5)).toEqual(previousConfig.stages);
     expect(config.units).toEqual(previousConfig.units);
     expect(config.boss).toEqual(previousConfig.boss);
-    expect(stages.map((s) => s.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(stages.slice(0, 10).map((s) => s.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     for (const stage of stages) {
-      if (stage.bossId) expect([config.boss.id, config.secondBoss.id]).toContain(stage.bossId);
+      if (stage.bossId)
+        expect([config.boss.id, config.secondBoss.id, config.thirdBoss.id]).toContain(stage.bossId);
       for (const wave of stage.waves)
         for (const [kind, count] of Object.entries(wave.enemies)) {
           expect(enemyDefinitions[kind]).toBeDefined();
@@ -34,9 +35,14 @@ describe('十关循环', () => {
     for (const checkpoint of [oldCheckpoint, sixthCheckpoint, eighthCheckpoint, tenthCheckpoint])
       expect(validSave(checkpoint)).toBe(true);
   });
-  it('开放十关且新关每秒一只连续出怪；只有5/10关有首领', () => {
-    expect(stages).toHaveLength(10);
-    expect(stages.filter((s) => s.bossId).map((s) => s.id)).toEqual([5, 10]);
+  it('前十关每秒一只连续出怪；前十关只有5/10关有首领', () => {
+    expect(stages.slice(0, 10)).toHaveLength(10);
+    expect(
+      stages
+        .slice(0, 10)
+        .filter((s) => s.bossId)
+        .map((s) => s.id),
+    ).toEqual([5, 10]);
     for (let id = 6; id <= 10; id++) {
       const spawns = waveSpawns(id).filter((e) => e.kind !== 'boss');
       expect(spawns.map((e) => e.at)).toEqual(spawns.map((_, i) => i * 1000));
@@ -120,7 +126,7 @@ describe('十关循环', () => {
     expect(loaded.session.nextStage()).toBeTruthy();
     expect(validSave(loaded.session.exportSave())).toBe(true);
   });
-  it('第十关才结束，失败和中止回滚二阶卡及成长', () => {
+  it('第十关后可继续十一关，失败和中止回滚二阶卡及成长', () => {
     const s = sixth();
     s.preparation.units = [{ id: 5, kind: 'ember_mouse', rank: 6, position: { x: 1, y: 4 } }];
     s.preparation.nextId = 6;
@@ -154,8 +160,9 @@ describe('十关循环', () => {
     s.start();
     s.battle!.spawns = [];
     s.tick();
-    expect(s.complete).toBe(true);
-    expect(s.nextStage()).toBeTruthy();
+    expect(s.complete).toBe(false);
+    expect(s.nextStage()).toBeNull();
+    expect(s.preparation.stageId).toBe(11);
     expect(validSave(s.exportSave())).toBe(true);
   });
 });

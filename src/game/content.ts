@@ -61,11 +61,23 @@ export const stageNames = [
   '鸣咒来袭',
   '裂岩重围',
   '群啸之主',
+  '疾羽重围',
+  '石径追猎',
+  '咒影围林',
+  '裂岩狂潮',
+  '岩铠之主',
 ];
-export function bossDefinition(
-  stageId: number,
-): typeof config.boss & { summonFromStart?: boolean } {
-  return stages[stageId - 1].bossId === config.secondBoss.id ? config.secondBoss : config.boss;
+type BossDefinition = typeof config.boss & {
+  summonFromStart?: boolean;
+  damageReductionPercent?: number;
+};
+const bossDefinitions: BossDefinition[] = [config.boss, config.secondBoss, config.thirdBoss];
+export function bossDefinition(stageId: number): BossDefinition {
+  const id = stages[stageId - 1].bossId;
+  if (!id) return config.boss;
+  const boss = bossDefinitions.find((b) => b.id === id);
+  if (!boss) throw new Error(`首领配置缺失: ${id}`);
+  return boss;
 }
 export const enemyAppearances: Record<EnemyKind, { name: string; description: string }> = {
   wolf: { name: '奔雷狼', description: '近战；第6关起存活越久攻击越高' },
@@ -82,7 +94,27 @@ export const enemyAppearances: Record<EnemyKind, { name: string; description: st
   boss: { name: '首领', description: '技能预警后攻击前排' },
 };
 export function bossName(stageId: number): string {
-  return stageId === 10 ? '鸣咒统领' : '古木之灵';
+  switch (bossDefinition(stageId).id) {
+    case config.secondBoss.id:
+      return '鸣咒统领';
+    case config.thirdBoss.id:
+      return '岩铠领主';
+    default:
+      return '古木之灵';
+  }
+}
+export function bossDescription(stageId: number): string {
+  const skill = bossDefinition(stageId);
+  const effects = [];
+  if (skill.damageReductionPercent) effects.push(`岩铠减伤${skill.damageReductionPercent}%`);
+  effects.push(
+    skill.summonFromStart ? '开场起周期召唤' : `生命降至${skill.phase2HpPercent}%后开始召唤`,
+  );
+  effects.push(
+    `生命降至${skill.phase2HpPercent}%时攻速提高${skill.phase2AttackSpeedBonusPercent}%`,
+  );
+  effects.push(`横扫预警${skill.cleaveWarningMs / 1000}秒后攻击前排`);
+  return effects.join('；') + '。';
 }
 export function tauntValue(kind: HeroId): number {
   return config.targeting.tauntTieOrder.length - config.targeting.tauntTieOrder.indexOf(kind);

@@ -6,6 +6,8 @@ import { rosterPlaytest } from '../game/fixtures/roster-playtest';
 import stage6Checkpoint from '../game/fixtures/stage-6-checkpoint.json';
 import stage10Checkpoint from '../game/fixtures/stage-10-checkpoint.json';
 import stage8Checkpoint from '../game/fixtures/stage-8-checkpoint.json';
+import stage11Checkpoint from '../game/fixtures/stage-11-checkpoint.json';
+import stage15Checkpoint from '../game/fixtures/stage-15-checkpoint.json';
 
 const browserStorage: StoragePort = {
   getItem: (key) => window.localStorage.getItem(key),
@@ -28,13 +30,17 @@ export function loadBrowserSession() {
     playtest === 'boss' ||
     playtest === 'stage6' ||
     playtest === 'stage8' ||
-    playtest === 'stage10'
+    playtest === 'stage10' ||
+    playtest === 'stage11' ||
+    playtest === 'stage15'
   ) {
     const checkpoint = {
       boss: bossCheckpoint,
       stage6: stage6Checkpoint,
       stage8: stage8Checkpoint,
       stage10: stage10Checkpoint,
+      stage11: stage11Checkpoint,
+      stage15: stage15Checkpoint,
     }[playtest];
     const valid = validSave(checkpoint);
     return {

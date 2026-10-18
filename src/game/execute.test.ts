@@ -3,9 +3,9 @@ import { createCombat, stepCombat } from './combat';
 import { spawnEnemy } from './combat-skills';
 import { clone, type EnemyKind } from './content';
 
-function arena(kind: EnemyKind = 'croc', hp = 2000) {
+function arena(kind: EnemyKind = 'croc', hp = 2000, stageId = 6) {
   const s = createCombat([{ id: 1, kind: 'ember_mouse', rank: 1, position: { x: 1, y: 4 } }], {
-    stageId: 6,
+    stageId,
     rng: 1,
   });
   s.spawns = [];
@@ -54,6 +54,12 @@ describe('第六关解锁的终烬', () => {
     delete s.progression.buffs.mouse_execute;
     stepCombat(s);
     expect(s.enemies).toHaveLength(1);
+    expect(s.rng).toBe(1);
+  });
+  it('岩铠领主免疫终烬，普攻照常受护甲减伤且不采样斩杀随机数', () => {
+    const s = arena('boss', 2000, 15);
+    stepCombat(s);
+    expect(s.enemies[0].hp).toBe(2000 - Math.floor(60 * 1.5 * 0.85));
     expect(s.rng).toBe(1);
   });
 });
