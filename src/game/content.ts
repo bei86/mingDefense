@@ -76,6 +76,11 @@ export const stageNames = [
   '裂影奔袭',
   '群咒压境',
   '岩咒之主',
+  '雷岩夹击',
+  '疾咒围猎',
+  '碎影狂潮',
+  '岩影重围',
+  '玄羽之主',
 ];
 type BossDefinition = typeof config.boss & {
   summonFromStart?: boolean;
@@ -88,6 +93,7 @@ const bossDefinitions: BossDefinition[] = [
   config.thirdBoss,
   config.fourthBoss,
   config.fifthBoss,
+  config.sixthBoss,
 ];
 export function bossDefinition(stageId: number): BossDefinition {
   const id = stages[stageId - 1].bossId;
@@ -116,6 +122,8 @@ export function bossName(stageId: number): string {
       return '鸣咒统领';
     case config.thirdBoss.id:
       return '岩铠领主';
+    case config.sixthBoss.id:
+      return '玄羽妖帅';
     case config.fifthBoss.id:
       return '岩咒督军';
     case config.fourthBoss.id:
@@ -127,6 +135,7 @@ export function bossName(stageId: number): string {
 export function bossDescription(stageId: number): string {
   const skill = bossDefinition(stageId);
   const effects = [];
+  if (skill.rangeCells > 1) effects.push(`远程射程${skill.rangeCells}格，仍先清前排`);
   if (skill.damageReductionPercent) effects.push(`岩铠减伤${skill.damageReductionPercent}%`);
   effects.push(
     skill.summonFromStart ? '开场起周期召唤' : `生命降至${skill.phase2HpPercent}%后开始召唤`,

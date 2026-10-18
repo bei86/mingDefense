@@ -154,12 +154,10 @@ export function ResultModal({
         <span className="eyebrow">
           {stageNames[session.preparation.stageId - 1]} · 第 {session.preparation.stageId} 关
         </span>
-        <h2 id="result-title">
-          {session.complete ? '二十五境皆安' : win ? '灵林无恙' : '阵线失守'}
-        </h2>
+        <h2 id="result-title">{session.complete ? '三十境皆安' : win ? '灵林无恙' : '阵线失守'}</h2>
         <p>
           {session.complete
-            ? '二十五关原型已完成。数值仍待原作实机校准，感谢守护这一片灵林。'
+            ? '三十关原型已完成。数值仍待原作实机校准，感谢守护这一片灵林。'
             : win
               ? '成长和阵容保留，进入下关时全员恢复，并免费刷新招募。'
               : '免费重试会恢复开战前的阵容、招募与修行，本关临时收益不保留。'}
@@ -205,7 +203,7 @@ export function ResultModal({
           </>
         )}
         <button className={session.complete ? 'primary' : 'text-button'} onClick={onReset}>
-          重新开始二十五关挑战
+          重新开始三十关挑战
         </button>
       </section>
     </div>

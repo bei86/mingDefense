@@ -383,6 +383,19 @@ export function Battlefield({
                 .fillTriangle(p.x - 18, p.y - 23, p.x - 12, p.y - 43, p.x - 5, p.y - 23)
                 .fillTriangle(p.x + 5, p.y - 23, p.x + 12, p.y - 43, p.x + 18, p.y - 23);
             }
+            if (definition.id === config.sixthBoss.id) {
+              const feather = e.phase2 ? 0xffb27c : 0xb5dcf2;
+              g.fillStyle(0x67679b).fillRoundedRect(p.x - 23, p.y - 24, 46, 53, 10);
+              g.fillStyle(feather)
+                .fillTriangle(p.x - 20, p.y - 12, p.x - 45, p.y - 30, p.x - 35, p.y + 18)
+                .fillTriangle(p.x + 20, p.y - 12, p.x + 43, p.y - 30, p.x + 30, p.y + 18)
+                .fillTriangle(p.x - 14, p.y - 24, p.x - 8, p.y - 45, p.x, p.y - 25)
+                .fillTriangle(p.x, p.y - 25, p.x + 8, p.y - 45, p.x + 14, p.y - 24);
+              g.lineStyle(3, feather, 0.95)
+                .strokeEllipse(p.x + 32, p.y, 22, 65)
+                .lineBetween(p.x + 27, p.y - 30, p.x + 27, p.y + 30)
+                .lineBetween(p.x + 19, p.y, p.x + 47, p.y);
+            }
             g.fillStyle(e.phase2 ? 0xffb18a : 0xe4d9a1)
               .fillCircle(p.x - 10, p.y - 4, 4)
               .fillCircle(p.x + 10, p.y - 4, 4);

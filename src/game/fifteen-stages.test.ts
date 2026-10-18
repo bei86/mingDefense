@@ -37,7 +37,13 @@ function won(stageId: number) {
 
 describe('十五关与岩铠领主', () => {
   it('仅追加后五关和第三首领，原有内容完全保留', () => {
-    const { thirdBoss: _boss, fourthBoss: _fourth, fifthBoss: _fifth, ...old } = config;
+    const {
+      thirdBoss: _boss,
+      fourthBoss: _fourth,
+      fifthBoss: _fifth,
+      sixthBoss: _sixth,
+      ...old
+    } = config;
     expect({
       ...old,
       contentVersion: v9.contentVersion,

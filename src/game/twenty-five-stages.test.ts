@@ -36,7 +36,7 @@ function won(stageId: number) {
 
 describe('二十五关与岩咒督军', () => {
   it('前20关完整配置不变，五首领隔离，新增五关每秒连续生成', () => {
-    const { fifthBoss: _fifth, ...old } = config;
+    const { fifthBoss: _fifth, sixthBoss: _sixth, ...old } = config;
     expect({
       ...old,
       contentVersion: v11.contentVersion,
@@ -44,9 +44,16 @@ describe('二十五关与岩咒督军', () => {
       stages: old.stages.slice(0, 20),
       scope: v11.scope,
     }).toEqual(v11);
-    expect(stages.map((s) => s.id)).toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
+    expect(stages.slice(0, 25).map((s) => s.id)).toEqual(
+      Array.from({ length: 25 }, (_, i) => i + 1),
+    );
     expect(config.scope.M2M3.stageIds).toEqual(stages.map((s) => s.id));
-    expect(stages.filter((s) => s.bossId).map((s) => s.id)).toEqual([5, 10, 15, 20, 25]);
+    expect(
+      stages
+        .slice(0, 25)
+        .filter((s) => s.bossId)
+        .map((s) => s.id),
+    ).toEqual([5, 10, 15, 20, 25]);
     expect([5, 10, 15, 20, 25].map(bossDefinition)).toEqual([
       config.boss,
       config.secondBoss,
@@ -184,16 +191,17 @@ describe('二十五关与岩咒督军', () => {
     expect(s.preparation).toEqual(after);
     expect(validSave(s.exportSave())).toBe(true);
   });
-  it('25是最终点，重载不重复奖励，失败与中止回滚', () => {
+  it('25可继续26，重载不重复奖励，失败与中止回滚', () => {
     const s = won(25),
       save = s.exportSave();
-    expect(s.complete).toBe(true);
+    expect(s.complete).toBe(false);
     expect(validSave(save)).toBe(true);
     const loaded = Session.restore(save);
-    expect(loaded.complete).toBe(true);
-    expect(loaded.nextStage()).toBeTruthy();
+    expect(loaded.complete).toBe(false);
     loaded.tick();
     expect(loaded.preparation).toEqual(save.preparation);
+    expect(loaded.nextStage()).toBeNull();
+    expect(loaded.preparation.stageId).toBe(26);
     s.backToPreparation();
     const before = clone(s.preparation);
     s.start();

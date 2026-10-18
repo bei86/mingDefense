@@ -36,7 +36,7 @@ function won(stageId: number) {
 
 describe('二十关与霜咒祭司', () => {
   it('前十五关完整配置不变，关卡和四首领引用完整，每秒连续出怪', () => {
-    const { fourthBoss: _boss, fifthBoss: _fifth, ...old } = config;
+    const { fourthBoss: _boss, fifthBoss: _fifth, sixthBoss: _sixth, ...old } = config;
     expect({
       ...old,
       contentVersion: v10.contentVersion,

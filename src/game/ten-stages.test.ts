@@ -31,6 +31,7 @@ describe('十关循环', () => {
           config.thirdBoss.id,
           config.fourthBoss.id,
           config.fifthBoss.id,
+          config.sixthBoss.id,
         ]).toContain(stage.bossId);
       for (const wave of stage.waves)
         for (const [kind, count] of Object.entries(wave.enemies)) {
