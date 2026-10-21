@@ -41,6 +41,7 @@ describe('二十关与霜咒祭司', () => {
       fifthBoss: _fifth,
       sixthBoss: _sixth,
       seventhBoss: _seventh,
+      eighthBoss: _eighth,
       ...old
     } = config;
     expect({

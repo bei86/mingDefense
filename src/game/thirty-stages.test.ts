@@ -37,7 +37,7 @@ function won(stageId: number) {
 
 describe('三十关与玄羽妖帅', () => {
   it('前25关完整配置不变，六首领隔离，新五关每秒连续生成', () => {
-    const { sixthBoss: _sixth, seventhBoss: _seventh, ...old } = config;
+    const { sixthBoss: _sixth, seventhBoss: _seventh, eighthBoss: _eighth, ...old } = config;
     expect({
       ...old,
       contentVersion: v12.contentVersion,

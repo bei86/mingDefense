@@ -29,7 +29,7 @@ function phaseLabel(session: Session): string {
     case 'combat':
       return session.paused ? '已暂停' : '守阵中';
     case 'victory':
-      return session.complete ? '三十五关完成' : '已守住';
+      return session.complete ? '四十关完成' : '已守住';
     case 'defeat':
       return '阵线失守';
   }
@@ -222,7 +222,7 @@ export function App() {
   const reset = () => {
     pauseForMenu();
     setDialog({
-      title: '重新开始三十五关挑战',
+      title: '重新开始四十关挑战',
       body: '清空本轮阵容、修行和灵钱，回到第 1 关。',
       label: '重新开始',
       action: () => {
@@ -245,7 +245,7 @@ export function App() {
       <header className="titlebar">
         <div className="brand-mark">林</div>
         <div>
-          <span className="eyebrow">MING DEFENSE · 三十五关原型</span>
+          <span className="eyebrow">MING DEFENSE · 四十关原型</span>
           <h1>灵林守阵</h1>
         </div>
         <button
@@ -507,7 +507,7 @@ export function App() {
         )}
       </section>
       <footer>
-        <span>三十五关原型 · 临时数值待校准 · 自动保存检查点</span>
+        <span>四十关原型 · 临时数值待校准 · 自动保存检查点</span>
         <button className="text-button" onClick={reset}>
           重新开始
         </button>
@@ -575,7 +575,7 @@ export function App() {
             aria-labelledby="help-title"
           >
             <span className="eyebrow">守阵手札</span>
-            <h2 id="help-title">守过三十五境，灵林长安</h2>
+            <h2 id="help-title">守过四十境，灵林长安</h2>
             <ol>
               <li>点招募再点空格部署，或拖动放置。同种同阶叠放合成，最高六阶；3/5阶会解锁技能。</li>
               <li>
@@ -593,7 +593,7 @@ export function App() {
               </li>
               <li>击杀积累经验，升级暂停三选一。按住聚灵石提升攻速；切出页面或打开菜单会暂停。</li>
               <li>
-                第5关古木之灵、第10关鸣咒统领、第15关岩铠领主、第20关霜咒祭司、第25关岩咒督军、第30关玄羽妖帅、第35关赤角战魁是首领关。赤角战魁为近战，减伤15%，每10秒横扫（2秒预警），每16秒召唤，半血后攻速提高35%、每次召唤由2只增至4只，上限8只。玄羽妖帅远程攻击，仍先清前排，半血强化召唤。岩咒督军兼有15%护甲和半血强化召唤，横扫预警2秒。岩铠领主常驻15%减伤，横扫有1.8秒预警；霜咒祭司横扫预警2秒，半血后每次召唤由2只增加至4只，上限8只。第11–34关的普通关为既有敌人的混合攻势。第6关起加入远程怪、二阶招募和狼的狂暴，第8/9关加入召唤与分裂怪；清空全部敌人才获胜。
+                第5关古木之灵、第10关鸣咒统领、第15关岩铠领主、第20关霜咒祭司、第25关岩咒督军、第30关玄羽妖帅、第35关赤角战魁、第40关玄甲咒尊是首领关。玄甲咒尊为远程护甲首领，射程2.2格、减伤15%，每12秒横扫（2秒预警），每14秒召2只咒影，半血后每次4只、上限10只、攻速提高35%。赤角战魁为近战，减伤15%，每10秒横扫（2秒预警），每16秒召唤，半血后攻速提高35%、每次召唤由2只增至4只，上限8只。玄羽妖帅远程攻击，仍先清前排，半血强化召唤。岩咒督军兼有15%护甲和半血强化召唤，横扫预警2秒。岩铠领主常驻15%减伤，横扫有1.8秒预警；霜咒祭司横扫预警2秒，半血后每次召唤由2只增加至4只，上限8只。第11–39关的普通关为既有敌人的混合攻势。第6关起加入远程怪、二阶招募和狼的狂暴，第8/9关加入召唤与分裂怪；清空全部敌人才获胜。
                 鸣咒犬出生10秒后首次召2只咒影，之后每20秒再召2只，每只鸣咒犬最多保有6只咒影；冻结会推迟召唤，击杀父怪可阻止后续召唤。
               </li>
               <li>

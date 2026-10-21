@@ -426,6 +426,20 @@ export function Battlefield({
                 .fillTriangle(p.x - 18, p.y - 23, p.x - 12, p.y - 43, p.x - 5, p.y - 23)
                 .fillTriangle(p.x + 5, p.y - 23, p.x + 12, p.y - 43, p.x + 18, p.y - 23);
             }
+            if (definition.id === config.eighthBoss.id) {
+              const jade = e.phase2 ? 0xffce86 : 0x9bd7c4;
+              g.fillStyle(0x375653).fillRoundedRect(p.x - 24, p.y - 25, 48, 55, 8);
+              g.lineStyle(3, jade, 0.95)
+                .strokeRoundedRect(p.x - 26, p.y - 27, 52, 59, 8)
+                .lineBetween(p.x - 15, p.y - 10, p.x + 15, p.y - 10)
+                .lineBetween(p.x, p.y - 10, p.x, p.y + 24)
+                .lineBetween(p.x + 36, p.y - 28, p.x + 36, p.y + 30)
+                .strokeCircle(p.x + 36, p.y - 36, 10);
+              g.fillStyle(jade)
+                .fillRoundedRect(p.x - 15, p.y - 44, 9, 22, 2)
+                .fillRoundedRect(p.x + 6, p.y - 44, 9, 22, 2)
+                .fillTriangle(p.x - 5, p.y + 5, p.x + 5, p.y + 5, p.x, p.y + 15);
+            }
             if (definition.id === config.seventhBoss.id) {
               const ember = e.phase2 ? 0xffcb78 : 0xdb825b;
               g.fillStyle(0x764d3f).fillRoundedRect(p.x - 24, p.y - 23, 48, 52, 8);

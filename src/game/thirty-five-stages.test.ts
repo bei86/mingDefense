@@ -36,7 +36,7 @@ function won(stageId: number) {
 
 describe('三十五关与赤角战魁', () => {
   it('前30关完整配置不变，七首领隔离，新五关每秒连续生成', () => {
-    const { seventhBoss: _boss, ...old } = config;
+    const { seventhBoss: _boss, eighthBoss: _eighth, ...old } = config;
     expect({
       ...old,
       contentVersion: v13.contentVersion,
@@ -44,9 +44,16 @@ describe('三十五关与赤角战魁', () => {
       stages: old.stages.slice(0, 30),
       scope: v13.scope,
     }).toEqual(v13);
-    expect(stages.map((s) => s.id)).toEqual(Array.from({ length: 35 }, (_, i) => i + 1));
+    expect(stages.slice(0, 35).map((s) => s.id)).toEqual(
+      Array.from({ length: 35 }, (_, i) => i + 1),
+    );
     expect(config.scope.M2M3.stageIds).toEqual(stages.map((s) => s.id));
-    expect(stages.filter((s) => s.bossId).map((s) => s.id)).toEqual([5, 10, 15, 20, 25, 30, 35]);
+    expect(
+      stages
+        .slice(0, 35)
+        .filter((s) => s.bossId)
+        .map((s) => s.id),
+    ).toEqual([5, 10, 15, 20, 25, 30, 35]);
     expect(bossDefinition(35)).toEqual(config.seventhBoss);
     expect(bossDefinition(30)).toEqual(config.sixthBoss);
     expect(bossName(35)).toBe('赤角战魁');
@@ -231,16 +238,17 @@ describe('三十五关与赤角战魁', () => {
     expect(loaded.session.nextStage()).toBeNull();
     expect(loaded.session.preparation.stageId).toBe(31);
   });
-  it('35为终点，重载不重领奖，失败/中止回滚', () => {
+  it('旧35关可继续36，重载不重领奖，失败/中止回滚', () => {
     const s = won(35),
       save = s.exportSave();
-    expect(s.complete).toBe(true);
+    expect(s.complete).toBe(false);
     expect(validSave(save)).toBe(true);
     const loaded = Session.restore(save);
-    expect(loaded.complete).toBe(true);
-    expect(loaded.nextStage()).toBeTruthy();
+    expect(loaded.complete).toBe(false);
     loaded.tick();
     expect(loaded.preparation).toEqual(save.preparation);
+    expect(loaded.nextStage()).toBeNull();
+    expect(loaded.preparation.stageId).toBe(36);
     s.backToPreparation();
     const before = clone(s.preparation);
     s.start();

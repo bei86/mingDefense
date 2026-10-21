@@ -36,7 +36,13 @@ function won(stageId: number) {
 
 describe('二十五关与岩咒督军', () => {
   it('前20关完整配置不变，五首领隔离，新增五关每秒连续生成', () => {
-    const { fifthBoss: _fifth, sixthBoss: _sixth, seventhBoss: _seventh, ...old } = config;
+    const {
+      fifthBoss: _fifth,
+      sixthBoss: _sixth,
+      seventhBoss: _seventh,
+      eighthBoss: _eighth,
+      ...old
+    } = config;
     expect({
       ...old,
       contentVersion: v11.contentVersion,

@@ -43,6 +43,7 @@ describe('十五关与岩铠领主', () => {
       fifthBoss: _fifth,
       sixthBoss: _sixth,
       seventhBoss: _seventh,
+      eighthBoss: _eighth,
       ...old
     } = config;
     expect({
