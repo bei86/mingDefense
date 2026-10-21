@@ -1,3 +1,4 @@
+import { historicalBalance } from './testing/legacy-approach';
 import { describe, expect, it } from 'vitest';
 import { bossDefinition, bossName, clone, config, stages } from './content';
 import { createCombat, stepCombat, waveSpawns } from './combat';
@@ -36,7 +37,7 @@ function won(stageId: number) {
 }
 
 describe('十五关与岩铠领主', () => {
-  it('仅追加后五关和第三首领，除接敌距离外原有内容保留', () => {
+  it('仅追加后五关和第三首领，排除已单测锁定的接敌距离和v18校准后原有内容保留', () => {
     const {
       thirdBoss: _boss,
       fourthBoss: _fourth,
@@ -45,7 +46,7 @@ describe('十五关与岩铠领主', () => {
       seventhBoss: _seventh,
       eighthBoss: _eighth,
       ...old
-    } = config;
+    } = historicalBalance();
     expect({
       ...old,
       contentVersion: v9.contentVersion,

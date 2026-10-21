@@ -207,7 +207,7 @@ describe('本地检查点存档', () => {
     s.start();
     finish(s);
     expect(s.preparation.currency).toBeGreaterThan(70);
-    expect(config.contentVersion).toContain('v17');
+    expect(config.contentVersion).toContain('v18');
     const aborted = Session.restore({
       ...s.exportSave(),
       phase: 'prepare',
@@ -253,6 +253,7 @@ describe('战报存档与v2迁移', () => {
     'prototype-2026-10-18-v12',
     'prototype-2026-10-21-v15',
     'prototype-2026-10-21-v16',
+    'prototype-2026-10-21-v17',
   ])('%s整备和旧胜利档迁移前备份，保留阵容成长及已结算奖励，不伪造战报', (version) => {
     const s = deployed();
     const prepare = s.exportSave();
@@ -286,31 +287,33 @@ describe('战报存档与v2迁移', () => {
       expect(result.session.battle!.enemies[0].y).toBeLessThan(-2);
     }
   });
-  it.each(['prototype-2026-10-16-v8', 'prototype-2026-10-21-v15', 'prototype-2026-10-21-v16'])(
-    '迁移%s备份或主档写入失败时保留原始主档，并停止自动覆盖',
-    (version) => {
-      const save = deployed().exportSave();
-      save.contentVersion = version;
-      const raw = JSON.stringify(save);
-      for (const failAt of [1, 2]) {
-        const memory = new MemoryStorage();
-        memory.setItem(SAVE_KEY, raw);
-        let writes = 0;
-        const storage: StoragePort = {
-          getItem: (k) => memory.getItem(k),
-          setItem(k, v) {
-            if (++writes === failAt) throw new Error('quota');
-            memory.setItem(k, v);
-          },
-          removeItem() {
-            throw new Error('must not delete');
-          },
-        };
-        const result = loadSession(storage);
-        expect(result).toMatchObject({ recovered: true, blocked: true });
-        expect(result.session.preparation).toEqual(save.preparation);
-        expect(memory.getItem(SAVE_KEY)).toBe(raw);
-      }
-    },
-  );
+  it.each([
+    'prototype-2026-10-16-v8',
+    'prototype-2026-10-21-v15',
+    'prototype-2026-10-21-v16',
+    'prototype-2026-10-21-v17',
+  ])('迁移%s备份或主档写入失败时保留原始主档，并停止自动覆盖', (version) => {
+    const save = deployed().exportSave();
+    save.contentVersion = version;
+    const raw = JSON.stringify(save);
+    for (const failAt of [1, 2]) {
+      const memory = new MemoryStorage();
+      memory.setItem(SAVE_KEY, raw);
+      let writes = 0;
+      const storage: StoragePort = {
+        getItem: (k) => memory.getItem(k),
+        setItem(k, v) {
+          if (++writes === failAt) throw new Error('quota');
+          memory.setItem(k, v);
+        },
+        removeItem() {
+          throw new Error('must not delete');
+        },
+      };
+      const result = loadSession(storage);
+      expect(result).toMatchObject({ recovered: true, blocked: true });
+      expect(result.session.preparation).toEqual(save.preparation);
+      expect(memory.getItem(SAVE_KEY)).toBe(raw);
+    }
+  });
 });

@@ -1,3 +1,4 @@
+import { historicalBalance } from './testing/legacy-approach';
 import { describe, expect, it } from 'vitest';
 import { bossDefinition, bossDescription, bossName, clone, config, stages } from './content';
 import { createCombat, stepCombat, waveSpawns } from './combat';
@@ -35,8 +36,8 @@ function won(stageId: number) {
 }
 
 describe('三十五关与赤角战魁', () => {
-  it('除接敌距离外前30关配置不变，七首领隔离，新五关每秒连续生成', () => {
-    const { seventhBoss: _boss, eighthBoss: _eighth, ...old } = config;
+  it('排除已单测锁定的接敌距离和v18校准后前30关配置不变，七首领隔离，新五关每秒连续生成', () => {
+    const { seventhBoss: _boss, eighthBoss: _eighth, ...old } = historicalBalance();
     expect({
       ...old,
       contentVersion: v13.contentVersion,

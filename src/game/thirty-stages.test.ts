@@ -1,3 +1,4 @@
+import { historicalBalance } from './testing/legacy-approach';
 import { describe, expect, it } from 'vitest';
 import { bossDefinition, bossDescription, bossName, clone, config, stages } from './content';
 import { createCombat, stepCombat, waveSpawns } from './combat';
@@ -36,8 +37,13 @@ function won(stageId: number) {
 }
 
 describe('三十关与玄羽妖帅', () => {
-  it('除接敌距离外前25关配置不变，六首领隔离，新五关每秒连续生成', () => {
-    const { sixthBoss: _sixth, seventhBoss: _seventh, eighthBoss: _eighth, ...old } = config;
+  it('排除已单测锁定的接敌距离和v18校准后前25关配置不变，六首领隔离，新五关每秒连续生成', () => {
+    const {
+      sixthBoss: _sixth,
+      seventhBoss: _seventh,
+      eighthBoss: _eighth,
+      ...old
+    } = historicalBalance();
     expect({
       ...old,
       contentVersion: v12.contentVersion,

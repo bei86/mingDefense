@@ -1,3 +1,4 @@
+import { historicalBalance } from './testing/legacy-approach';
 import { describe, expect, it } from 'vitest';
 import { bossDefinition, bossDescription, bossName, clone, config, stages } from './content';
 import { createCombat, stepCombat, waveSpawns } from './combat';
@@ -35,14 +36,14 @@ function won(stageId: number) {
 }
 
 describe('二十五关与岩咒督军', () => {
-  it('除接敌距离外前20关配置不变，五首领隔离，新增五关每秒连续生成', () => {
+  it('排除已单测锁定的接敌距离和v18校准后前20关配置不变，五首领隔离，新增五关每秒连续生成', () => {
     const {
       fifthBoss: _fifth,
       sixthBoss: _sixth,
       seventhBoss: _seventh,
       eighthBoss: _eighth,
       ...old
-    } = config;
+    } = historicalBalance();
     expect({
       ...old,
       contentVersion: v11.contentVersion,

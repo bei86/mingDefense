@@ -1,3 +1,4 @@
+import { historicalBalance } from './testing/legacy-approach';
 import { describe, expect, it } from 'vitest';
 import { bossDefinition, bossDescription, bossName, clone, config, stages } from './content';
 import { createCombat, stepCombat, waveSpawns } from './combat';
@@ -36,8 +37,8 @@ function won(stageId: number) {
 }
 
 describe('四十关与玄甲咒尊', () => {
-  it('除接敌距离外前35关配置不变，八首领隔离，新五关每秒连续生成', () => {
-    const { eighthBoss: _boss, ...old } = config;
+  it('排除已单测锁定的接敌距离和v18校准后前35关配置不变，八首领隔离，新五关每秒连续生成', () => {
+    const { eighthBoss: _boss, ...old } = historicalBalance();
     expect({
       ...old,
       contentVersion: v14.contentVersion,

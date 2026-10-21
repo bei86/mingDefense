@@ -275,6 +275,7 @@ export function loadSession(storage: StoragePort, seed = 20261014): LoadResult {
       'prototype-2026-10-21-v14',
       'prototype-2026-10-21-v15',
       'prototype-2026-10-21-v16',
+      'prototype-2026-10-21-v17',
     ].includes(parsed.contentVersion as string)
   ) {
     const candidate = { ...parsed, contentVersion: config.contentVersion };

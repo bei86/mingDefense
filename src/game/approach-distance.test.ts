@@ -1,3 +1,4 @@
+import { historicalBalance } from './testing/legacy-approach';
 import { describe, expect, it } from 'vitest';
 import { createCombat, stepCombat, waveSpawns } from './combat';
 import { collectDeaths, contact, spawnEnemy } from './combat-skills';
@@ -20,9 +21,9 @@ function fullBoard(stageId = 1) {
 }
 
 describe('3格接敌距离 P', () => {
-  it('相对v15只改出生行和版本标识，阵地仍限6×6', () => {
+  it('排除v18校准后相对v15只改出生行和版本标识，阵地仍限6×6', () => {
     expect({
-      ...config,
+      ...historicalBalance(),
       contentVersion: v15.contentVersion,
       status: v15.status,
       waves: { ...config.waves, spawnRow: v15.waves.spawnRow },

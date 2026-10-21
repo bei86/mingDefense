@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "contentVersion": "prototype-2026-10-21-v17",
-  "status": "prototype-forty-stages-v17",
+  "contentVersion": "prototype-2026-10-21-v18",
+  "status": "prototype-forty-stages-v18",
   "provenance": {
     "A": "活动公告或截图明确",
     "B": "第三方攻略记载",
@@ -657,7 +657,7 @@
       "id": "ranged",
       "referenceName": "鲲小鹏",
       "hp": 280,
-      "hitDamage": 18,
+      "hitDamage": 12,
       "actionIntervalMs": 1500,
       "speedCellsPerSecond": 0.45,
       "rangeCells": 4,
@@ -2167,7 +2167,7 @@
   "thirdBoss": {
     "id": "prototype_boss_3",
     "referenceName": "第三个临时Boss（不代表原作）",
-    "hp": 650000,
+    "hp": 357500,
     "hitDamage": 135,
     "actionIntervalMs": 1500,
     "speedCellsPerSecond": 0.35,
@@ -2188,7 +2188,7 @@
   "fourthBoss": {
     "id": "prototype_boss_4",
     "referenceName": "第四个临时Boss（不代表原作）",
-    "hp": 950000,
+    "hp": 522500,
     "hitDamage": 165,
     "actionIntervalMs": 1500,
     "speedCellsPerSecond": 0.35,

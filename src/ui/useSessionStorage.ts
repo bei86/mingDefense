@@ -10,6 +10,7 @@ import stage11Checkpoint from '../game/fixtures/stage-11-checkpoint.json';
 import stage15Checkpoint from '../game/fixtures/stage-15-checkpoint.json';
 import stage16Checkpoint from '../game/fixtures/stage-16-checkpoint.json';
 import stage20Checkpoint from '../game/fixtures/stage-20-checkpoint.json';
+import calibration20Checkpoint from '../game/fixtures/calibration-20-checkpoint.json';
 import stage21Checkpoint from '../game/fixtures/stage-21-checkpoint.json';
 import stage25Checkpoint from '../game/fixtures/stage-25-checkpoint.json';
 import stage26Checkpoint from '../game/fixtures/stage-26-checkpoint.json';
@@ -43,6 +44,18 @@ export function loadBrowserSession() {
       recovered: false,
       blocked: true,
     };
+  if (playtest === 'calibration20') {
+    const checkpoint = calibration20Checkpoint;
+    const valid = validSave(checkpoint);
+    return {
+      session: valid ? Session.restore(checkpoint) : new Session(),
+      message: valid
+        ? '开发校准验收：v18三格规则合法经济路线第20关，未使用聚灵；不读取或写入正式存档。'
+        : '开发检查点无效，已进入临时新局；不读取或写入正常存档。',
+      recovered: false,
+      blocked: true,
+    };
+  }
   if (
     playtest === 'boss' ||
     playtest === 'stage6' ||

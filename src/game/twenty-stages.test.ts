@@ -1,3 +1,4 @@
+import { historicalBalance } from './testing/legacy-approach';
 import { describe, expect, it } from 'vitest';
 import { bossDefinition, bossDescription, bossName, clone, config, stages } from './content';
 import { createCombat, stepCombat, waveSpawns } from './combat';
@@ -35,7 +36,7 @@ function won(stageId: number) {
 }
 
 describe('二十关与霜咒祭司', () => {
-  it('除接敌距离外前十五关配置不变，关卡和四首领引用完整，每秒连续出怪', () => {
+  it('排除已单测锁定的接敌距离和v18校准后前十五关配置不变，关卡和四首领引用完整，每秒连续出怪', () => {
     const {
       fourthBoss: _boss,
       fifthBoss: _fifth,
@@ -43,7 +44,7 @@ describe('二十关与霜咒祭司', () => {
       seventhBoss: _seventh,
       eighthBoss: _eighth,
       ...old
-    } = config;
+    } = historicalBalance();
     expect({
       ...old,
       contentVersion: v10.contentVersion,
