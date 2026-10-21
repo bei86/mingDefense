@@ -35,7 +35,7 @@ function won(stageId: number) {
 }
 
 describe('二十关与霜咒祭司', () => {
-  it('前十五关完整配置不变，关卡和四首领引用完整，每秒连续出怪', () => {
+  it('除接敌距离外前十五关配置不变，关卡和四首领引用完整，每秒连续出怪', () => {
     const {
       fourthBoss: _boss,
       fifthBoss: _fifth,
@@ -50,6 +50,7 @@ describe('二十关与霜咒祭司', () => {
       status: v10.status,
       stages: old.stages.slice(0, 15),
       scope: v10.scope,
+      waves: { ...old.waves, spawnRow: v10.waves.spawnRow },
     }).toEqual(v10);
     expect(stages.slice(0, 20).map((s) => s.id)).toEqual(
       Array.from({ length: 20 }, (_, i) => i + 1),

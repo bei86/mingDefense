@@ -35,7 +35,7 @@ function won(stageId: number) {
 }
 
 describe('二十五关与岩咒督军', () => {
-  it('前20关完整配置不变，五首领隔离，新增五关每秒连续生成', () => {
+  it('除接敌距离外前20关配置不变，五首领隔离，新增五关每秒连续生成', () => {
     const {
       fifthBoss: _fifth,
       sixthBoss: _sixth,
@@ -49,6 +49,7 @@ describe('二十五关与岩咒督军', () => {
       status: v11.status,
       stages: old.stages.slice(0, 20),
       scope: v11.scope,
+      waves: { ...old.waves, spawnRow: v11.waves.spawnRow },
     }).toEqual(v11);
     expect(stages.slice(0, 25).map((s) => s.id)).toEqual(
       Array.from({ length: 25 }, (_, i) => i + 1),

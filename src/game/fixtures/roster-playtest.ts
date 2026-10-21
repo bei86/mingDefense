@@ -30,3 +30,18 @@ export function rosterPlaytest(): Session {
   });
   return session;
 }
+
+/** Fixed full-board arena for approach/camera QA; never a normal economy claim. */
+export function approachPlaytest(): Session {
+  const session = rosterPlaytest();
+  session.preparation.stageId = 40;
+  session.preparation.rewardedStages = Array.from({ length: 39 }, (_, i) => i + 1);
+  session.preparation.units = Array.from({ length: 36 }, (_, i) => ({
+    id: i + 5,
+    kind: 'ember_mouse',
+    rank: 6,
+    position: { x: i % 6, y: Math.floor(i / 6) },
+  }));
+  session.preparation.nextId = 41;
+  return session;
+}

@@ -1,10 +1,13 @@
+import { useLegacyApproach } from './testing/legacy-approach';
 import { expect, test } from 'vitest';
 import { simulate, orders } from './testing/campaign-simulation';
 import { validSave } from './persistence';
 import thirtyFirstCheckpoint from './fixtures/stage-31-checkpoint.json';
 import thirtyFifthCheckpoint from './fixtures/stage-35-checkpoint.json';
 
-test('三十五关72条合法经济路线、检查点及前三十关回归', () => {
+useLegacyApproach();
+
+test('历史1格规则：三十五关72条合法经济路线、检查点及前三十关回归', () => {
   const runs = Array.from({ length: 12 }, (_, i) => 20261014 + i).flatMap((seed) =>
     Object.keys(orders).flatMap((policy) =>
       [true, false].map((boost) => ({ ...simulate(seed, policy, boost, 35, true), boost })),

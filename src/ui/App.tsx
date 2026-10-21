@@ -1,18 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  appearances,
-  config,
-  enemyCount,
-  enemyAppearances,
-  bossName,
-  bossDefinition,
-  bossDescription,
-  stages,
-  stageNames,
-  type Point,
-} from '../game/content';
-import { Session, unitAt, type Source } from '../game/session';
+import { appearances, config, enemyCount, stages, stageNames, type Point } from '../game/content';
+import { unitAt, type Source } from '../game/session';
 import { GameClock } from '../game/clock';
+import { startGameLoop } from './game-loop';
 import { Battlefield } from '../render/Battlefield';
 import { useModalFocus } from './useModalFocus';
 import { BuffJournal, ExperienceBar, ResultModal, TalentModal, timeLabel } from './CampaignPanels';
@@ -20,20 +10,8 @@ import { PreparationPanel, type Confirmation } from './PreparationPanel';
 import { loadBrowserSession, useSessionStorage } from './useSessionStorage';
 import { boardDrop } from './board-drop';
 import { ArtImage } from './ArtImage';
+import { CombatControls, CombatHeader, CombatStatus, EnemyIntel, PauseMenu } from './CombatPanels';
 
-function phaseLabel(session: Session): string {
-  if (session.hasChoices) return '择取天赋';
-  switch (session.phase) {
-    case 'prepare':
-      return '准备布阵';
-    case 'combat':
-      return session.paused ? '已暂停' : '守阵中';
-    case 'victory':
-      return session.complete ? '四十关完成' : '已守住';
-    case 'defeat':
-      return '阵线失守';
-  }
-}
 export function App() {
   const [boot] = useState(loadBrowserSession);
   const session = boot.session;
@@ -55,10 +33,11 @@ export function App() {
         help ||
         journal ||
         session.hasChoices ||
+        (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${dialog?.title}:${help}:${journal}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}`,
+    `${dialog?.title}:${help}:${journal}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     source: Source;
@@ -104,17 +83,7 @@ export function App() {
   const placeRef = useRef(place);
   placeRef.current = place;
   useEffect(() => {
-    let frame = 0;
-    let lastHud = 0;
-    const loop = (now: number) => {
-      clock.advance(now);
-      if (now - lastHud >= 100) {
-        render((v) => v + 1);
-        lastHud = now;
-      }
-      frame = requestAnimationFrame(loop);
-    };
-    frame = requestAnimationFrame(loop);
+    const stopLoop = startGameLoop(clock, repaint);
     const stopHeld = () => {
       session.held = false;
     };
@@ -182,7 +151,7 @@ export function App() {
     window.addEventListener('pointerup', pointerUp);
     window.addEventListener('pointercancel', cancelPointer);
     return () => {
-      cancelAnimationFrame(frame);
+      stopLoop();
       window.removeEventListener('blur', suspend);
       document.removeEventListener('visibilitychange', hidden);
       window.removeEventListener('pointermove', pointerMove);
@@ -235,31 +204,59 @@ export function App() {
     });
   };
   const p = session.preparation;
-  const b = session.battle;
+  const battle = session.battle;
   const preparing = session.phase === 'prepare';
   const stage = session.stage;
-  const boss = b?.enemies.find((e) => e.kind === 'boss');
-  const bossSkill = bossDefinition(p.stageId);
+  const previousView = useRef({ preparing, battle });
+  useEffect(() => {
+    if (previousView.current.preparing === preparing && previousView.current.battle === battle)
+      return;
+    previousView.current = { preparing, battle };
+    session.held = false;
+    drag.current = null;
+    setSelected(null);
+    setHover(null);
+    setDragOffset(null);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    document
+      .querySelector<HTMLElement>(preparing ? '.titlebar h1' : '.combat-heading')
+      ?.focus({ preventScroll: true });
+  }, [preparing, battle, session]);
+  const resume = () => {
+    session.pause(false);
+    clock.reset();
+    repaint();
+  };
   return (
-    <main className="app-shell">
-      <header className="titlebar">
-        <div className="brand-mark">林</div>
-        <div>
-          <span className="eyebrow">MING DEFENSE · 四十关原型</span>
-          <h1>灵林守阵</h1>
-        </div>
-        <button
-          className="icon-button"
-          aria-label="玩法说明"
-          onClick={() => {
+    <main className={`app-shell ${preparing ? 'preparation-view' : 'combat-view'}`}>
+      {preparing ? (
+        <header className="titlebar">
+          <div className="brand-mark">林</div>
+          <div>
+            <span className="eyebrow">MING DEFENSE · 四十关原型</span>
+            <h1 tabIndex={-1}>灵林守阵</h1>
+          </div>
+          <button
+            className="icon-button"
+            aria-label="玩法说明"
+            onClick={() => {
+              pauseForMenu();
+              setHelp(true);
+            }}
+          >
+            ?
+          </button>
+        </header>
+      ) : (
+        <CombatHeader
+          session={session}
+          onPause={() => {
             pauseForMenu();
-            setHelp(true);
+            repaint();
           }}
-        >
-          ?
-        </button>
-      </header>
-      {storage.message && (
+        />
+      )}
+      {storage.message && (preparing || storage.failed) && (
         <div className="save-notice" role="status">
           <span>{storage.message}</span>
           <button onClick={storage.dismiss} aria-label="关闭存档提示">
@@ -267,23 +264,25 @@ export function App() {
           </button>
         </div>
       )}
-      <section className="stage-strip">
-        <div>
-          <span className="chapter">
-            {p.stageId <= 10
-              ? ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾'][p.stageId - 1]
-              : p.stageId}
-          </span>
+      {preparing && (
+        <section className="stage-strip">
           <div>
-            <strong>{stageNames[p.stageId - 1]}</strong>
-            <small>
-              第 {p.stageId} / {stages.length} 关 · {stage.waves.length} 波敌袭
-              {stage.bossId ? ' + 首领' : ` · ${enemyCount(p.stageId)} 只敌人`}
-            </small>
+            <span className="chapter">
+              {p.stageId <= 10
+                ? ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾'][p.stageId - 1]
+                : p.stageId}
+            </span>
+            <div>
+              <strong>{stageNames[p.stageId - 1]}</strong>
+              <small>
+                第 {p.stageId} / {stages.length} 关 · {stage.waves.length} 波敌袭
+                {stage.bossId ? ' + 首领' : ` · ${enemyCount(p.stageId)} 只敌人`}
+              </small>
+            </div>
           </div>
-        </div>
-        <span className="stage-tag">{phaseLabel(session)}</span>
-      </section>
+          <span className="stage-tag">整备布阵</span>
+        </section>
+      )}
       <ExperienceBar
         session={session}
         onShowBuffs={() => {
@@ -291,71 +290,40 @@ export function App() {
           setJournal(true);
         }}
       />
-      <section className="resources" aria-label="资源与战斗状态">
-        <div>
-          <span className="resource-icon gold">
-            <ArtImage asset="icon_currency" />
-          </span>
-          <span>
-            <small>
-              灵钱{session.phase === 'combat' && b?.income ? ` · 待结 ${b.income}` : ''}
-            </small>
-            <b>{p.currency}</b>
-          </span>
-        </div>
-        <div>
-          <span className="resource-icon mint">
-            <ArtImage asset="icon_hp" />
-          </span>
-          <span>
-            <small>阵容生命</small>
-            <b>{session.totalHealth()}</b>
-          </span>
-        </div>
-        <div>
-          <span className="resource-icon">
-            <ArtImage asset="icon_timer" />
-          </span>
-          <span>
-            <small>{b ? `击退 ${b.kills}` : '守阵时限'}</small>
-            <b>{b ? timeLabel(b.time) : timeLabel(config.runtime.stageLimitMs)}</b>
-          </span>
-        </div>
-      </section>
-      {boss && (
-        <div className={`boss-hud ${boss.phase2 ? 'enraged' : ''}`}>
+      {preparing ? (
+        <section className="resources" aria-label="整备资源">
           <div>
-            <strong>
-              {bossName(p.stageId)} {bossSkill.rangeCells > 1 ? '· 远射' : ''}{' '}
-              {boss.phase2 ? '· 怒意苏醒' : ''}
-              {bossSkill.damageReductionPercent
-                ? ` · 岩铠 −${bossSkill.damageReductionPercent}%`
-                : ''}
-              {boss.phase2 && bossSkill.phase2SummonCount
-                ? ` · 召唤×${bossSkill.phase2SummonCount}`
-                : ''}
-            </strong>
-            <small>
-              {Math.ceil(boss.hp)} / {boss.maxHp}
-            </small>
+            <span className="resource-icon gold">
+              <ArtImage asset="icon_currency" />
+            </span>
+            <span>
+              <small>灵钱</small>
+              <b>{p.currency}</b>
+            </span>
           </div>
-          <div className="boss-track">
-            <span style={{ width: `${(boss.hp / boss.maxHp!) * 100}%` }} />
+          <div>
+            <span className="resource-icon mint">
+              <ArtImage asset="icon_hp" />
+            </span>
+            <span>
+              <small>阵容生命</small>
+              <b>{session.totalHealth()}</b>
+            </span>
           </div>
-        </div>
+          <div>
+            <span className="resource-icon">
+              <ArtImage asset="icon_timer" />
+            </span>
+            <span>
+              <small>守阵时限</small>
+              <b>{timeLabel(config.runtime.stageLimitMs)}</b>
+            </span>
+          </div>
+        </section>
+      ) : (
+        <CombatStatus session={session} />
       )}
-      <details className="enemy-intel" key={p.stageId}>
-        <summary>本关敌情 · {stage.bossId ? bossName(p.stageId) : '查看敌人特性'}</summary>
-        <ul>
-          {[...new Set(stage.waves.flatMap((w) => Object.keys(w.enemies)))].map((id) => (
-            <li key={id}>
-              <strong>{enemyAppearances[id as keyof typeof enemyAppearances].name}</strong>：
-              {enemyAppearances[id as keyof typeof enemyAppearances].description}
-            </li>
-          ))}
-        </ul>
-        {stage.bossId && <p>{bossDescription(p.stageId)}</p>}
-      </details>
+      {preparing && <EnemyIntel stageId={p.stageId} />}
       <section className="field-panel">
         <Battlefield
           session={session}
@@ -368,25 +336,11 @@ export function App() {
           onDragStart={dragStart}
           onHover={setHover}
         />
-        {session.phase === 'combat' && session.paused && !session.hasChoices && (
-          <div className="pause-cover">
-            <span>❖</span>
-            <h2>暂歇片刻</h2>
-            <p>战场已冻结，继续后重新按住聚灵石。</p>
-            <button
-              className="primary"
-              onClick={() => {
-                session.pause(false);
-                clock.reset();
-                repaint();
-              }}
-            >
-              继续守阵
-            </button>
-          </div>
-        )}
       </section>
-      <section className="lower-panel">
+      <section
+        className={preparing ? 'lower-panel' : 'combat-dock'}
+        aria-label={preparing ? '整备操作' : '守卫操作'}
+      >
         {preparing ? (
           <PreparationPanel
             session={session}
@@ -403,115 +357,23 @@ export function App() {
             ignoreClick={() => performance.now() < ignoreClickUntil.current}
           />
         ) : (
-          <>
-            <div className="section-heading">
-              <div>
-                <h2>聚灵石</h2>
-                <small>普通击杀 +5 灵气 · 按住消耗 20 / 秒</small>
-              </div>
-              <b className="energy-count">
-                {Math.floor(b?.energy ?? 0)}
-                <small> /100</small>
-              </b>
-            </div>
-            <div className="energy-bar">
-              <div style={{ width: `${b?.energy ?? 0}%` }} />
-            </div>
-            <button
-              className={`energy-button ${b?.boosted && session.canAdvance ? 'charging' : ''}`}
-              disabled={!session.canAdvance}
-              onPointerDown={(e) => {
-                e.currentTarget.setPointerCapture(e.pointerId);
-                session.held = true;
-              }}
-              onPointerUp={() => {
-                session.held = false;
-              }}
-              onPointerCancel={() => {
-                session.held = false;
-              }}
-              onLostPointerCapture={() => {
-                session.held = false;
-              }}
-              onKeyDown={(e) => {
-                if ([' ', 'Enter'].includes(e.key)) {
-                  e.preventDefault();
-                  session.held = true;
-                }
-              }}
-              onKeyUp={() => {
-                session.held = false;
-              }}
-              onBlur={() => {
-                session.held = false;
-              }}
-            >
-              <span className="stone">
-                <ArtImage asset="icon_boost" />
-              </span>
-              <span>
-                <strong>{b?.boosted && session.canAdvance ? '灵气流转' : '按住聚灵'}</strong>
-                <small>灵兽攻速 +50%</small>
-              </span>
-              <span>✦</span>
-            </button>
-            <div className="combat-actions">
-              <button
-                className="secondary"
-                disabled={session.phase !== 'combat' || session.hasChoices}
-                onClick={() => {
-                  session.pause(!session.paused);
-                  clock.reset();
-                  repaint();
-                }}
-              >
-                {session.paused ? '继续' : '暂停'}
-              </button>
-              <button
-                className="secondary"
-                onClick={() => {
-                  session.speed = session.speed === 1 ? 2 : 1;
-                  repaint();
-                }}
-              >
-                速度 {session.speed}×
-              </button>
-              <button
-                className="secondary"
-                disabled={session.hasChoices}
-                onClick={() => {
-                  pauseForMenu();
-                  setDialog({
-                    title: '返回布阵',
-                    body: '恢复开战前的完整检查点，本关产钱、经验和天赋不保留。',
-                    label: '返回布阵',
-                    action: () => {
-                      session.backToPreparation();
-                      setSelected(null);
-                      repaint();
-                    },
-                  });
-                }}
-              >
-                返回布阵
-              </button>
-            </div>
-            <div className="wave-progress">
-              {stage.waves.map((wave, i) => (
-                <span className={b && b.time >= wave.atMs ? 'active' : ''} key={i}>
-                  第 {i + 1} 波 <small>{wave.atMs / 1000}s</small>
-                </span>
-              ))}
-            </div>
-          </>
+          <CombatControls
+            session={session}
+            onSpeed={() => {
+              session.speed = session.speed === 1 ? 2 : 1;
+              repaint();
+            }}
+          />
         )}
       </section>
-      <footer>
-        <span>四十关原型 · 临时数值待校准 · 自动保存检查点</span>
-        <button className="text-button" onClick={reset}>
-          重新开始
-        </button>
-      </footer>
+      {preparing && (
+        <footer>
+          <span>四十关原型 · 临时数值待校准 · 自动保存检查点</span>
+          <button className="text-button" onClick={reset}>
+            重新开始
+          </button>
+        </footer>
+      )}
       {session.hasChoices && (
         <TalentModal
           session={session}
@@ -535,11 +397,38 @@ export function App() {
           onPrepare={() => {
             session.backToPreparation();
             setSelected(null);
+            setMessage('已恢复阵容，可以继续调整布阵。');
             repaint();
           }}
           onReset={reset}
         />
       )}
+      {session.phase === 'combat' &&
+        session.paused &&
+        !session.hasChoices &&
+        !dialog &&
+        !help &&
+        !journal && (
+          <PauseMenu
+            session={session}
+            onResume={resume}
+            onPrepare={() =>
+              setDialog({
+                title: '返回布阵',
+                body: '恢复开战前的完整检查点，本关产钱、经验和天赋不保留。',
+                label: '返回布阵',
+                action: () => {
+                  session.backToPreparation();
+                  setMessage('已恢复开战前阵容，可以继续调整布阵。');
+                  repaint();
+                },
+              })
+            }
+            onHelp={() => setHelp(true)}
+            onBuffs={() => setJournal(true)}
+            onReset={reset}
+          />
+        )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
       {dialog && (
         <div className="modal-backdrop top-modal">
@@ -604,7 +493,7 @@ export function App() {
               自动保存整备、关后天赋和完成状态。已知旧版先备份再迁移，无法兼容的旧档会提示新局。数值尚待原作实机校准；本地数据只保存在当前浏览器。
             </p>
             <button className="primary" onClick={() => setHelp(false)}>
-              开始布阵
+              {preparing ? '返回布阵' : '返回暂停菜单'}
             </button>
           </section>
         </div>

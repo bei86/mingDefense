@@ -36,7 +36,7 @@ function won(stageId: number) {
 }
 
 describe('十五关与岩铠领主', () => {
-  it('仅追加后五关和第三首领，原有内容完全保留', () => {
+  it('仅追加后五关和第三首领，除接敌距离外原有内容保留', () => {
     const {
       thirdBoss: _boss,
       fourthBoss: _fourth,
@@ -52,6 +52,7 @@ describe('十五关与岩铠领主', () => {
       status: v9.status,
       stages: old.stages.slice(0, 10),
       scope: v9.scope,
+      waves: { ...old.waves, spawnRow: v9.waves.spawnRow },
     }).toEqual(v9);
     expect(stages.slice(0, 15).map((s) => s.id)).toEqual(
       Array.from({ length: 15 }, (_, i) => i + 1),

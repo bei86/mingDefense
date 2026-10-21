@@ -1,3 +1,4 @@
+import { useLegacyApproach } from './testing/legacy-approach';
 import { expect, test } from 'vitest';
 import { simulate, orders } from './testing/campaign-simulation';
 import { validSave } from './persistence';
@@ -6,7 +7,9 @@ import sixthCheckpoint from './fixtures/stage-6-checkpoint.json';
 import tenthCheckpoint from './fixtures/stage-10-checkpoint.json';
 import eighthCheckpoint from './fixtures/stage-8-checkpoint.json';
 
-test('十关正常经济样本与开发检查点', () => {
+useLegacyApproach();
+
+test('历史1格规则：十关正常经济样本与开发检查点', () => {
   const runs = Array.from({ length: 12 }, (_, i) => 20261014 + i).flatMap((seed) =>
     Object.keys(orders).flatMap((policy) =>
       [true, false].map((boost) => ({ ...simulate(seed, policy, boost, 10, true), boost })),

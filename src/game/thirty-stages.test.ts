@@ -36,7 +36,7 @@ function won(stageId: number) {
 }
 
 describe('三十关与玄羽妖帅', () => {
-  it('前25关完整配置不变，六首领隔离，新五关每秒连续生成', () => {
+  it('除接敌距离外前25关配置不变，六首领隔离，新五关每秒连续生成', () => {
     const { sixthBoss: _sixth, seventhBoss: _seventh, eighthBoss: _eighth, ...old } = config;
     expect({
       ...old,
@@ -44,6 +44,7 @@ describe('三十关与玄羽妖帅', () => {
       status: v12.status,
       stages: old.stages.slice(0, 25),
       scope: v12.scope,
+      waves: { ...old.waves, spawnRow: v12.waves.spawnRow },
     }).toEqual(v12);
     expect(stages.slice(0, 30).map((s) => s.id)).toEqual(
       Array.from({ length: 30 }, (_, i) => i + 1),

@@ -1,0 +1,2296 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": "prototype-2026-10-21-v15",
+  "status": "prototype-forty-stages-v15",
+  "provenance": {
+    "A": "活动公告或截图明确",
+    "B": "第三方攻略记载",
+    "C": "来源修复候选",
+    "P": "用户授权的临时设计；不代表原作",
+    "default": "P"
+  },
+  "runtime": {
+    "tickMs": 50,
+    "stageLimitMs": 180000,
+    "maxHeroRank": 6,
+    "m1MaxHeroRank": 3,
+    "simulationSpeeds": [
+      1,
+      2
+    ]
+  },
+  "board": {
+    "columns": 6,
+    "rows": 6,
+    "initialUnlocked": [
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        4,
+        5
+      ]
+    ],
+    "rotate": false,
+    "reserveUnitLimit": 2,
+    "cellExpansionWeight": 20,
+    "unitOfferWeight": 80
+  },
+  "shop": {
+    "initialCurrency": 45,
+    "tutorialOfferCount": 4,
+    "refreshCost": 15,
+    "offerCount": 3,
+    "claimCost": 0,
+    "discardRefund": 0,
+    "freeTutorialUnits": [
+      "ember_mouse",
+      "ember_mouse",
+      "boar",
+      "sword_eagle"
+    ],
+    "rankWeights": [
+      {
+        "stages": [
+          1,
+          5
+        ],
+        "weights": [
+          100,
+          0,
+          0
+        ]
+      },
+      {
+        "stages": [
+          6,
+          10
+        ],
+        "weights": [
+          85,
+          15,
+          0
+        ]
+      },
+      {
+        "stages": [
+          11,
+          20
+        ],
+        "weights": [
+          70,
+          25,
+          5
+        ]
+      },
+      {
+        "stages": [
+          21,
+          50
+        ],
+        "weights": [
+          50,
+          35,
+          15
+        ]
+      }
+    ],
+    "rank2FromStage": 6,
+    "rank2ChancePercent": 15
+  },
+  "heroHpMultipliers": [
+    1,
+    1.7,
+    2.4,
+    3.2,
+    5,
+    8
+  ],
+  "units": [
+    {
+      "id": "fortune_peach",
+      "referenceName": "招财桃",
+      "shape": [
+        [
+          0,
+          0
+        ]
+      ],
+      "hp": [
+        240,
+        408,
+        576,
+        768,
+        1200,
+        1920
+      ],
+      "hitDamage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "actionIntervalMs": 1000,
+      "rangeCells": 0,
+      "windupMs": 0,
+      "incomeIntervalMs": [
+        20000,
+        18000,
+        16000,
+        14000,
+        6000,
+        5000
+      ],
+      "provenance": {
+        "hpRank1": "B",
+        "hpRank2to6": "P",
+        "incomeIntervals": "B/C"
+      },
+      "skills": {
+        "incomeOnlyDuringCombat": true,
+        "incomeStopsWhenInjured": true
+      }
+    },
+    {
+      "id": "ice_fish",
+      "referenceName": "北冥鱼",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "hp": [
+        160,
+        272,
+        384,
+        512,
+        800,
+        1280
+      ],
+      "hitDamage": [
+        150,
+        300,
+        390,
+        520,
+        840,
+        1680
+      ],
+      "actionIntervalMs": 1400,
+      "rangeCells": 5,
+      "windupMs": 200,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "slowPercent": 20,
+        "slowDurationMs": 1500,
+        "freezeFromRank": 3,
+        "freezeEveryAttacks": 3,
+        "freezeDurationMs": 500,
+        "bossFreezeMultiplierPercent": 50
+      }
+    },
+    {
+      "id": "sword_eagle",
+      "referenceName": "御剑鹰",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "hp": [
+        140,
+        238,
+        336,
+        448,
+        700,
+        1120
+      ],
+      "hitDamage": [
+        120,
+        240,
+        270,
+        360,
+        480,
+        960
+      ],
+      "actionIntervalMs": 1600,
+      "rangeCells": 5.5,
+      "windupMs": 250,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B",
+        "hitDamageRank5": "C",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "splashRadiusCells": 1.1,
+        "residueFromRank": 3,
+        "residueDurationMs": 2000,
+        "residueHitOffsetsMs": [
+          1000,
+          2000
+        ],
+        "residueDamagePercent": 48,
+        "doubleMainHitFromRank": 5,
+        "doubleMainHitOffsetMs": 100
+      }
+    },
+    {
+      "id": "piercing_monkey",
+      "referenceName": "齐天猴",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "hp": [
+        180,
+        306,
+        432,
+        576,
+        900,
+        1440
+      ],
+      "hitDamage": [
+        100,
+        200,
+        270,
+        360,
+        420,
+        840
+      ],
+      "actionIntervalMs": 1400,
+      "rangeCells": 5,
+      "windupMs": 200,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "lineWidthCells": 0.6,
+        "vulnerabilityFromRank": 3,
+        "vulnerabilityPercent": 10,
+        "vulnerabilityDurationMs": 3000,
+        "doubleHitFromRank": 5,
+        "doubleHitOffsetMs": 100
+      }
+    },
+    {
+      "id": "boar",
+      "referenceName": "天蓬猪",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "hp": [
+        200,
+        340,
+        480,
+        640,
+        1000,
+        1600
+      ],
+      "hitDamage": [
+        150,
+        300,
+        324,
+        432,
+        800,
+        1440
+      ],
+      "actionIntervalMs": 1300,
+      "rangeCells": 4.5,
+      "windupMs": 200,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B-includes-120-percent",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "criticalFromRank": 3,
+        "criticalEveryAttacks": 3,
+        "criticalEveryAttacksFromRank5": 2,
+        "criticalDamagePercent": 150,
+        "criticalReplacesNormalHit": true,
+        "splashDamageNumerator": 5,
+        "splashDamageDenominator": 6,
+        "splashRadiusCells": 1,
+        "splashIncludesMainTarget": true
+      }
+    },
+    {
+      "id": "scatter_bear",
+      "referenceName": "熊大师",
+      "shape": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "hp": [
+        190,
+        323,
+        456,
+        608,
+        950,
+        1520
+      ],
+      "hitDamage": [
+        80,
+        160,
+        210,
+        280,
+        360,
+        720
+      ],
+      "actionIntervalMs": 1500,
+      "rangeCells": 4,
+      "windupMs": 200,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B-per-projectile-candidate",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "projectileAnglesDegrees": [
+          -12,
+          0,
+          12
+        ],
+        "projectileHalfWidthCells": 0.2,
+        "splitsFromRank": 3,
+        "splitCount": 2,
+        "splitDamagePercent": 35,
+        "splitAnglesDegrees": [
+          -25,
+          25
+        ],
+        "splitRangeCells": 1.5,
+        "maxSplitDepth": 1
+      }
+    },
+    {
+      "id": "ember_mouse",
+      "referenceName": "火云鼠",
+      "shape": [
+        [
+          0,
+          0
+        ]
+      ],
+      "hp": [
+        120,
+        204,
+        288,
+        384,
+        600,
+        960
+      ],
+      "hitDamage": [
+        60,
+        120,
+        180,
+        240,
+        480,
+        960
+      ],
+      "actionIntervalMs": 1000,
+      "rangeCells": 4.5,
+      "windupMs": 150,
+      "provenance": {
+        "hp": "P",
+        "hitDamage": "B",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {}
+    },
+    {
+      "id": "shield_fox",
+      "referenceName": "仙乐狐",
+      "shape": [
+        [
+          0,
+          0
+        ]
+      ],
+      "hp": [
+        100,
+        170,
+        240,
+        320,
+        500,
+        800
+      ],
+      "hitDamage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "actionIntervalMs": 1200,
+      "rangeCells": 2.5,
+      "windupMs": 150,
+      "provenance": {
+        "hp": "P",
+        "shieldPercent": "B",
+        "actionIntervalMs": "P",
+        "rangeCells": "P"
+      },
+      "skills": {
+        "shieldPercentOfTargetMaxHp": 3,
+        "shieldCapPercentOfTargetMaxHp": 30,
+        "shieldDurationMs": 6000,
+        "auraFromRank": 3,
+        "auraRadiusCells": 2.5,
+        "auraAttackPercent": 10,
+        "aurasStack": false,
+        "startEnergyFromRank": 5,
+        "startEnergy": 15
+      }
+    }
+  ],
+  "targeting": {
+    "alliesMove": false,
+    "enemyContactRangeCells": 0.6,
+    "enemyWindupMs": 200,
+    "enemyBodyRadiusCells": 0.2,
+    "enemyBodyCollision": false,
+    "tauntTieOrder": [
+      "fortune_peach",
+      "shield_fox",
+      "ember_mouse",
+      "boar",
+      "scatter_bear",
+      "piercing_monkey",
+      "ice_fish",
+      "sword_eagle"
+    ],
+    "targetRecheckMs": 250,
+    "heroTieBreak": "nearest-then-instance-id",
+    "enemyTieBreak": "front-row-then-low-rank-then-taunt-then-distance-then-instance-id"
+  },
+  "energy": {
+    "capacity": 100,
+    "initial": 0,
+    "perKill": 5,
+    "holdCostPerSecond": 20,
+    "attackSpeedBonusPercent": 50,
+    "bossKillGain": 0
+  },
+  "damage": {
+    "minHitDamage": 1,
+    "shieldCapPercent": 30,
+    "roundAtFinalHit": "floor",
+    "attackSpeedBonusCapPercent": 200,
+    "slowCapPercent": 60,
+    "enemyAttackSpeedBuffs": false
+  },
+  "enemies": [
+    {
+      "id": "wolf",
+      "referenceName": "奔雷狼",
+      "hp": 220,
+      "hitDamage": 14,
+      "actionIntervalMs": 1200,
+      "speedCellsPerSecond": 0.55,
+      "rangeCells": 0.6,
+      "xp": 5,
+      "skills": {
+        "rageEveryMs": 10000,
+        "rageAttackPercent": 5,
+        "rageMaxStacks": 6,
+        "rageEnabledFromStage": 6
+      }
+    },
+    {
+      "id": "croc",
+      "referenceName": "鳄霸",
+      "hp": 600,
+      "hitDamage": 20,
+      "actionIntervalMs": 1800,
+      "speedCellsPerSecond": 0.35,
+      "rangeCells": 0.6,
+      "xp": 8,
+      "skills": {
+        "damageReductionPercent": 15
+      }
+    },
+    {
+      "id": "summoner",
+      "referenceName": "啸地犬",
+      "hp": 4000,
+      "hitDamage": 12,
+      "actionIntervalMs": 1600,
+      "speedCellsPerSecond": 0.45,
+      "rangeCells": 0.6,
+      "xp": 8,
+      "skills": {
+        "summonEveryMs": 20000,
+        "firstSummonDelayMs": 10000,
+        "summonId": "summoned_wolf",
+        "summonCount": 2,
+        "maxLivingSummons": 6
+      }
+    },
+    {
+      "id": "runner",
+      "referenceName": "雷动犬",
+      "hp": 170,
+      "hitDamage": 10,
+      "actionIntervalMs": 800,
+      "speedCellsPerSecond": 1,
+      "rangeCells": 0.6,
+      "xp": 5,
+      "skills": {}
+    },
+    {
+      "id": "splitter",
+      "referenceName": "石灵犀",
+      "hp": 400,
+      "hitDamage": 16,
+      "actionIntervalMs": 1400,
+      "speedCellsPerSecond": 0.45,
+      "rangeCells": 0.6,
+      "xp": 8,
+      "skills": {
+        "onDeathSpawnId": "split_fragment",
+        "onDeathSpawnCount": 2
+      }
+    },
+    {
+      "id": "ranged",
+      "referenceName": "鲲小鹏",
+      "hp": 280,
+      "hitDamage": 18,
+      "actionIntervalMs": 1500,
+      "speedCellsPerSecond": 0.45,
+      "rangeCells": 4,
+      "xp": 8,
+      "skills": {}
+    },
+    {
+      "id": "summoned_wolf",
+      "referenceName": "临时召唤小怪",
+      "hp": 120,
+      "hitDamage": 8,
+      "actionIntervalMs": 1200,
+      "speedCellsPerSecond": 0.6,
+      "rangeCells": 0.6,
+      "xp": 0,
+      "energyGain": 0,
+      "skills": {}
+    },
+    {
+      "id": "split_fragment",
+      "referenceName": "临时分裂小怪",
+      "hp": 100,
+      "hitDamage": 6,
+      "actionIntervalMs": 1000,
+      "speedCellsPerSecond": 0.8,
+      "rangeCells": 0.6,
+      "xp": 2,
+      "energyGain": 2,
+      "skills": {}
+    }
+  ],
+  "boss": {
+    "id": "prototype_boss_1",
+    "referenceName": "首个临时Boss（不代表原作）",
+    "hp": 72000,
+    "hitDamage": 55,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 30,
+    "cleaveIntervalMs": 12000,
+    "cleaveWarningMs": 1200,
+    "cleaveHitDamage": 75,
+    "phase2HpPercent": 40,
+    "phase2AttackSpeedBonusPercent": 25,
+    "summonIntervalMs": 20000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 6
+  },
+  "stages": [
+    {
+      "id": 1,
+      "hpMultiplier": 1,
+      "attackMultiplier": 1,
+      "reward": 25,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 6000,
+          "enemies": {
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "wolf": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "hpMultiplier": 1.12,
+      "attackMultiplier": 1.05,
+      "reward": 30,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 6,
+            "runner": 2
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "wolf": 8,
+            "runner": 2
+          }
+        },
+        {
+          "atMs": 18000,
+          "enemies": {
+            "wolf": 8,
+            "runner": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "hpMultiplier": 1.25,
+      "attackMultiplier": 1.1,
+      "reward": 35,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4
+          }
+        },
+        {
+          "atMs": 16000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "hpMultiplier": 1.4,
+      "attackMultiplier": 1.15,
+      "reward": 40,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "croc": 2,
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "croc": 2,
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 16000,
+          "enemies": {
+            "croc": 2,
+            "wolf": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "hpMultiplier": 1.6,
+      "attackMultiplier": 1.2,
+      "reward": 60,
+      "bossId": "prototype_boss_1",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4
+          }
+        },
+        {
+          "atMs": 4000,
+          "enemies": {
+            "wolf": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "hpMultiplier": 2.7,
+      "attackMultiplier": 1.5,
+      "reward": 45,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 10000,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 20000,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "hpMultiplier": 3,
+      "attackMultiplier": 1.56,
+      "reward": 50,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "hpMultiplier": 3.3,
+      "attackMultiplier": 1.62,
+      "reward": 55,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "hpMultiplier": 3.6,
+      "attackMultiplier": 1.68,
+      "reward": 60,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "splitter": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "splitter": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "splitter": 4,
+            "croc": 2,
+            "summoner": 2,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "hpMultiplier": 2.6,
+      "attackMultiplier": 1.45,
+      "reward": 90,
+      "bossId": "prototype_boss_2",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 2
+          }
+        },
+        {
+          "atMs": 6000,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "hpMultiplier": 12,
+      "attackMultiplier": 3.6,
+      "reward": 75,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "wolf": 6,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "hpMultiplier": 13.2,
+      "attackMultiplier": 3.8,
+      "reward": 80,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "runner": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "runner": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "runner": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "hpMultiplier": 8.64,
+      "attackMultiplier": 3,
+      "reward": 85,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "summoner": 2,
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "summoner": 2,
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "hpMultiplier": 8.84,
+      "attackMultiplier": 2.94,
+      "reward": 90,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "splitter": 4,
+            "summoner": 2,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "splitter": 4,
+            "summoner": 2,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "splitter": 4,
+            "summoner": 2,
+            "croc": 2,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "hpMultiplier": 11.2,
+      "attackMultiplier": 3.3,
+      "reward": 120,
+      "bossId": "prototype_boss_3",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 2,
+            "croc": 2
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 2,
+            "croc": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "hpMultiplier": 18.2,
+      "attackMultiplier": 5.04,
+      "reward": 100,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 8
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 8
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 2,
+            "ranged": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "hpMultiplier": 13,
+      "attackMultiplier": 4.08,
+      "reward": 105,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "hpMultiplier": 24,
+      "attackMultiplier": 6.3,
+      "reward": 110,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "hpMultiplier": 12.6,
+      "attackMultiplier": 4.32,
+      "reward": 115,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "hpMultiplier": 16.25,
+      "attackMultiplier": 4.8,
+      "reward": 150,
+      "bossId": "prototype_boss_4",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "hpMultiplier": 33,
+      "attackMultiplier": 7.7,
+      "reward": 120,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "wolf": 4,
+            "runner": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "hpMultiplier": 13.5,
+      "attackMultiplier": 4.675,
+      "reward": 125,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "croc": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "summoner": 2,
+            "croc": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "summoner": 2,
+            "croc": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "hpMultiplier": 32.4,
+      "attackMultiplier": 7.6,
+      "reward": 130,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "hpMultiplier": 14.4,
+      "attackMultiplier": 5.4,
+      "reward": 135,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "hpMultiplier": 20.4,
+      "attackMultiplier": 5.7,
+      "reward": 180,
+      "bossId": "prototype_boss_5",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "hpMultiplier": 32,
+      "attackMultiplier": 7.65,
+      "reward": 140,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "hpMultiplier": 21.6,
+      "attackMultiplier": 7.2,
+      "reward": 145,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "hpMultiplier": 42,
+      "attackMultiplier": 9.45,
+      "reward": 150,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "runner": 4,
+            "splitter": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "hpMultiplier": 19.95,
+      "attackMultiplier": 6.825,
+      "reward": 155,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 2,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "hpMultiplier": 28,
+      "attackMultiplier": 6.5,
+      "reward": 210,
+      "bossId": "prototype_boss_6",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "runner": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "runner": 4,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "hpMultiplier": 34,
+      "attackMultiplier": 8,
+      "reward": 165,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "runner": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "runner": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "runner": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "hpMultiplier": 25,
+      "attackMultiplier": 7.5,
+      "reward": 170,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "wolf": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "summoner": 2,
+            "wolf": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "summoner": 2,
+            "wolf": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "hpMultiplier": 44,
+      "attackMultiplier": 9.8,
+      "reward": 175,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "splitter": 4,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "splitter": 4,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "splitter": 4,
+            "runner": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "hpMultiplier": 23,
+      "attackMultiplier": 7.2,
+      "reward": 180,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "croc": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "hpMultiplier": 30,
+      "attackMultiplier": 7,
+      "reward": 240,
+      "bossId": "prototype_boss_7",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "hpMultiplier": 40,
+      "attackMultiplier": 8.8,
+      "reward": 190,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "wolf": 4,
+            "croc": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "hpMultiplier": 29,
+      "attackMultiplier": 8.1,
+      "reward": 195,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 12000,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        },
+        {
+          "atMs": 24000,
+          "enemies": {
+            "summoner": 2,
+            "runner": 4,
+            "ranged": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "hpMultiplier": 52,
+      "attackMultiplier": 10.5,
+      "reward": 200,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "splitter": 4,
+            "runner": 4,
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "splitter": 4,
+            "runner": 4,
+            "wolf": 6
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "splitter": 4,
+            "runner": 4,
+            "wolf": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "hpMultiplier": 27,
+      "attackMultiplier": 7.8,
+      "reward": 205,
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "ranged": 6,
+            "croc": 2
+          }
+        },
+        {
+          "atMs": 14000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "ranged": 6,
+            "croc": 2
+          }
+        },
+        {
+          "atMs": 28000,
+          "enemies": {
+            "summoner": 2,
+            "splitter": 4,
+            "ranged": 6,
+            "croc": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "hpMultiplier": 34,
+      "attackMultiplier": 7.5,
+      "reward": 270,
+      "bossId": "prototype_boss_8",
+      "waves": [
+        {
+          "atMs": 0,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        },
+        {
+          "atMs": 8000,
+          "enemies": {
+            "wolf": 4,
+            "ranged": 4
+          }
+        }
+      ]
+    }
+  ],
+  "waves": {
+    "spawnIntervalMs": 1000,
+    "spawnColumns": [
+      1,
+      3,
+      5
+    ],
+    "spawnRow": -1,
+    "mixedEnemyOrder": "alternate-types-by-id",
+    "summonerLivingSummonCap": 6
+  },
+  "progression": {
+    "xpThresholdsForNextLevel": [
+      60,
+      80,
+      100,
+      120,
+      150,
+      180,
+      210,
+      240,
+      280,
+      320
+    ],
+    "afterThresholdsIncrement": 40,
+    "buffOptions": 3,
+    "commonWeight": 70,
+    "rareWeight": 25,
+    "epicWeight": 5,
+    "pauseOnLevelUp": true
+  },
+  "buffs": [
+    {
+      "id": "attack",
+      "quality": "common",
+      "effect": "attackBonusPercent",
+      "valuePerLevel": 10,
+      "maxLevel": 10,
+      "provenance": "P"
+    },
+    {
+      "id": "attack_speed",
+      "quality": "common",
+      "effect": "attackSpeedBonusPercent",
+      "valuePerLevel": 10,
+      "maxLevel": 10,
+      "provenance": "P"
+    },
+    {
+      "id": "health",
+      "quality": "common",
+      "effect": "maxHpBonusPercent",
+      "valuePerLevel": 15,
+      "maxLevel": 5,
+      "provenance": "P"
+    },
+    {
+      "id": "range",
+      "quality": "common",
+      "effect": "rangeBonusCells",
+      "valuePerLevel": 0.2,
+      "maxLevel": 3,
+      "provenance": "P"
+    },
+    {
+      "id": "slow",
+      "quality": "common",
+      "effect": "globalEnemySlowPercent",
+      "valuePerLevel": 5,
+      "maxLevel": 5,
+      "provenance": "B-value/P-cap"
+    },
+    {
+      "id": "reward",
+      "quality": "common",
+      "effect": "extraStageCurrency",
+      "valuePerLevel": 5,
+      "maxLevel": 3,
+      "provenance": "P"
+    },
+    {
+      "id": "eagle_residue",
+      "requiresMinRank": 3,
+      "quality": "rare",
+      "requiresUnit": "sword_eagle",
+      "effect": "residueDamageBonusPercent",
+      "valuePerLevel": 15,
+      "maxLevel": 3,
+      "provenance": "P"
+    },
+    {
+      "id": "boar_attack",
+      "quality": "rare",
+      "requiresUnit": "boar",
+      "effect": "attackDamageBonusPercent",
+      "valuePerLevel": 12,
+      "maxLevel": 3,
+      "provenance": "A-value/P-cap"
+    },
+    {
+      "id": "bear_attack",
+      "quality": "rare",
+      "requiresUnit": "scatter_bear",
+      "effect": "attackBonusPercent",
+      "valuePerLevel": 10,
+      "maxLevel": 3,
+      "provenance": "A-value/P-cap"
+    },
+    {
+      "id": "monkey_vulnerability",
+      "quality": "rare",
+      "requiresUnit": "piercing_monkey",
+      "requiresMinRank": 3,
+      "effect": "vulnerabilityBonusPercentagePoints",
+      "valuePerLevel": 5,
+      "maxLevel": 3,
+      "provenance": "P"
+    },
+    {
+      "id": "fox_shield",
+      "quality": "rare",
+      "requiresUnit": "shield_fox",
+      "effect": "shieldAmountBonusPercent",
+      "valuePerLevel": 8,
+      "maxLevel": 3,
+      "provenance": "A-value/P-cap"
+    },
+    {
+      "id": "mouse_finisher",
+      "quality": "rare",
+      "requiresUnit": "ember_mouse",
+      "effect": "damageBonusBelowHpPercent",
+      "thresholdHpPercent": 30,
+      "valuePerLevel": 50,
+      "maxLevel": 1,
+      "provenance": "B"
+    },
+    {
+      "id": "mouse_execute",
+      "quality": "epic",
+      "requiresUnit": "ember_mouse",
+      "requiresBuff": "mouse_finisher",
+      "minStage": 6,
+      "effect": "executeChancePercent",
+      "thresholdHpPercent": 30,
+      "valuePerLevel": 10,
+      "maxLevel": 1,
+      "bossImmune": true,
+      "provenance": "B-value/P-unlock"
+    }
+  ],
+  "scope": {
+    "M1": {
+      "stageIds": [
+        1
+      ],
+      "unitIds": [
+        "ember_mouse",
+        "boar",
+        "sword_eagle"
+      ],
+      "maxRank": 3,
+      "buffsEnabled": false,
+      "bossEnabled": false
+    },
+    "M2M3": {
+      "stageIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40
+      ],
+      "unitIds": [
+        "ember_mouse",
+        "boar",
+        "sword_eagle",
+        "fortune_peach",
+        "ice_fish",
+        "shield_fox",
+        "piercing_monkey",
+        "scatter_bear"
+      ],
+      "maxRank": 6,
+      "buffsEnabled": true,
+      "bossEnabled": true
+    }
+  },
+  "secondBoss": {
+    "id": "prototype_boss_2",
+    "referenceName": "第二个临时Boss（不代表原作）",
+    "hp": 240000,
+    "hitDamage": 90,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 40,
+    "cleaveIntervalMs": 16000,
+    "cleaveWarningMs": 1600,
+    "cleaveHitDamage": 125,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 15,
+    "summonIntervalMs": 14000,
+    "summonCount": 3,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 9,
+    "summonFromStart": true
+  },
+  "thirdBoss": {
+    "id": "prototype_boss_3",
+    "referenceName": "第三个临时Boss（不代表原作）",
+    "hp": 650000,
+    "hitDamage": 135,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 40,
+    "cleaveIntervalMs": 14000,
+    "cleaveWarningMs": 1800,
+    "cleaveHitDamage": 180,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 20,
+    "summonIntervalMs": 18000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 6,
+    "summonFromStart": true,
+    "damageReductionPercent": 15
+  },
+  "fourthBoss": {
+    "id": "prototype_boss_4",
+    "referenceName": "第四个临时Boss（不代表原作）",
+    "hp": 950000,
+    "hitDamage": 165,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 40,
+    "cleaveIntervalMs": 12000,
+    "cleaveWarningMs": 2000,
+    "cleaveHitDamage": 210,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 25,
+    "summonIntervalMs": 16000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 8,
+    "summonFromStart": true,
+    "phase2SummonCount": 4
+  },
+  "fifthBoss": {
+    "id": "prototype_boss_5",
+    "referenceName": "第五个临时Boss（不代表原作）",
+    "hp": 1100000,
+    "hitDamage": 175,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 40,
+    "cleaveIntervalMs": 12000,
+    "cleaveWarningMs": 2000,
+    "cleaveHitDamage": 230,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 30,
+    "summonIntervalMs": 18000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 8,
+    "summonFromStart": true,
+    "phase2SummonCount": 4,
+    "damageReductionPercent": 15
+  },
+  "sixthBoss": {
+    "id": "prototype_boss_6",
+    "referenceName": "第六个临时Boss（不代表原作）",
+    "hp": 1400000,
+    "hitDamage": 135,
+    "actionIntervalMs": 1200,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 2.4,
+    "xp": 40,
+    "cleaveIntervalMs": 12000,
+    "cleaveWarningMs": 2000,
+    "cleaveHitDamage": 230,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 30,
+    "summonIntervalMs": 20000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 8,
+    "summonFromStart": true,
+    "phase2SummonCount": 4
+  },
+  "seventhBoss": {
+    "id": "prototype_boss_7",
+    "referenceName": "第七个临时Boss（不代表原作）",
+    "hp": 1600000,
+    "hitDamage": 160,
+    "actionIntervalMs": 1500,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 0.8,
+    "xp": 40,
+    "cleaveIntervalMs": 10000,
+    "cleaveWarningMs": 2000,
+    "cleaveHitDamage": 250,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 35,
+    "summonIntervalMs": 16000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 8,
+    "summonFromStart": true,
+    "phase2SummonCount": 4,
+    "damageReductionPercent": 15
+  },
+  "eighthBoss": {
+    "id": "prototype_boss_8",
+    "referenceName": "第八个临时Boss（不代表原作）",
+    "hp": 1900000,
+    "hitDamage": 155,
+    "actionIntervalMs": 1400,
+    "speedCellsPerSecond": 0.35,
+    "rangeCells": 2.2,
+    "xp": 40,
+    "cleaveIntervalMs": 12000,
+    "cleaveWarningMs": 2000,
+    "cleaveHitDamage": 280,
+    "phase2HpPercent": 50,
+    "phase2AttackSpeedBonusPercent": 35,
+    "summonIntervalMs": 14000,
+    "summonCount": 2,
+    "summonId": "summoned_wolf",
+    "maxLivingSummons": 10,
+    "summonFromStart": true,
+    "phase2SummonCount": 4,
+    "damageReductionPercent": 15
+  }
+}

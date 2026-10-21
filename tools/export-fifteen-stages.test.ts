@@ -1,8 +1,11 @@
+import { useLegacyApproach } from '../src/game/testing/legacy-approach';
 import { test } from 'vitest';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { format, resolveConfig } from 'prettier';
 import { config } from '../src/game/content';
 import { simulate, orders } from '../src/game/testing/campaign-simulation';
+
+useLegacyApproach();
 
 test.skipIf(process.env.UPDATE_FIFTEEN_FIXTURE !== '1')(
   'export fifteen-stage samples and checkpoints',
@@ -17,6 +20,8 @@ test.skipIf(process.env.UPDATE_FIFTEEN_FIXTURE !== '1')(
     );
     const summary = {
       contentVersion: config.contentVersion,
+      ruleset: 'legacy-one-cell',
+      spawnRow: config.waves.spawnRow,
       runs: runs.length,
       completed: runs.filter((r) => r.complete).length,
       policies: Object.keys(orders).map((policy) => ({

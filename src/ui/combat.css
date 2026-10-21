@@ -1,0 +1,270 @@
+/* Combat has its own hierarchy; preparation keeps the full editing interface. */
+.battlefield.approach-field {
+  aspect-ratio: 360 / 480;
+}
+.app-shell.combat-view {
+  padding: max(12px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom));
+}
+.combat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px 8px;
+}
+.combat-kicker {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.combat-heading {
+  margin-top: 4px;
+  color: var(--paper);
+  font: 600 21px / 1.4 serif;
+  letter-spacing: 2px;
+}
+.combat-menu-button {
+  min-width: 64px;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  background: #23483bd9;
+  color: var(--gold);
+  font-size: 11px;
+}
+.combat-menu-button > span {
+  font-size: 17px;
+  vertical-align: -1px;
+  margin-right: 3px;
+}
+.combat-view .experience {
+  margin: 0 4px 8px;
+  gap: 7px;
+}
+.combat-view .experience > small {
+  display: none;
+}
+.combat-view .experience button {
+  min-height: 32px;
+  padding: 4px 8px;
+}
+.combat-status {
+  padding: 10px 13px 8px;
+  background: linear-gradient(120deg, #23473bd9, #15392ed9);
+  border: 1px solid var(--border);
+  border-radius: 14px 14px 0 0;
+}
+.combat-vitals {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.combat-health {
+  flex: 1;
+  min-width: 0;
+}
+.combat-health > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+  color: var(--mint);
+  font-size: 10px;
+}
+.combat-health strong {
+  color: var(--paper);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.combat-health strong small {
+  font-size: 9px;
+  font-weight: normal;
+}
+.health-track {
+  height: 6px;
+  margin-top: 7px;
+  background: #0b241c;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.health-track > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #83af75, #d0df9c);
+}
+.combat-timer {
+  flex-shrink: 0;
+  text-align: right;
+}
+.combat-timer small,
+.combat-timer strong {
+  display: block;
+}
+.combat-timer small {
+  font-size: 9px;
+}
+.combat-timer strong {
+  color: var(--gold);
+  font-size: 23px;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+}
+.combat-timer.urgent strong {
+  color: var(--danger);
+}
+.combat-wave {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.combat-wave b {
+  font-weight: normal;
+  color: var(--paper);
+}
+.combat-boss {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #b6a56d44;
+}
+.combat-boss > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.combat-boss strong {
+  color: var(--gold);
+  font-size: 11px;
+}
+.combat-boss small {
+  font-size: 9px;
+}
+.combat-boss.enraged strong {
+  color: #f1b28c;
+}
+.combat-boss.enraged .boss-track > span {
+  background: #e0a480;
+}
+.combat-view .field-panel {
+  border-color: #65826355;
+}
+.combat-view .board-caption {
+  display: none;
+}
+.combat-dock {
+  padding: 12px 2px 0;
+}
+.combat-energy {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.combat-energy b {
+  margin-left: 4px;
+  color: var(--gold);
+  font-size: 14px;
+}
+.combat-energy small {
+  font-weight: normal;
+}
+.combat-energy > span:last-child {
+  font-size: 9px;
+}
+.combat-dock .energy-bar {
+  height: 4px;
+  margin: 7px 0 12px;
+}
+.combat-buttons {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+.combat-dock .energy-button {
+  flex: 1;
+  min-width: 0;
+  min-height: 66px;
+  padding: 6px 12px;
+  gap: 6px;
+}
+.combat-dock .energy-button strong {
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+.combat-dock .energy-button small {
+  font-size: 9px;
+  margin-top: 3px;
+}
+.combat-dock .energy-button .stone {
+  width: 42px;
+  height: 44px;
+}
+.combat-speed {
+  flex: 0 0 62px;
+  border: 1px solid #6f876155;
+  border-radius: 11px;
+  background: #1b3d32;
+}
+.combat-speed strong,
+.combat-speed span {
+  display: block;
+}
+.combat-speed strong {
+  color: var(--gold);
+  font-size: 21px;
+  font-variant-numeric: tabular-nums;
+}
+.combat-speed span {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.pause-modal {
+  max-width: 355px;
+}
+.pause-tools {
+  display: flex;
+  gap: 8px;
+}
+.pause-tools > button {
+  flex: 1;
+}
+.pause-modal .enemy-intel {
+  text-align: left;
+  margin-top: 16px;
+}
+.pause-modal .pause-income {
+  font-size: 10px;
+  margin: 12px 0;
+}
+.combat-view .save-notice {
+  font-size: 10px;
+  padding: 6px 8px;
+  margin-bottom: 10px;
+}
+@media (max-width: 350px) {
+  .app-shell.combat-view {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .combat-status {
+    padding: 10px;
+  }
+  .combat-vitals {
+    gap: 10px;
+  }
+  .combat-health strong small {
+    display: none;
+  }
+}

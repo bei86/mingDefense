@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "contentVersion": "prototype-2026-10-21-v15",
-  "status": "prototype-forty-stages-v15",
+  "contentVersion": "prototype-2026-10-21-v17",
+  "status": "prototype-forty-stages-v17",
   "provenance": {
     "A": "活动公告或截图明确",
     "B": "第三方攻略记载",
@@ -1928,7 +1928,7 @@
       3,
       5
     ],
-    "spawnRow": -1,
+    "spawnRow": -3,
     "mixedEnemyOrder": "alternate-types-by-id",
     "summonerLivingSummonCap": 6
   },

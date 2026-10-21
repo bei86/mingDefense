@@ -149,10 +149,21 @@ export function Battlefield({
   view.current = { selected, hover, dragOffset };
   useEffect(() => {
     if (!host.current) return;
+    const samplingDensity = () =>
+      Math.min(
+        3,
+        Math.max(
+          1,
+          Math.ceil((host.current!.getBoundingClientRect().width * window.devicePixelRatio) / 360),
+        ),
+      );
+    let renderDensity = samplingDensity();
     class FieldScene extends Phaser.Scene {
       private drawing!: Phaser.GameObjects.Graphics;
       private overlay!: Phaser.GameObjects.Graphics;
       private art!: ArtLayer;
+      private preparing: boolean | null = null;
+      private density = 0;
       preload() {
         for (const key of battlefieldArt) this.load.image(key, artUrl(key));
       }
@@ -167,29 +178,58 @@ export function Battlefield({
         g.clear();
         const overlay = this.overlay;
         overlay.clear();
+        const preparing = session.phase === 'prepare';
+        if (preparing !== this.preparing || renderDensity !== this.density) {
+          this.preparing = preparing;
+          this.density = renderDensity;
+          this.scale.getParentBounds();
+          this.scale.setGameSize(360 * renderDensity, (preparing ? 416 : 480) * renderDensity);
+          this.cameras.main
+            .setZoom((preparing ? 1 : 0.9) * renderDensity)
+            .centerOn(180, preparing ? 208 : 150);
+        }
         this.art.begin();
-        this.art.draw('battlefield_forest', 180, 208, 360, 540, -20);
-        g.fillStyle(0x102e28, 0.25).fillRect(0, 0, 360, 416);
-        g.lineStyle(1, 0xc9d9b0, 0.25).strokeRoundedRect(16, 66, 328, 328, 14);
+        this.art.draw(
+          'battlefield_forest',
+          180,
+          preparing ? 208 : 150,
+          preparing ? 360 : 420,
+          preparing ? 540 : 630,
+          -20,
+        );
+        g.fillStyle(0x102e28, 0.25).fillRect(-80, -240, 520, 720);
+        if (!preparing) {
+          // The approach area shares the simulation's coordinates and cannot be deployed into.
+          g.fillStyle(0x99ad79, 0.07).fillRoundedRect(
+            ORIGIN.x,
+            ORIGIN.y + config.waves.spawnRow * SIZE,
+            6 * SIZE,
+            -config.waves.spawnRow * SIZE,
+            26,
+          );
+          g.lineStyle(1.5, 0xcbd3a0, 0.3).lineBetween(ORIGIN.x, ORIGIN.y, 336, ORIGIN.y);
+        }
+        if (preparing) g.lineStyle(1, 0xc9d9b0, 0.25).strokeRoundedRect(16, 66, 328, 328, 14);
         const prep = session.preparation;
-        for (let y = 0; y < 6; y++)
-          for (let x = 0; x < 6; x++) {
-            const p = pixel({ x, y });
-            const unlocked = prep.unlocked.includes(key({ x, y }));
-            g.fillStyle(unlocked ? 0x48604b : 0x1b4036, unlocked ? 0.85 : 0.7).fillRoundedRect(
-              p.x + 2,
-              p.y + 2,
-              SIZE - 4,
-              SIZE - 4,
-              7,
-            );
-            g.lineStyle(
-              1,
-              unlocked ? 0xb3b895 : 0x6d9274,
-              unlocked ? 0.32 : 0.16,
-            ).strokeRoundedRect(p.x + 2, p.y + 2, SIZE - 4, SIZE - 4, 7);
-            if (!unlocked) g.fillStyle(0x8eb095, 0.2).fillCircle(p.x + 26, p.y + 26, 2);
-          }
+        if (preparing)
+          for (let y = 0; y < 6; y++)
+            for (let x = 0; x < 6; x++) {
+              const p = pixel({ x, y });
+              const unlocked = prep.unlocked.includes(key({ x, y }));
+              g.fillStyle(unlocked ? 0x48604b : 0x1b4036, unlocked ? 0.85 : 0.7).fillRoundedRect(
+                p.x + 2,
+                p.y + 2,
+                SIZE - 4,
+                SIZE - 4,
+                7,
+              );
+              g.lineStyle(
+                1,
+                unlocked ? 0xb3b895 : 0x6d9274,
+                unlocked ? 0.32 : 0.16,
+              ).strokeRoundedRect(p.x + 2, p.y + 2, SIZE - 4, SIZE - 4, 7);
+              if (!unlocked) g.fillStyle(0x8eb095, 0.2).fillCircle(p.x + 26, p.y + 26, 2);
+            }
         const units =
           session.battle?.allies ??
           prep.units
@@ -200,33 +240,34 @@ export function Battlefield({
               maxHp: maxHeroHp(u, prep.progression),
               shield: 0,
             }));
-        // Each rectangular footprint covers the grid, including cells beyond the sprite.
-        for (const u of units) {
-          if (!u.position) continue;
-          const footprint = cells(u.kind, u.position);
-          const left = Math.min(...footprint.map((c) => c.x));
-          const top = Math.min(...footprint.map((c) => c.y));
-          const width = Math.max(...footprint.map((c) => c.x)) - left + 1;
-          const height = Math.max(...footprint.map((c) => c.y)) - top + 1;
-          const p = pixel({ x: left, y: top });
-          const color = Phaser.Display.Color.HexStringToColor(appearances[u.kind].color);
-          const border = color.color;
-          const fill = color.darken(u.hp > 0 ? 54 : 72).color;
-          g.fillStyle(fill, 1).fillRoundedRect(
-            p.x + 2,
-            p.y + 2,
-            width * SIZE - 4,
-            height * SIZE - 4,
-            7,
-          );
-          g.lineStyle(1, border, 1).strokeRoundedRect(
-            p.x + 2,
-            p.y + 2,
-            width * SIZE - 4,
-            height * SIZE - 4,
-            7,
-          );
-        }
+        // In preparation, the full opaque footprint makes occupied cells unambiguous.
+        if (preparing)
+          for (const u of units) {
+            if (!u.position) continue;
+            const footprint = cells(u.kind, u.position);
+            const left = Math.min(...footprint.map((c) => c.x));
+            const top = Math.min(...footprint.map((c) => c.y));
+            const width = Math.max(...footprint.map((c) => c.x)) - left + 1;
+            const height = Math.max(...footprint.map((c) => c.y)) - top + 1;
+            const p = pixel({ x: left, y: top });
+            const color = Phaser.Display.Color.HexStringToColor(appearances[u.kind].color);
+            const border = color.color;
+            const fill = color.darken(u.hp > 0 ? 54 : 72).color;
+            g.fillStyle(fill, 1).fillRoundedRect(
+              p.x + 2,
+              p.y + 2,
+              width * SIZE - 4,
+              height * SIZE - 4,
+              7,
+            );
+            g.lineStyle(1, border, 1).strokeRoundedRect(
+              p.x + 2,
+              p.y + 2,
+              width * SIZE - 4,
+              height * SIZE - 4,
+              7,
+            );
+          }
         const { selected: choice, hover: over, dragOffset: offset } = view.current;
         const chosen = choice?.type === 'unit' ? prep.units.find((u) => u.id === choice.id) : null;
         const offer = choice?.type === 'offer' ? prep.offers.find((o) => o.id === choice.id) : null;
@@ -554,8 +595,8 @@ export function Battlefield({
     const game = new Phaser.Game({
       type: Phaser.AUTO,
       parent: host.current,
-      width: 360,
-      height: 416,
+      width: 360 * renderDensity,
+      height: 416 * renderDensity,
       backgroundColor: '#14372f',
       scene: FieldScene,
       render: { antialias: true },
@@ -564,37 +605,55 @@ export function Battlefield({
       input: { mouse: false, touch: false },
       banner: false,
     });
-    return () => game.destroy(true);
+    const resizeField = () => {
+      renderDensity = samplingDensity();
+      if (game.isBooted) {
+        game.scale.getParentBounds();
+        game.scale.refresh();
+      }
+    };
+    const resize = new ResizeObserver(resizeField);
+    resize.observe(host.current!);
+    window.addEventListener('resize', resizeField);
+    return () => {
+      resize.disconnect();
+      window.removeEventListener('resize', resizeField);
+      game.destroy(true);
+    };
   }, [session]);
   return (
-    <div className="battlefield">
+    <div className={`battlefield ${session.phase === 'prepare' ? '' : 'approach-field'}`}>
       <div ref={host} className="canvas-host" aria-hidden="true" />
       <div className={`forest-sign ${session.phase === 'prepare' ? '' : 'enemy-entry'}`}>
-        {session.phase === 'prepare' ? '选择灵兽 · 布下守阵' : '敌袭入口 ↓'}
+        {session.phase === 'prepare'
+          ? '选择灵兽 · 布下守阵'
+          : `敌袭入口 · 接敌距离${-config.waves.spawnRow}格 ↓`}
       </div>
-      <div className="board-input" role="group" aria-label="六乘六布阵棋盘">
-        {Array.from({ length: 36 }, (_, i) => {
-          const p = { x: i % 6, y: Math.floor(i / 6) };
-          const u = unitAt(session.preparation, p);
-          const open = session.preparation.unlocked.includes(key(p));
-          return (
-            <button
-              key={i}
-              data-cell-x={p.x}
-              data-cell-y={p.y}
-              className="board-cell"
-              disabled={session.phase !== 'prepare'}
-              aria-label={`${p.x + 1}列${p.y + 1}行，${u ? `${appearances[u.kind].name}${u.rank}阶` : open ? '空地' : '未解锁'}`}
-              onClick={() => onCell(p)}
-              onPointerDown={(e) => {
-                if (u) onDragStart(e, { type: 'unit', id: u.id }, p);
-              }}
-              onPointerEnter={() => onHover(p)}
-              onPointerLeave={() => onHover(null)}
-            />
-          );
-        })}
-      </div>
+      {session.phase === 'prepare' && (
+        <div className="board-input" role="group" aria-label="六乘六布阵棋盘">
+          {Array.from({ length: 36 }, (_, i) => {
+            const p = { x: i % 6, y: Math.floor(i / 6) };
+            const u = unitAt(session.preparation, p);
+            const open = session.preparation.unlocked.includes(key(p));
+            return (
+              <button
+                key={i}
+                data-cell-x={p.x}
+                data-cell-y={p.y}
+                className="board-cell"
+                disabled={session.phase !== 'prepare'}
+                aria-label={`${p.x + 1}列${p.y + 1}行，${u ? `${appearances[u.kind].name}${u.rank}阶` : open ? '空地' : '未解锁'}`}
+                onClick={() => onCell(p)}
+                onPointerDown={(e) => {
+                  if (u) onDragStart(e, { type: 'unit', id: u.id }, p);
+                }}
+                onPointerEnter={() => onHover(p)}
+                onPointerLeave={() => onHover(null)}
+              />
+            );
+          })}
+        </div>
+      )}
       {session.battle?.warnings.length ? (
         <div className="cleave-alert" role="status">
           横扫预警 · 第 {session.battle.warnings[0].row + 1} 行

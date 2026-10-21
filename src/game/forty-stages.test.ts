@@ -36,7 +36,7 @@ function won(stageId: number) {
 }
 
 describe('四十关与玄甲咒尊', () => {
-  it('前35关完整配置不变，八首领隔离，新五关每秒连续生成', () => {
+  it('除接敌距离外前35关配置不变，八首领隔离，新五关每秒连续生成', () => {
     const { eighthBoss: _boss, ...old } = config;
     expect({
       ...old,
@@ -44,6 +44,7 @@ describe('四十关与玄甲咒尊', () => {
       status: v14.status,
       stages: old.stages.slice(0, 35),
       scope: v14.scope,
+      waves: { ...old.waves, spawnRow: v14.waves.spawnRow },
     }).toEqual(v14);
     expect(stages.map((s) => s.id)).toEqual(Array.from({ length: 40 }, (_, i) => i + 1));
     expect(config.scope.M2M3.stageIds).toEqual(stages.map((s) => s.id));

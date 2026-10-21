@@ -35,7 +35,7 @@ function won(stageId: number) {
 }
 
 describe('三十五关与赤角战魁', () => {
-  it('前30关完整配置不变，七首领隔离，新五关每秒连续生成', () => {
+  it('除接敌距离外前30关配置不变，七首领隔离，新五关每秒连续生成', () => {
     const { seventhBoss: _boss, eighthBoss: _eighth, ...old } = config;
     expect({
       ...old,
@@ -43,6 +43,7 @@ describe('三十五关与赤角战魁', () => {
       status: v13.status,
       stages: old.stages.slice(0, 30),
       scope: v13.scope,
+      waves: { ...old.waves, spawnRow: v13.waves.spawnRow },
     }).toEqual(v13);
     expect(stages.slice(0, 35).map((s) => s.id)).toEqual(
       Array.from({ length: 35 }, (_, i) => i + 1),
