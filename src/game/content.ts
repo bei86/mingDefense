@@ -81,6 +81,11 @@ export const stageNames = [
   '碎影狂潮',
   '岩影重围',
   '玄羽之主',
+  '赤岩奔袭',
+  '咒雷围猎',
+  '碎羽狂潮',
+  '岩咒压境',
+  '赤角之主',
 ];
 type BossDefinition = typeof config.boss & {
   summonFromStart?: boolean;
@@ -94,6 +99,7 @@ const bossDefinitions: BossDefinition[] = [
   config.fourthBoss,
   config.fifthBoss,
   config.sixthBoss,
+  config.seventhBoss,
 ];
 export function bossDefinition(stageId: number): BossDefinition {
   const id = stages[stageId - 1].bossId;
@@ -122,6 +128,8 @@ export function bossName(stageId: number): string {
       return '鸣咒统领';
     case config.thirdBoss.id:
       return '岩铠领主';
+    case config.seventhBoss.id:
+      return '赤角战魁';
     case config.sixthBoss.id:
       return '玄羽妖帅';
     case config.fifthBoss.id:

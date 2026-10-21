@@ -37,7 +37,7 @@ function won(stageId: number) {
 
 describe('三十关与玄羽妖帅', () => {
   it('前25关完整配置不变，六首领隔离，新五关每秒连续生成', () => {
-    const { sixthBoss: _sixth, ...old } = config;
+    const { sixthBoss: _sixth, seventhBoss: _seventh, ...old } = config;
     expect({
       ...old,
       contentVersion: v12.contentVersion,
@@ -45,9 +45,16 @@ describe('三十关与玄羽妖帅', () => {
       stages: old.stages.slice(0, 25),
       scope: v12.scope,
     }).toEqual(v12);
-    expect(stages.map((s) => s.id)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
+    expect(stages.slice(0, 30).map((s) => s.id)).toEqual(
+      Array.from({ length: 30 }, (_, i) => i + 1),
+    );
     expect(config.scope.M2M3.stageIds).toEqual(stages.map((s) => s.id));
-    expect(stages.filter((s) => s.bossId).map((s) => s.id)).toEqual([5, 10, 15, 20, 25, 30]);
+    expect(
+      stages
+        .slice(0, 30)
+        .filter((s) => s.bossId)
+        .map((s) => s.id),
+    ).toEqual([5, 10, 15, 20, 25, 30]);
     expect([5, 10, 15, 20, 25, 30].map(bossDefinition)).toEqual([
       config.boss,
       config.secondBoss,
@@ -209,16 +216,17 @@ describe('三十关与玄羽妖帅', () => {
     expect(s.preparation).toEqual(after);
     expect(validSave(s.exportSave())).toBe(true);
   });
-  it('30是最终点，重载不重复奖励，失败与中止回滚', () => {
+  it('旧30关重载不重复奖励，可继续31，失败与中止回滚', () => {
     const s = won(30),
       save = s.exportSave();
-    expect(s.complete).toBe(true);
+    expect(s.complete).toBe(false);
     expect(validSave(save)).toBe(true);
     const loaded = Session.restore(save);
-    expect(loaded.complete).toBe(true);
-    expect(loaded.nextStage()).toBeTruthy();
+    expect(loaded.complete).toBe(false);
     loaded.tick();
     expect(loaded.preparation).toEqual(save.preparation);
+    expect(loaded.nextStage()).toBeNull();
+    expect(loaded.preparation.stageId).toBe(31);
     s.backToPreparation();
     const before = clone(s.preparation);
     s.start();
