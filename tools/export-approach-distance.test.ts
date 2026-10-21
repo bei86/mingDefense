@@ -21,6 +21,10 @@ test.skipIf(process.env.EXPORT_APPROACH_SAMPLES !== '1')(
         policy,
         won: runs.filter((r) => r.policy === policy && r.results[19]?.result === 'victory').length,
       })),
+      stage25Policies: Object.keys(orders).map((policy) => ({
+        policy,
+        won: runs.filter((r) => r.policy === policy && r.results[24]?.result === 'victory').length,
+      })),
       stages: config.stages.map(({ id }) => ({
         stage: id,
         reached: runs.filter((r) => r.results.length >= id).length,
@@ -40,6 +44,26 @@ test.skipIf(process.env.EXPORT_APPROACH_SAMPLES !== '1')(
       writeFileSync(
         path,
         await format(JSON.stringify(viable.checkpoints[19]), {
+          ...(await resolveConfig(path)),
+          parser: 'json',
+        }),
+      );
+      console.log(
+        JSON.stringify({
+          checkpoint: path,
+          seed: viable.seed,
+          policy: viable.policy,
+          boost: viable.boost,
+        }),
+      );
+    }
+    if (process.env.UPDATE_STAGE25_CALIBRATION_FIXTURE === '1') {
+      const viable = runs.find((r) => !r.boost && r.results[24]?.result === 'victory');
+      if (!viable) throw new Error('No legal unboosted stage-25 route');
+      const path = 'src/game/fixtures/calibration-25-checkpoint.json';
+      writeFileSync(
+        path,
+        await format(JSON.stringify(viable.checkpoints[24]), {
           ...(await resolveConfig(path)),
           parser: 'json',
         }),

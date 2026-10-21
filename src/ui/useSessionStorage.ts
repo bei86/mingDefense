@@ -11,6 +11,7 @@ import stage15Checkpoint from '../game/fixtures/stage-15-checkpoint.json';
 import stage16Checkpoint from '../game/fixtures/stage-16-checkpoint.json';
 import stage20Checkpoint from '../game/fixtures/stage-20-checkpoint.json';
 import calibration20Checkpoint from '../game/fixtures/calibration-20-checkpoint.json';
+import calibration25Checkpoint from '../game/fixtures/calibration-25-checkpoint.json';
 import stage21Checkpoint from '../game/fixtures/stage-21-checkpoint.json';
 import stage25Checkpoint from '../game/fixtures/stage-25-checkpoint.json';
 import stage26Checkpoint from '../game/fixtures/stage-26-checkpoint.json';
@@ -44,13 +45,18 @@ export function loadBrowserSession() {
       recovered: false,
       blocked: true,
     };
-  if (playtest === 'calibration20') {
-    const checkpoint = calibration20Checkpoint;
+  if (playtest === 'calibration20' || playtest === 'calibration25') {
+    const checkpoint =
+      playtest === 'calibration25' ? calibration25Checkpoint : calibration20Checkpoint;
+    const source =
+      playtest === 'calibration25'
+        ? 'v19三格规则合法经济路线第25关'
+        : 'v18三格规则合法经济路线第20关';
     const valid = validSave(checkpoint);
     return {
       session: valid ? Session.restore(checkpoint) : new Session(),
       message: valid
-        ? '开发校准验收：v18三格规则合法经济路线第20关，未使用聚灵；不读取或写入正式存档。'
+        ? `开发校准验收：${source}，未使用聚灵；不读取或写入正式存档。`
         : '开发检查点无效，已进入临时新局；不读取或写入正常存档。',
       recovered: false,
       blocked: true,

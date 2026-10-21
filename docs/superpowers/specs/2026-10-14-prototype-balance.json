@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "contentVersion": "prototype-2026-10-21-v18",
-  "status": "prototype-forty-stages-v18",
+  "contentVersion": "prototype-2026-10-21-v19",
+  "status": "prototype-forty-stages-v19",
   "provenance": {
     "A": "活动公告或截图明确",
     "B": "第三方攻略记载",
@@ -1449,14 +1449,14 @@
           "atMs": 0,
           "enemies": {
             "wolf": 4,
-            "ranged": 4
+            "ranged": 2
           }
         },
         {
-          "atMs": 8000,
+          "atMs": 6000,
           "enemies": {
             "wolf": 4,
-            "ranged": 4
+            "ranged": 2
           }
         }
       ]
@@ -2209,7 +2209,7 @@
   "fifthBoss": {
     "id": "prototype_boss_5",
     "referenceName": "第五个临时Boss（不代表原作）",
-    "hp": 1100000,
+    "hp": 800000,
     "hitDamage": 175,
     "actionIntervalMs": 1500,
     "speedCellsPerSecond": 0.35,
