@@ -14,6 +14,7 @@ import calibration20Checkpoint from '../game/fixtures/calibration-20-checkpoint.
 import calibration25Checkpoint from '../game/fixtures/calibration-25-checkpoint.json';
 import calibration30Checkpoint from '../game/fixtures/calibration-30-checkpoint.json';
 import calibration35Checkpoint from '../game/fixtures/calibration-35-checkpoint.json';
+import calibration40Checkpoint from '../game/fixtures/calibration-40-checkpoint.json';
 import stage21Checkpoint from '../game/fixtures/stage-21-checkpoint.json';
 import stage25Checkpoint from '../game/fixtures/stage-25-checkpoint.json';
 import stage26Checkpoint from '../game/fixtures/stage-26-checkpoint.json';
@@ -51,7 +52,8 @@ export function loadBrowserSession() {
     playtest === 'calibration20' ||
     playtest === 'calibration25' ||
     playtest === 'calibration30' ||
-    playtest === 'calibration35'
+    playtest === 'calibration35' ||
+    playtest === 'calibration40'
   ) {
     const { checkpoint, source } = {
       calibration20: {
@@ -69,6 +71,10 @@ export function loadBrowserSession() {
       calibration35: {
         checkpoint: calibration35Checkpoint,
         source: 'v21三格规则合法经济路线第35关',
+      },
+      calibration40: {
+        checkpoint: calibration40Checkpoint,
+        source: 'v22三格规则合法经济路线第40关',
       },
     }[playtest];
     const valid = validSave(checkpoint);

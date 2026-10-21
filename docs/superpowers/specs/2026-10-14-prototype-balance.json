@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "contentVersion": "prototype-2026-10-21-v21",
-  "status": "prototype-forty-stages-v21",
+  "contentVersion": "prototype-2026-10-21-v22",
+  "status": "prototype-forty-stages-v22",
   "provenance": {
     "A": "活动公告或截图明确",
     "B": "第三方攻略记载",
@@ -1801,7 +1801,7 @@
     {
       "id": 37,
       "hpMultiplier": 29,
-      "attackMultiplier": 8.1,
+      "attackMultiplier": 7.3,
       "reward": 195,
       "waves": [
         {
@@ -1864,7 +1864,7 @@
     },
     {
       "id": 39,
-      "hpMultiplier": 27,
+      "hpMultiplier": 20.5,
       "attackMultiplier": 7.8,
       "reward": 205,
       "waves": [
@@ -1908,14 +1908,14 @@
           "atMs": 0,
           "enemies": {
             "wolf": 4,
-            "ranged": 4
+            "ranged": 1
           }
         },
         {
-          "atMs": 8000,
+          "atMs": 5000,
           "enemies": {
             "wolf": 4,
-            "ranged": 4
+            "ranged": 1
           }
         }
       ]
@@ -2274,7 +2274,7 @@
   "eighthBoss": {
     "id": "prototype_boss_8",
     "referenceName": "第八个临时Boss（不代表原作）",
-    "hp": 1900000,
+    "hp": 1020000,
     "hitDamage": 155,
     "actionIntervalMs": 1400,
     "speedCellsPerSecond": 0.35,

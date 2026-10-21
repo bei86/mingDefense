@@ -5,13 +5,14 @@ import checkpoint from './fixtures/calibration-20-checkpoint.json';
 import checkpoint25 from './fixtures/calibration-25-checkpoint.json';
 import checkpoint30 from './fixtures/calibration-30-checkpoint.json';
 import checkpoint35 from './fixtures/calibration-35-checkpoint.json';
+import checkpoint40 from './fixtures/calibration-40-checkpoint.json';
 import { Session } from './session';
 import { validSave } from './persistence';
 
-test('v21三格校准只修改授权数值，保留其余完整配置 P', () => {
+test('v22三格校准只修改授权数值，保留其余完整配置 P', () => {
   const expected = clone(v15);
-  expected.contentVersion = 'prototype-2026-10-21-v21';
-  expected.status = 'prototype-forty-stages-v21';
+  expected.contentVersion = 'prototype-2026-10-21-v22';
+  expected.status = 'prototype-forty-stages-v22';
   expected.waves.spawnRow = -3;
   expected.enemies.find((e) => e.id === 'ranged')!.hitDamage = 12;
   expected.thirdBoss.hp = 357500;
@@ -34,6 +35,13 @@ test('v21三格校准只修改授权数值，保留其余完整配置 P', () => 
     Object.assign(wave.enemies, { ranged: 1 });
   });
   expected.stages[34].waves[1].atMs = 5000;
+  expected.stages[36].attackMultiplier = 7.3;
+  expected.stages[38].hpMultiplier = 20.5;
+  expected.eighthBoss.hp = 1020000;
+  expected.stages[39].waves.forEach((wave) => {
+    Object.assign(wave.enemies, { ranged: 1 });
+  });
+  expected.stages[39].waves[1].atMs = 5000;
   expect(config).toEqual(expected);
 });
 
@@ -152,4 +160,41 @@ test('当前经济检查点中途返回不结算，重试可复现第20关胜利
   expect(session.preparation.stageId).toBe(21);
   expect(session.totalHealth()).toBe(18907);
   expect(session.preparation.currency).toBe(167);
+});
+
+test('第40关合法不聚灵路线可中止重试、保存完成态且不会生成41关或重复结算', () => {
+  if (!validSave(checkpoint40)) throw new Error('Invalid stage-40 checkpoint');
+  const session = Session.restore(checkpoint40);
+  const before = clone(session.preparation);
+  expect(session.start()).toBeNull();
+  for (let i = 0; i < 200; i++) session.tick();
+  session.backToPreparation();
+  expect(session.preparation).toEqual(before);
+  expect(session.start()).toBeNull();
+  for (let i = 0; i < 4000 && session.phase === 'combat'; i++) {
+    expect(session.hasChoices).toBe(false);
+    session.tick();
+  }
+  expect(session.phase).toBe('victory');
+  expect(session.complete).toBe(true);
+  expect(session.battle!.time).toBe(98050);
+  expect(session.totalHealth()).toBe(4919);
+  expect(session.battle!.report!.boostedMs).toBe(0);
+  expect(session.battle!.damageDone).toBe(1180480);
+  expect(session.battle!.damageTaken).toBe(12413);
+  expect(session.battle!.kills).toBe(31);
+  expect(session.lastReward + session.lastIncome + session.lastBonus).toBe(313);
+  expect(session.preparation.currency).toBe(326);
+  expect(session.preparation.rewardedStages).toEqual(Array.from({ length: 40 }, (_, i) => i + 1));
+  expect(session.preparation.offers).toEqual(before.offers);
+  expect(session.preparation.rng).toBe(before.rng);
+  const save = session.exportSave();
+  expect(validSave(save)).toBe(true);
+  const restored = Session.restore(save);
+  expect(restored.complete).toBe(true);
+  expect(restored.totalHealth()).toBe(4919);
+  expect(restored.nextStage()).toBe('本轮已经完成');
+  for (let i = 0; i < 20; i++) restored.tick();
+  expect(restored.exportSave()).toEqual(save);
+  expect(restored.preparation.stageId).toBe(40);
 });
