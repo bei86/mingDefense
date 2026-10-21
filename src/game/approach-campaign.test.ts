@@ -4,10 +4,11 @@ import { simulate, orders } from './testing/campaign-simulation';
 import { validSave } from './persistence';
 import checkpoint from './fixtures/calibration-20-checkpoint.json';
 import checkpoint25 from './fixtures/calibration-25-checkpoint.json';
+import checkpoint30 from './fixtures/calibration-30-checkpoint.json';
 
 // These fixed buying policies are diagnostic samples, not a proof of optimal play.
-// v19 additionally calibrates stage 25. Later stages remain a separate balance task.
-test('v19三格规则：72条固定购买策略的真实结果与战报守恒', () => {
+// v20 additionally calibrates stages 28–30. Later stages remain a separate balance task.
+test('v20三格规则：72条固定购买策略的真实结果与战报守恒', () => {
   expect(config.waves.spawnRow).toBe(-3);
   const runs = Array.from({ length: 12 }, (_, i) => 20261014 + i).flatMap((seed) =>
     Object.keys(orders).flatMap((policy) =>
@@ -45,9 +46,14 @@ test('v19三格规则：72条固定购买策略的真实结果与战报守恒', 
     2,
     2,
     2,
+    2,
+    2,
+    2,
+    2,
+    2,
     1,
     1,
-    ...Array(11).fill(0),
+    ...Array(6).fill(0),
   ]);
   expect(
     Object.keys(orders).map(
@@ -73,6 +79,16 @@ test('v19三格规则：72条固定购买策略的真实结果与战报守恒', 
   expect(source25.results[24].result).toBe('victory');
   expect(source25.results[24].report!.boostedMs).toBe(0);
   expect(validSave(checkpoint25)).toBe(true);
+  expect(
+    Object.keys(orders).map(
+      (policy) =>
+        runs.filter((r) => r.policy === policy && r.results[29]?.result === 'victory').length,
+    ),
+  ).toEqual([0, 1, 1]);
+  expect(source25.checkpoints[29]).toEqual(checkpoint30);
+  expect(source25.results[29].result).toBe('victory');
+  expect(source25.results[29].report!.boostedMs).toBe(0);
+  expect(validSave(checkpoint30)).toBe(true);
   for (const run of runs) {
     expect(run.checkpoints.every(validSave)).toBe(true);
     for (const battle of run.results) {

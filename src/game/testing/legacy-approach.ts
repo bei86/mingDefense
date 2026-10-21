@@ -4,11 +4,15 @@ import v15 from '../../../docs/superpowers/specs/2026-10-21-prototype-balance-v1
 
 /** Only the fields explicitly calibrated after v17; all mechanics tests use live values. */
 function restoreHistoricalNumbers(target: typeof config): void {
-  for (const key of ['thirdBoss', 'fourthBoss', 'fifthBoss'] as const) target[key].hp = v15[key].hp;
-  (target.stages[24] as Stage).waves.forEach((wave, i) => {
-    wave.enemies.ranged = (v15.stages[24] as Stage).waves[i].enemies.ranged;
-    wave.atMs = v15.stages[24].waves[i].atMs;
-  });
+  for (const key of ['thirdBoss', 'fourthBoss', 'fifthBoss', 'sixthBoss'] as const)
+    target[key].hp = v15[key].hp;
+  target.stages[27].hpMultiplier = v15.stages[27].hpMultiplier;
+  target.stages[28].attackMultiplier = v15.stages[28].attackMultiplier;
+  for (const index of [24, 29])
+    (target.stages[index] as Stage).waves.forEach((wave, i) => {
+      wave.enemies.ranged = (v15.stages[index] as Stage).waves[i].enemies.ranged;
+      wave.atMs = v15.stages[index].waves[i].atMs;
+    });
   target.enemies.find((e) => e.id === 'ranged')!.hitDamage = v15.enemies.find(
     (e) => e.id === 'ranged',
   )!.hitDamage;
@@ -21,7 +25,7 @@ export function historicalBalance(): typeof config {
   return historical;
 }
 
-/** Historical campaign goldens pin pre-v16 distance AND pre-v18/v19 numerical balance. */
+/** Historical campaign goldens pin pre-v16 distance AND pre-v18/v19/v20 numerical balance. */
 export function useLegacyApproach(): void {
   const original = clone(config);
   beforeAll(() => {
@@ -30,12 +34,15 @@ export function useLegacyApproach(): void {
   });
   afterAll(() => {
     config.waves.spawnRow = original.waves.spawnRow;
-    for (const key of ['thirdBoss', 'fourthBoss', 'fifthBoss'] as const)
+    for (const key of ['thirdBoss', 'fourthBoss', 'fifthBoss', 'sixthBoss'] as const)
       config[key].hp = original[key].hp;
-    (config.stages[24] as Stage).waves.forEach((wave, i) => {
-      wave.enemies.ranged = (original.stages[24] as Stage).waves[i].enemies.ranged;
-      wave.atMs = original.stages[24].waves[i].atMs;
-    });
+    config.stages[27].hpMultiplier = original.stages[27].hpMultiplier;
+    config.stages[28].attackMultiplier = original.stages[28].attackMultiplier;
+    for (const index of [24, 29])
+      (config.stages[index] as Stage).waves.forEach((wave, i) => {
+        wave.enemies.ranged = (original.stages[index] as Stage).waves[i].enemies.ranged;
+        wave.atMs = original.stages[index].waves[i].atMs;
+      });
     config.enemies.find((e) => e.id === 'ranged')!.hitDamage = original.enemies.find(
       (e) => e.id === 'ranged',
     )!.hitDamage;

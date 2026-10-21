@@ -12,6 +12,7 @@ import stage16Checkpoint from '../game/fixtures/stage-16-checkpoint.json';
 import stage20Checkpoint from '../game/fixtures/stage-20-checkpoint.json';
 import calibration20Checkpoint from '../game/fixtures/calibration-20-checkpoint.json';
 import calibration25Checkpoint from '../game/fixtures/calibration-25-checkpoint.json';
+import calibration30Checkpoint from '../game/fixtures/calibration-30-checkpoint.json';
 import stage21Checkpoint from '../game/fixtures/stage-21-checkpoint.json';
 import stage25Checkpoint from '../game/fixtures/stage-25-checkpoint.json';
 import stage26Checkpoint from '../game/fixtures/stage-26-checkpoint.json';
@@ -45,13 +46,25 @@ export function loadBrowserSession() {
       recovered: false,
       blocked: true,
     };
-  if (playtest === 'calibration20' || playtest === 'calibration25') {
-    const checkpoint =
-      playtest === 'calibration25' ? calibration25Checkpoint : calibration20Checkpoint;
-    const source =
-      playtest === 'calibration25'
-        ? 'v19三格规则合法经济路线第25关'
-        : 'v18三格规则合法经济路线第20关';
+  if (
+    playtest === 'calibration20' ||
+    playtest === 'calibration25' ||
+    playtest === 'calibration30'
+  ) {
+    const { checkpoint, source } = {
+      calibration20: {
+        checkpoint: calibration20Checkpoint,
+        source: 'v18三格规则合法经济路线第20关',
+      },
+      calibration25: {
+        checkpoint: calibration25Checkpoint,
+        source: 'v19三格规则合法经济路线第25关',
+      },
+      calibration30: {
+        checkpoint: calibration30Checkpoint,
+        source: 'v20三格规则合法经济路线第30关',
+      },
+    }[playtest];
     const valid = validSave(checkpoint);
     return {
       session: valid ? Session.restore(checkpoint) : new Session(),
