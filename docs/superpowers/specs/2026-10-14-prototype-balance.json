@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "contentVersion": "prototype-2026-10-21-v20",
-  "status": "prototype-forty-stages-v20",
+  "contentVersion": "prototype-2026-10-21-v21",
+  "status": "prototype-forty-stages-v21",
   "provenance": {
     "A": "活动公告或截图明确",
     "B": "第三方攻略记载",
@@ -1681,7 +1681,7 @@
     },
     {
       "id": 33,
-      "hpMultiplier": 44,
+      "hpMultiplier": 39.6,
       "attackMultiplier": 9.8,
       "reward": 175,
       "waves": [
@@ -1754,14 +1754,14 @@
           "atMs": 0,
           "enemies": {
             "wolf": 4,
-            "ranged": 4
+            "ranged": 1
           }
         },
         {
-          "atMs": 8000,
+          "atMs": 5000,
           "enemies": {
             "wolf": 4,
-            "ranged": 4
+            "ranged": 1
           }
         }
       ]
@@ -2252,7 +2252,7 @@
   "seventhBoss": {
     "id": "prototype_boss_7",
     "referenceName": "第七个临时Boss（不代表原作）",
-    "hp": 1600000,
+    "hp": 1480000,
     "hitDamage": 160,
     "actionIntervalMs": 1500,
     "speedCellsPerSecond": 0.35,

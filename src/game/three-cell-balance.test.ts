@@ -4,13 +4,14 @@ import v15 from '../../docs/superpowers/specs/2026-10-21-prototype-balance-v15-s
 import checkpoint from './fixtures/calibration-20-checkpoint.json';
 import checkpoint25 from './fixtures/calibration-25-checkpoint.json';
 import checkpoint30 from './fixtures/calibration-30-checkpoint.json';
+import checkpoint35 from './fixtures/calibration-35-checkpoint.json';
 import { Session } from './session';
 import { validSave } from './persistence';
 
-test('v20三格校准只修改授权数值，保留其余完整配置 P', () => {
+test('v21三格校准只修改授权数值，保留其余完整配置 P', () => {
   const expected = clone(v15);
-  expected.contentVersion = 'prototype-2026-10-21-v20';
-  expected.status = 'prototype-forty-stages-v20';
+  expected.contentVersion = 'prototype-2026-10-21-v21';
+  expected.status = 'prototype-forty-stages-v21';
   expected.waves.spawnRow = -3;
   expected.enemies.find((e) => e.id === 'ranged')!.hitDamage = 12;
   expected.thirdBoss.hp = 357500;
@@ -27,15 +28,46 @@ test('v20三格校准只修改授权数值，保留其余完整配置 P', () => 
     Object.assign(wave.enemies, { ranged: 1 });
   });
   expected.stages[29].waves[1].atMs = 5000;
+  expected.stages[32].hpMultiplier = 39.6;
+  expected.seventhBoss.hp = 1480000;
+  expected.stages[34].waves.forEach((wave) => {
+    Object.assign(wave.enemies, { ranged: 1 });
+  });
+  expected.stages[34].waves[1].atMs = 5000;
   expect(config).toEqual(expected);
 });
 
 test.each([
-  { checkpoint: checkpoint25, stage: 25, time: 78000, hp: 8089, maxHp: 16456, money: 217 },
-  { checkpoint: checkpoint30, stage: 30, time: 101000, hp: 5599, maxHp: 17251, money: 266 },
+  {
+    checkpoint: checkpoint35,
+    stage: 35,
+    time: 106950,
+    hp: 8334,
+    maxHp: 17332,
+    money: 296,
+    choiceCount: 0,
+  },
+  {
+    checkpoint: checkpoint25,
+    stage: 25,
+    time: 78000,
+    hp: 8089,
+    maxHp: 16456,
+    money: 217,
+    choiceCount: 1,
+  },
+  {
+    checkpoint: checkpoint30,
+    stage: 30,
+    time: 101000,
+    hp: 5599,
+    maxHp: 17251,
+    money: 266,
+    choiceCount: 1,
+  },
 ])(
-  '第$stage关当前经济检查点可中止重试、选择天赋、结算及继续下关且不重复奖励',
-  ({ checkpoint, stage, time, hp, maxHp, money }) => {
+  '第$stage关当前经济检查点可中止重试、处理天赋队列、结算及继续下关且不重复奖励',
+  ({ checkpoint, stage, time, hp, maxHp, money, choiceCount }) => {
     if (!validSave(checkpoint)) throw new Error(`Invalid stage-${stage} checkpoint`);
     const session = Session.restore(checkpoint);
     const before = clone(session.preparation);
@@ -64,11 +96,17 @@ test.each([
         choices++;
       } else session.tick();
     }
-    expect(choices).toBe(1);
+    expect(choices).toBe(choiceCount);
     expect(session.phase).toBe('victory');
     expect(session.battle!.time).toBe(time);
     expect(session.totalHealth()).toBe(hp);
     expect(session.battle!.report!.boostedMs).toBe(0);
+    if (stage === 35) {
+      expect(session.battle!.damageDone).toBe(1614400);
+      expect(session.battle!.damageTaken).toBe(8998);
+      expect(session.battle!.kills).toBe(29);
+      expect(session.lastReward + session.lastIncome + session.lastBonus).toBe(288);
+    }
     if (stage === 30) {
       expect(session.battle!.progression.buffs.attack_speed).toBe(5);
       expect(session.battle!.damageDone).toBe(1144080);
