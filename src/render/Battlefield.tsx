@@ -14,6 +14,8 @@ import {
 import { maxHeroHp } from '../game/combat-skills';
 import { expansionError, placementError, unitAt, type Session, type Source } from '../game/session';
 import { boardDrop } from '../ui/board-drop';
+import { artUrl, battlefieldArt, bossArtKey, enemyArt, heroArt } from './art';
+import { ArtLayer } from './ArtLayer';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -37,14 +39,7 @@ type BattlefieldProps = View & {
   onHover: (p: Point | null) => void;
 };
 
-function animal(
-  g: Phaser.GameObjects.Graphics,
-  kind: HeroId,
-  x: number,
-  y: number,
-  rank: number,
-  dead: boolean,
-) {
+function animal(g: Phaser.GameObjects.Graphics, kind: HeroId, x: number, y: number, dead: boolean) {
   const color = Phaser.Display.Color.HexStringToColor(appearances[kind].color).color;
   g.fillStyle(0x061812, 0.4).fillEllipse(x, y + 17, 43, 13);
   g.lineStyle(2, 0xe7f5d7, dead ? 0.12 : 0.75);
@@ -138,8 +133,6 @@ function animal(
   g.fillStyle(0x15352b, dead ? 0.1 : 1)
     .fillCircle(x - 6, y - 4, 2)
     .fillCircle(x + 6, y - 4, 2);
-  for (let i = 0; i < rank; i++)
-    g.fillStyle(0xf3d892, dead ? 0.12 : 1).fillCircle(x + (i - (rank - 1) / 2) * 7, y + 27, 2);
 }
 
 export function Battlefield({
@@ -158,25 +151,26 @@ export function Battlefield({
     if (!host.current) return;
     class FieldScene extends Phaser.Scene {
       private drawing!: Phaser.GameObjects.Graphics;
+      private overlay!: Phaser.GameObjects.Graphics;
+      private art!: ArtLayer;
+      preload() {
+        for (const key of battlefieldArt) this.load.image(key, artUrl(key));
+      }
       create() {
         this.drawing = this.add.graphics();
+        this.overlay = this.add.graphics().setDepth(10);
+        this.art = new ArtLayer(this);
       }
       update() {
         if (!this.drawing) return;
         const g = this.drawing;
         g.clear();
-        g.fillStyle(0x14372f).fillRect(0, 0, 360, 416);
-        // Original procedural forest ornaments, with no external art dependencies.
-        for (let i = 0; i < 9; i++) {
-          g.fillStyle(i % 2 ? 0x204d40 : 0x285743, 0.8).fillCircle(
-            i * 49 - 16,
-            6 + (i % 3) * 8,
-            35,
-          );
-          g.lineStyle(1, 0x648574, 0.18).lineBetween(i * 46, 15, i * 46 + 20, 52);
-        }
-        g.fillStyle(0xadc49b, 0.2).fillCircle(285, 48, 10);
-        g.lineStyle(1, 0x9eb798, 0.13).strokeRoundedRect(16, 66, 328, 328, 14);
+        const overlay = this.overlay;
+        overlay.clear();
+        this.art.begin();
+        this.art.draw('battlefield_forest', 180, 208, 360, 540, -20);
+        g.fillStyle(0x102e28, 0.25).fillRect(0, 0, 360, 416);
+        g.lineStyle(1, 0xc9d9b0, 0.25).strokeRoundedRect(16, 66, 328, 328, 14);
         const prep = session.preparation;
         for (let y = 0; y < 6; y++)
           for (let x = 0; x < 6; x++) {
@@ -217,7 +211,7 @@ export function Battlefield({
           const p = pixel({ x: left, y: top });
           const color = Phaser.Display.Color.HexStringToColor(appearances[u.kind].color);
           const border = color.color;
-          const fill = color.darken(u.hp > 0 ? 40 : 65).color;
+          const fill = color.darken(u.hp > 0 ? 54 : 72).color;
           g.fillStyle(fill, 1).fillRoundedRect(
             p.x + 2,
             p.y + 2,
@@ -282,35 +276,62 @@ export function Battlefield({
         for (const u of units) {
           if (!u.position) continue;
           const p = pixel(center(u.kind, u.position));
-          animal(g, u.kind, p.x, p.y - 4, u.rank, u.hp <= 0);
-          if ((u.shield ?? 0) > 0 && u.hp > 0) {
-            g.lineStyle(2, 0xd9bbf2, 0.7).strokeEllipse(p.x, p.y - 3, 48, 56);
-            g.fillStyle(0xddc5f3, 0.7).fillRect(
-              p.x - 20,
-              p.y - 31,
-              Math.min(40, ((u.shield ?? 0) / u.maxHp) * 100),
+          const shape = cells(u.kind, u.position);
+          const top = ORIGIN.y + Math.min(...shape.map((c) => c.y)) * SIZE;
+          const bottom = ORIGIN.y + (Math.max(...shape.map((c) => c.y)) + 1) * SIZE;
+          const width = (Math.max(...shape.map((c) => c.x)) - u.position.x + 1) * SIZE;
+          const height = bottom - top;
+          if (
+            !this.art.draw(
+              heroArt[u.kind],
+              p.x,
+              p.y,
+              width - 10,
+              height - 16,
               2,
+              u.hp > 0 ? 1 : 0.28,
+            )
+          ) {
+            animal(g, u.kind, p.x, p.y - 4, u.hp <= 0);
+          }
+          for (let i = 0; i < u.rank; i++)
+            overlay
+              .fillStyle(0xf3d892, u.hp > 0 ? 1 : 0.25)
+              .fillCircle(p.x + (i - (u.rank - 1) / 2) * 6, bottom - 7, 1.8);
+          if ((u.shield ?? 0) > 0 && u.hp > 0) {
+            this.art.draw(
+              'fx_shield',
+              p.x,
+              p.y,
+              Math.min(width + 6, 92),
+              Math.min(height + 4, 96),
+              6,
+              0.55,
             );
+            overlay
+              .fillStyle(0xddc5f3, 0.9)
+              .fillRect(p.x - 17, top + 10, Math.min(34, ((u.shield ?? 0) / u.maxHp) * 85), 2);
           }
           if (session.battle) {
-            g.fillStyle(0x092b23).fillRoundedRect(p.x - 20, p.y - 36, 40, 4, 2);
-            g.fillStyle(0xc4dd98).fillRoundedRect(
-              p.x - 20,
-              p.y - 36,
-              40 * Math.max(0, u.hp / u.maxHp),
-              4,
-              2,
-            );
+            overlay.fillStyle(0x092b23).fillRoundedRect(p.x - 18, top + 4, 36, 4, 2);
+            overlay
+              .fillStyle(0xc4dd98)
+              .fillRoundedRect(p.x - 18, top + 4, 36 * Math.max(0, u.hp / u.maxHp), 4, 2);
           }
         }
         const battle = session.battle;
-        if (!battle) return;
+        if (!battle) {
+          this.art.end();
+          return;
+        }
         for (const field of battle.fields) {
           const p = pixel(field);
+          this.art.draw('fx_sword_field', p.x, p.y, SIZE * 2.3, SIZE * 1.8, 1, 0.55);
           g.lineStyle(1.5, 0xa6e1df, 0.5).strokeCircle(p.x, p.y, SIZE * 1.1);
           g.fillStyle(0x87d1cb, 0.08).fillCircle(p.x, p.y, SIZE * 1.1);
         }
         for (const warning of battle.warnings) {
+          const g = overlay;
           const p = pixel({ x: 0, y: warning.row });
           g.fillStyle(0xf09c78, 0.18 + Math.sin(battle.time / 100) * 0.08).fillRect(
             ORIGIN.x,
@@ -321,10 +342,32 @@ export function Battlefield({
           g.lineStyle(2, 0xf8b18a, 0.8).strokeRect(ORIGIN.x, p.y, 6 * SIZE, SIZE);
         }
         for (const e of battle.enemies) {
+          const g = overlay;
           const p = pixel(e);
           const boss = e.kind === 'boss';
           const color = enemyColors[e.kind ?? 'wolf'];
-          if (boss) {
+          const picture = boss ? bossArtKey(battle.stageId) : enemyArt[e.kind ?? 'wolf'];
+          const pictured = this.art.draw(
+            picture,
+            p.x,
+            p.y,
+            boss ? 84 : 38,
+            boss ? 88 : 42,
+            4,
+            1,
+            boss && e.phase2 ? 0xffc898 : 0xffffff,
+          );
+          if (pictured) {
+            if (!boss) {
+              g.fillStyle(0x133529).fillRect(p.x - 14, p.y - 25, 28, 3);
+              g.fillStyle(0xe8a482).fillRect(
+                p.x - 14,
+                p.y - 25,
+                28 * Math.max(0, e.hp / (e.maxHp ?? 220)),
+                3,
+              );
+            }
+          } else if (boss) {
             g.fillStyle(0x091e15, 0.5).fillEllipse(p.x, p.y + 29, 74, 24);
             g.fillStyle(color).fillRoundedRect(p.x - 25, p.y - 27, 50, 57, 12);
             g.lineStyle(5, 0xb1a47b, 0.9)
@@ -435,10 +478,13 @@ export function Battlefield({
             g.fillStyle(0x133529).fillRect(p.x - 12, p.y - 24, 24, 3);
             g.fillStyle(0xe8a482).fillRect(p.x - 12, p.y - 24, (24 * e.hp) / (e.maxHp ?? 220), 3);
           }
-          if ((e.frozenUntil ?? 0) > battle.time)
+          if ((e.frozenUntil ?? 0) > battle.time) {
+            this.art.draw('fx_freeze', p.x, p.y, boss ? 90 : 48, boss ? 94 : 54, 7, 0.4);
             g.lineStyle(2, 0xbae9f4, 0.95).strokeRoundedRect(p.x - 19, p.y - 24, 38, 44, 5);
-          else if ((e.slowUntil ?? 0) > battle.time)
-            g.lineStyle(1, 0x9cceef, 0.7).strokeCircle(p.x, p.y, 18);
+          } else if ((e.slowUntil ?? 0) > battle.time) {
+            if (!this.art.draw('fx_slow', p.x, p.y, boss ? 90 : 44, boss ? 86 : 40, 6, 0.6))
+              g.lineStyle(2, 0x9bdde9, 0.7).strokeCircle(p.x, p.y + 10, 19);
+          }
           if ((e.vulnerabilityUntil ?? 0) > battle.time) {
             g.lineStyle(2, 0xf4c879, 0.95).strokeTriangle(
               p.x - 5,
@@ -451,8 +497,19 @@ export function Battlefield({
           }
         }
         for (const f of battle.flashes) {
+          const g = overlay;
           const from = pixel(f.from);
           const to = pixel(f.to);
+          if (f.kind === 'boar')
+            this.art.draw(
+              'fx_heavy_hit',
+              to.x,
+              to.y,
+              44,
+              38,
+              8,
+              Math.max(0, 1 - (battle.time - f.at) / 300),
+            );
           const color =
             f.team === 'enemy'
               ? 0xeb947e
@@ -464,6 +521,7 @@ export function Battlefield({
           ).lineBetween(from.x, from.y, to.x, to.y);
           g.lineStyle(2, color, 0.7).strokeCircle(to.x, to.y, 8 + (battle.time - f.at) / 20);
         }
+        this.art.end();
       }
     }
     const game = new Phaser.Game({
@@ -484,7 +542,7 @@ export function Battlefield({
   return (
     <div className="battlefield">
       <div ref={host} className="canvas-host" aria-hidden="true" />
-      <div className="forest-sign">
+      <div className={`forest-sign ${session.phase === 'prepare' ? '' : 'enemy-entry'}`}>
         {session.phase === 'prepare' ? '选择灵兽 · 布下守阵' : '敌袭入口 ↓'}
       </div>
       <div className="board-input" role="group" aria-label="六乘六布阵棋盘">

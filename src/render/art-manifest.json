@@ -1,0 +1,207 @@
+{
+  "battlefield_forest": {
+    "file": "battlefield_forest.webp",
+    "width": 720,
+    "height": 1080
+  },
+  "boar_idle": {
+    "file": "boar_idle.webp",
+    "width": 384,
+    "height": 273
+  },
+  "boss_05_idle": {
+    "file": "boss_05_idle.webp",
+    "width": 318,
+    "height": 384
+  },
+  "boss_10_idle": {
+    "file": "boss_10_idle.webp",
+    "width": 302,
+    "height": 384
+  },
+  "boss_20_idle": {
+    "file": "boss_20_idle.webp",
+    "width": 289,
+    "height": 384
+  },
+  "boss_25_idle": {
+    "file": "boss_25_idle.webp",
+    "width": 297,
+    "height": 384
+  },
+  "boss_30_phase2_variant": {
+    "file": "boss_30_phase2_variant.webp",
+    "width": 310,
+    "height": 384
+  },
+  "ember_mouse_idle": {
+    "file": "ember_mouse_idle.webp",
+    "width": 322,
+    "height": 384
+  },
+  "forest_page_bg": {
+    "file": "forest_page_bg.webp",
+    "width": 607,
+    "height": 1080
+  },
+  "fortune_peach_idle": {
+    "file": "fortune_peach_idle.webp",
+    "width": 384,
+    "height": 363
+  },
+  "fx_freeze": {
+    "file": "fx_freeze.webp",
+    "width": 233,
+    "height": 256
+  },
+  "fx_heavy_hit": {
+    "file": "fx_heavy_hit.webp",
+    "width": 256,
+    "height": 146
+  },
+  "fx_shield": {
+    "file": "fx_shield.webp",
+    "width": 256,
+    "height": 187
+  },
+  "fx_slow": {
+    "file": "fx_slow.webp",
+    "width": 256,
+    "height": 253
+  },
+  "fx_sword_field": {
+    "file": "fx_sword_field.webp",
+    "width": 256,
+    "height": 181
+  },
+  "ice_fish_idle": {
+    "file": "ice_fish_idle.webp",
+    "width": 137,
+    "height": 384
+  },
+  "icon_attack": {
+    "file": "icon_attack.webp",
+    "width": 109,
+    "height": 112
+  },
+  "icon_boost": {
+    "file": "icon_boost.webp",
+    "width": 79,
+    "height": 112
+  },
+  "icon_currency": {
+    "file": "icon_currency.webp",
+    "width": 112,
+    "height": 112
+  },
+  "icon_execute": {
+    "file": "icon_execute.webp",
+    "width": 97,
+    "height": 112
+  },
+  "icon_expand": {
+    "file": "icon_expand.webp",
+    "width": 112,
+    "height": 95
+  },
+  "icon_fist": {
+    "file": "icon_fist.webp",
+    "width": 100,
+    "height": 112
+  },
+  "icon_hp": {
+    "file": "icon_hp.webp",
+    "width": 112,
+    "height": 101
+  },
+  "icon_ice": {
+    "file": "icon_ice.webp",
+    "width": 96,
+    "height": 112
+  },
+  "icon_income": {
+    "file": "icon_income.webp",
+    "width": 112,
+    "height": 104
+  },
+  "icon_pierce": {
+    "file": "icon_pierce.webp",
+    "width": 112,
+    "height": 92
+  },
+  "icon_refresh": {
+    "file": "icon_refresh.webp",
+    "width": 105,
+    "height": 112
+  },
+  "icon_shield": {
+    "file": "icon_shield.webp",
+    "width": 92,
+    "height": 112
+  },
+  "icon_speed": {
+    "file": "icon_speed.webp",
+    "width": 90,
+    "height": 112
+  },
+  "icon_timer": {
+    "file": "icon_timer.webp",
+    "width": 78,
+    "height": 112
+  },
+  "piercing_monkey_idle": {
+    "file": "piercing_monkey_idle.webp",
+    "width": 384,
+    "height": 127
+  },
+  "ranged_idle": {
+    "file": "ranged_idle.webp",
+    "width": 244,
+    "height": 384
+  },
+  "runner_idle": {
+    "file": "runner_idle.webp",
+    "width": 371,
+    "height": 384
+  },
+  "scatter_bear_idle": {
+    "file": "scatter_bear_idle.webp",
+    "width": 318,
+    "height": 384
+  },
+  "shield_fox_idle": {
+    "file": "shield_fox_idle.webp",
+    "width": 293,
+    "height": 384
+  },
+  "splitter_idle": {
+    "file": "splitter_idle.webp",
+    "width": 384,
+    "height": 365
+  },
+  "summoned_wolf_idle": {
+    "file": "summoned_wolf_idle.webp",
+    "width": 316,
+    "height": 384
+  },
+  "summoner_idle": {
+    "file": "summoner_idle.webp",
+    "width": 384,
+    "height": 320
+  },
+  "sword_eagle_idle": {
+    "file": "sword_eagle_idle.webp",
+    "width": 384,
+    "height": 317
+  },
+  "ui_button_primary": {
+    "file": "ui_button_primary.webp",
+    "width": 640,
+    "height": 141
+  },
+  "ui_panel": {
+    "file": "ui_panel.webp",
+    "width": 434,
+    "height": 640
+  }
+}

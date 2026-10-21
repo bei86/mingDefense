@@ -1,0 +1,149 @@
+/* Existing generated art; Vite rewrites public URLs for the configured base. */
+body {
+  background: #0c211d;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(#102b2733, #0c211d66),
+    url('/assets/art/forest_page_bg.webp') center / cover;
+  pointer-events: none;
+}
+.app-shell {
+  position: relative;
+  background: #102c27b8;
+}
+.art-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.resource-icon {
+  width: 28px;
+  height: 30px;
+  flex-shrink: 0;
+}
+.forest-sign.enemy-entry {
+  top: 10px;
+  left: 10px;
+  width: auto;
+  padding: 4px 7px;
+  border-radius: 5px;
+  background: #102e28bb;
+  font-size: 9px;
+}
+.board-caption {
+  color: #f0efd4;
+  text-shadow:
+    0 1px 3px #061b16,
+    0 0 6px #061b16;
+}
+.lower-panel,
+.modal {
+  border: 1px solid transparent;
+  border-image: url('/assets/art/ui_panel.webp') 72 fill / 18px / 0 stretch;
+  background: #15352e;
+}
+.lower-panel {
+  padding: 18px 14px;
+}
+.primary {
+  border: 1px solid transparent;
+  border-image: url('/assets/art/ui_button_primary.webp') 50 fill / 14px / 0 stretch;
+  background: #e8cc91;
+  color: #34452c;
+  text-shadow: 0 1px #fff5cc77;
+  box-shadow: 0 3px 5px #061c1855;
+}
+.primary:hover:not(:disabled) {
+  background: #e8cc91;
+  filter: brightness(1.06);
+}
+.offer-card .sigil {
+  position: relative;
+  width: 54px;
+  height: 52px;
+  max-width: 100%;
+  flex-shrink: 0;
+  overflow: hidden;
+  margin-bottom: 1px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.offer-card .sigil .art-image {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 3px 2px #061b1666);
+}
+.claimed-check {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff1c4;
+  font-size: 28px;
+  text-shadow: 0 2px 4px #061b16;
+}
+.refresh-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.refresh-button .art-image {
+  width: 19px;
+  height: 19px;
+}
+.reserve-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+.reserve-slot .art-image {
+  width: 24px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.reserve-slot span {
+  line-height: 1.5;
+}
+.energy-button .stone {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+}
+.talent-symbol .art-image {
+  width: 36px;
+  height: 36px;
+}
+.journal-list strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.journal-list .art-image {
+  width: 24px;
+  height: 24px;
+}
+@media (min-width: 700px) {
+  .app-shell {
+    background: #102c27e8;
+    box-shadow: 0 16px 90px #05171199;
+  }
+}
+@media (max-width: 350px) {
+  .lower-panel {
+    padding: 16px 10px;
+  }
+  .resource-icon {
+    width: 23px;
+    height: 26px;
+  }
+}

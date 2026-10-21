@@ -19,6 +19,7 @@ import { BuffJournal, ExperienceBar, ResultModal, TalentModal, timeLabel } from 
 import { PreparationPanel, type Confirmation } from './PreparationPanel';
 import { loadBrowserSession, useSessionStorage } from './useSessionStorage';
 import { boardDrop } from './board-drop';
+import { ArtImage } from './ArtImage';
 
 function phaseLabel(session: Session): string {
   if (session.hasChoices) return '择取天赋';
@@ -292,7 +293,9 @@ export function App() {
       />
       <section className="resources" aria-label="资源与战斗状态">
         <div>
-          <span className="resource-icon gold">◈</span>
+          <span className="resource-icon gold">
+            <ArtImage asset="icon_currency" />
+          </span>
           <span>
             <small>
               灵钱{session.phase === 'combat' && b?.income ? ` · 待结 ${b.income}` : ''}
@@ -301,14 +304,18 @@ export function App() {
           </span>
         </div>
         <div>
-          <span className="resource-icon mint">♥</span>
+          <span className="resource-icon mint">
+            <ArtImage asset="icon_hp" />
+          </span>
           <span>
             <small>阵容生命</small>
             <b>{session.totalHealth()}</b>
           </span>
         </div>
         <div>
-          <span className="resource-icon">◷</span>
+          <span className="resource-icon">
+            <ArtImage asset="icon_timer" />
+          </span>
           <span>
             <small>{b ? `击退 ${b.kills}` : '守阵时限'}</small>
             <b>{b ? timeLabel(b.time) : timeLabel(config.runtime.stageLimitMs)}</b>
@@ -439,7 +446,9 @@ export function App() {
                 session.held = false;
               }}
             >
-              <span className="stone">◇</span>
+              <span className="stone">
+                <ArtImage asset="icon_boost" />
+              </span>
               <span>
                 <strong>{b?.boosted && session.canAdvance ? '灵气流转' : '按住聚灵'}</strong>
                 <small>灵兽攻速 +50%</small>

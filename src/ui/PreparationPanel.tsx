@@ -8,6 +8,8 @@ import {
 import { maxHeroHp } from '../game/combat-skills';
 import { bonus } from '../game/progression';
 import type { Session, Source } from '../game/session';
+import { heroArt } from '../render/art';
+import { ArtImage } from './ArtImage';
 
 export type Confirmation = { title: string; body: string; action: () => void; label: string };
 type Props = {
@@ -66,7 +68,7 @@ export function PreparationPanel({
           onClick={refresh}
           disabled={p.currency < config.shop.refreshCost}
         >
-          ↻ 刷新 <span>◈ {config.shop.refreshCost}</span>
+          <ArtImage asset="icon_refresh" /> 刷新 <span>◈ {config.shop.refreshCost}</span>
         </button>
       </div>
       <div className={`offers offers-${p.offers.length}`}>
@@ -84,7 +86,10 @@ export function PreparationPanel({
               onClick={() => choose({ type: 'offer', id: o.id })}
               onPointerDown={(e) => dragStart(e, { type: 'offer', id: o.id })}
             >
-              <span className="sigil">{o.claimed ? '✓' : skin.glyph}</span>
+              <span className="sigil">
+                <ArtImage asset={o.kind === 'cell' ? 'icon_expand' : heroArt[o.kind]} />
+                {o.claimed && <span className="claimed-check">✓</span>}
+              </span>
               <strong>{skin.name}</strong>
               <small>{o.claimed ? '已领取' : skin.role}</small>
               <span className="card-rank">
@@ -118,7 +123,16 @@ export function PreparationPanel({
                   else if (selected) run(session.transfer(selected, 'reserve'), '已送至备战席。');
                 }}
               >
-                {u ? `${appearances[u.kind].name} · ${u.rank}阶` : '＋ 暂存'}
+                {u ? (
+                  <>
+                    <ArtImage asset={heroArt[u.kind]} />
+                    <span>
+                      {appearances[u.kind].name} · {u.rank}阶
+                    </span>
+                  </>
+                ) : (
+                  '＋ 暂存'
+                )}
               </button>
             );
           })}

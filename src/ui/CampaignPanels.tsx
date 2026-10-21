@@ -3,6 +3,8 @@ import { stageNames } from '../game/content';
 import type { BuffId } from '../game/model';
 import type { Session } from '../game/session';
 import { BattleReport } from './BattleReport';
+import { buffArt } from '../render/art';
+import { ArtImage } from './ArtImage';
 
 export function timeLabel(ms: number): string {
   return `${Math.floor(ms / 60000)
@@ -75,7 +77,9 @@ export function TalentModal({
                 className={`talent-card ${definition.quality}`}
                 onClick={() => onChoose(id)}
               >
-                <span className="talent-symbol">{definition.quality === 'common' ? '✧' : '✦'}</span>
+                <span className="talent-symbol">
+                  <ArtImage asset={buffArt[id]} />
+                </span>
                 <span>
                   <small>
                     {definition.quality === 'common' ? '通用' : '专属'} ·{' '}
@@ -111,7 +115,7 @@ export function BuffJournal({ session, onClose }: { session: Session; onClose: (
           {entries.map(([id, level]) => (
             <div key={id}>
               <strong>
-                {buffLabels[id].name} <small>{level} 层</small>
+                <ArtImage asset={buffArt[id]} /> {buffLabels[id].name} <small>{level} 层</small>
               </strong>
               <p>
                 {buffLabels[id].description} · 当前累计 {bonus(p, id)}

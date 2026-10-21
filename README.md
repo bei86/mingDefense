@@ -21,6 +21,20 @@ npm.cmd run preview
 
 `test` 包含规则、检查点、72条三十关正常经济路线及前十/十五/二十/二十五关回归模拟。`build` 包含 TypeScript 检查与生产构建。
 
+## 现有图片素材预览
+
+已接入现有生成图中的 41 张：八灵、5 类普通敌人、5 位首领、森林场景、资源/天赋图标、面板/按钮和 5 种特效。开发服务器打开 http://127.0.0.1:5173/?playtest=roster 可直接查看八灵占格效果；该入口不读取或写入正式存档。打开默认地址可正常开始或继续游戏。
+
+原图保留在 `docs/img`，运行资源为 `public/assets/art` 的 WebP，总计约 2.68 MB。缺图敌人和第 15 关首领沿用程序绘制；第 30 关暂用羽弓变体；已有图片首领的二阶段暂用同一造型加暖色提示。角色目前为静态图，攻击仍使用程序连线和已有特效。
+
+重新处理本地原图（仅开发工具需要 uv/Pillow，游戏运行不需要 Python）：
+
+```powershell
+uv run --with pillow python tools/prepare-game-assets.py
+```
+
+工具输出类型清单 `src/render/art-manifest.json` 和原图哈希报告 `artifacts/art-preparation.json`。本轮接入范围、排除图片和实际试玩限制见 [现有素材验收记录](docs/reviews/2026-10-20-existing-art.md)。
+
 ## 第一局与三十关流程
 
 1. 领取一只烬灵鼠，部署在第 2 列第 4 行；另一只鼠叠放上去合成 2 阶。
