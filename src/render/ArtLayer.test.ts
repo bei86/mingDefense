@@ -22,6 +22,7 @@ describe('图片池回收与方向隔离', () => {
     layer.begin();
     layer.draw('fx_fist', 1, 2, 30, 40, 8, 0.4, 0xffaabb, 1.5);
     layer.end();
+    expect(layer.stats).toEqual({ active: 1, pooled: 1 });
     expect(image.setRotation).toHaveBeenLastCalledWith(1.5);
     layer.begin();
     layer.draw('boss_35_idle', 1, 2, 80, 88, 4);
@@ -35,6 +36,7 @@ describe('图片池回收与方向隔离', () => {
     expect(layer.draw('fx_fist', 0, 0, 20, 20, 8)).toBe(false);
     layer.end();
     expect(image.setVisible).toHaveBeenLastCalledWith(false);
+    expect(layer.stats).toEqual({ active: 0, pooled: 1 });
     expect(scene.add.image).toHaveBeenCalledTimes(1);
   });
 });

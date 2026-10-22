@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   bossDescription,
   bossName,
@@ -150,19 +151,28 @@ export function CombatControls({ session, onSpeed }: { session: Session; onSpeed
           className={`energy-button ${boosted ? 'charging' : ''}`}
           disabled={!session.canAdvance}
           onPointerDown={(e) => {
+            if (!e.isPrimary || e.button !== 0) return;
             e.currentTarget.setPointerCapture(e.pointerId);
             session.held = true;
           }}
-          onPointerUp={release}
-          onPointerCancel={release}
-          onLostPointerCapture={release}
+          onPointerUp={(e) => {
+            if (e.isPrimary) release();
+          }}
+          onPointerCancel={(e) => {
+            if (e.isPrimary) release();
+          }}
+          onLostPointerCapture={(e) => {
+            if (e.isPrimary) release();
+          }}
           onKeyDown={(e) => {
             if ([' ', 'Enter'].includes(e.key)) {
               e.preventDefault();
               session.held = true;
             }
           }}
-          onKeyUp={release}
+          onKeyUp={(e) => {
+            if ([' ', 'Enter'].includes(e.key)) release();
+          }}
           onBlur={release}
         >
           <span className="stone">
@@ -190,6 +200,7 @@ export function CombatControls({ session, onSpeed }: { session: Session; onSpeed
 
 type PauseProps = {
   session: Session;
+  soundControl: ReactNode;
   onResume: () => void;
   onPrepare: () => void;
   onHelp: () => void;
@@ -199,6 +210,7 @@ type PauseProps = {
 };
 export function PauseMenu({
   session,
+  soundControl,
   onResume,
   onPrepare,
   onHelp,
@@ -220,6 +232,7 @@ export function PauseMenu({
         <button className="primary" onClick={onResume}>
           继续守卫
         </button>
+        <div className="pause-sound">{soundControl}</div>
         <div className="pause-tools">
           <button className="secondary" onClick={onBuffs}>
             天赋手札

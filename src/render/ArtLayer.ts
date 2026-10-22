@@ -8,6 +8,10 @@ export class ArtLayer {
 
   constructor(private scene: Phaser.Scene) {}
 
+  get stats(): { active: number; pooled: number } {
+    return { active: this.used, pooled: this.images.length };
+  }
+
   begin(): void {
     this.used = 0;
   }

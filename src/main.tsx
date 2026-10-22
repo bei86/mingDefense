@@ -5,6 +5,8 @@ import './ui/style.css';
 import './ui/art.css';
 import './ui/combat.css';
 import './ui/handbook.css';
+import './ui/feedback.css';
+import './ui/mobile.css';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

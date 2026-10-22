@@ -16,7 +16,9 @@ import { expansionError, placementError, unitAt, type Session, type Source } fro
 import { boardDrop } from '../ui/board-drop';
 import { artUrl, battlefieldArt, bossArtKey, enemyArt, heroArt } from './art';
 import { ArtLayer } from './ArtLayer';
+import { FrameMetrics } from './frame-metrics';
 import { attackEffect, FieldEffects } from './field-effects';
+import type { CombatFeedback } from '../presentation/combat-feedback';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -35,6 +37,7 @@ const enemyColors: Record<EnemyKind, number> = {
 type View = { selected: Source | null; hover: Point | null; dragOffset: Point | null };
 type BattlefieldProps = View & {
   session: Session;
+  feedback: CombatFeedback;
   onCell: (p: Point) => void;
   onDragStart: (e: React.PointerEvent, source: Source, grabbedCell?: Point) => void;
   onHover: (p: Point | null) => void;
@@ -138,6 +141,7 @@ function animal(g: Phaser.GameObjects.Graphics, kind: HeroId, x: number, y: numb
 
 export function Battlefield({
   session,
+  feedback,
   selected,
   hover,
   dragOffset,
@@ -146,10 +150,19 @@ export function Battlefield({
   onHover,
 }: BattlefieldProps) {
   const host = useRef<HTMLDivElement>(null);
+  const performanceOutput = useRef<HTMLOutputElement>(null);
+  const showPerformance =
+    import.meta.env.DEV && new URLSearchParams(window.location.search).get('perf') === '1';
   const view = useRef<View>({ selected, hover, dragOffset });
   view.current = { selected, hover, dragOffset };
   useEffect(() => {
     if (!host.current) return;
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let reducedMotion = motionQuery.matches;
+    const updateMotion = () => {
+      reducedMotion = motionQuery.matches;
+    };
+    motionQuery.addEventListener('change', updateMotion);
     const samplingDensity = () =>
       Math.min(
         3,
@@ -159,6 +172,10 @@ export function Battlefield({
         ),
       );
     let renderDensity = samplingDensity();
+    const metrics = showPerformance ? new FrameMetrics() : null;
+    let lastReport = 0;
+    const resetMetrics = () => metrics?.reset();
+    if (metrics) document.addEventListener('visibilitychange', resetMetrics);
     class FieldScene extends Phaser.Scene {
       private drawing!: Phaser.GameObjects.Graphics;
       private overlay!: Phaser.GameObjects.Graphics;
@@ -174,8 +191,33 @@ export function Battlefield({
         this.overlay = this.add.graphics().setDepth(10);
         this.art = new ArtLayer(this);
       }
+      private finishFrame(started: number) {
+        this.art.end();
+        if (!metrics || !performanceOutput.current) return;
+        if (document.hidden) {
+          metrics.reset();
+          return;
+        }
+        const now = performance.now();
+        metrics.record(now, now - started);
+        if (now - lastReport < 1000) return;
+        lastReport = now;
+        const summary = metrics.snapshot();
+        if (!summary) return;
+        const { active, pooled } = this.art.stats;
+        const battle = session.battle;
+        performanceOutput.current.textContent = [
+          `${summary.fps.toFixed(1)} FPS · P95 ${summary.p95Ms.toFixed(1)} ms`,
+          `慢帧(>50ms) ${summary.slowPercent.toFixed(1)}% · ${summary.frames} 帧`,
+          `绘制CPU 均值 ${summary.drawMeanMs.toFixed(1)} / P95 ${summary.drawP95Ms.toFixed(1)} ms`,
+          `敌人 ${battle?.enemies.filter((e) => e.hp > 0).length ?? 0} · 攻击特效 ${battle?.flashes.length ?? 0}`,
+          `图片 ${active} / 池 ${pooled} · 画布 ${game.canvas.width}×${game.canvas.height} (${renderDensity}×)`,
+          `状态 ${session.phase}${session.paused ? ' · 暂停' : ''} · ${session.speed}倍`,
+        ].join('\n');
+      }
       update(_time: number, delta: number) {
         if (!this.drawing) return;
+        const started = metrics ? performance.now() : 0;
         const g = this.drawing;
         g.clear();
         const overlay = this.overlay;
@@ -319,6 +361,7 @@ export function Battlefield({
         for (const u of units) {
           if (!u.position) continue;
           const p = pixel(center(u.kind, u.position));
+          const pose = feedback.pose('ally', u.id, reducedMotion);
           const shape = cells(u.kind, u.position);
           const top = ORIGIN.y + Math.min(...shape.map((c) => c.y)) * SIZE;
           const bottom = ORIGIN.y + (Math.max(...shape.map((c) => c.y)) + 1) * SIZE;
@@ -327,12 +370,14 @@ export function Battlefield({
           if (
             !this.art.draw(
               heroArt[u.kind],
-              p.x,
-              p.y,
-              width - 10,
-              height - 16,
+              p.x + pose.dx,
+              p.y + pose.dy,
+              (width - 10) * pose.scale,
+              (height - 16) * pose.scale,
               2,
-              u.hp > 0 ? 1 : 0.28,
+              preparing && u.hp <= 0 ? 0.28 : pose.alpha,
+              pose.tint,
+              pose.rotation,
             )
           ) {
             animal(g, u.kind, p.x, p.y - 4, u.hp <= 0);
@@ -378,7 +423,7 @@ export function Battlefield({
           );
         }
         if (!battle) {
-          this.art.end();
+          this.finishFrame(started);
           return;
         }
         for (const field of battle.fields) {
@@ -398,21 +443,40 @@ export function Battlefield({
           );
           g.lineStyle(2, 0xf8b18a, 0.8).strokeRect(ORIGIN.x, p.y, 6 * SIZE, SIZE);
         }
+        for (const ghost of feedback.ghosts) {
+          const progress = (feedback.time - ghost.born) / 300;
+          const p = pixel(ghost.point);
+          const boss = ghost.kind === 'boss';
+          this.art.draw(
+            boss ? bossArtKey(ghost.stageId, ghost.phase2) : enemyArt[ghost.kind],
+            p.x,
+            p.y - (reducedMotion ? 0 : progress * 5),
+            boss ? 84 : 38,
+            boss ? 88 : 42,
+            3,
+            0.65 * (1 - progress),
+          );
+        }
         for (const e of battle.enemies) {
           const g = overlay;
           const p = pixel(e);
           const boss = e.kind === 'boss';
+          const pose = feedback.pose('enemy', e.id, reducedMotion);
           const color = enemyColors[e.kind ?? 'wolf'];
           const picture = boss ? bossArtKey(battle.stageId, e.phase2) : enemyArt[e.kind ?? 'wolf'];
+          let tint = pose.tint;
+          if (tint === 0xffffff && boss && e.phase2 && picture === bossArtKey(battle.stageId))
+            tint = 0xffc898;
           const pictured = this.art.draw(
             picture,
-            p.x,
-            p.y,
-            boss ? 84 : 38,
-            boss ? 88 : 42,
+            p.x + pose.dx,
+            p.y + pose.dy,
+            (boss ? 84 : 38) * pose.scale,
+            (boss ? 88 : 42) * pose.scale,
             4,
             1,
-            boss && e.phase2 && picture === bossArtKey(battle.stageId) ? 0xffc898 : 0xffffff,
+            tint,
+            pose.rotation,
           );
           if (pictured) {
             if (!boss) {
@@ -620,7 +684,7 @@ export function Battlefield({
             ).lineBetween(from.x, from.y, to.x, to.y);
           g.lineStyle(2, color, 0.7).strokeCircle(to.x, to.y, 8 + (battle.time - f.at) / 20);
         }
-        this.art.end();
+        this.finishFrame(started);
       }
     }
     const game = new Phaser.Game({
@@ -647,58 +711,68 @@ export function Battlefield({
     resize.observe(host.current!);
     window.addEventListener('resize', resizeField);
     return () => {
+      motionQuery.removeEventListener('change', updateMotion);
+      document.removeEventListener('visibilitychange', resetMetrics);
       resize.disconnect();
       window.removeEventListener('resize', resizeField);
       game.destroy(true);
     };
-  }, [session]);
+  }, [session, feedback, showPerformance]);
   return (
-    <div className={`battlefield ${session.phase === 'prepare' ? '' : 'approach-field'}`}>
-      <div ref={host} className="canvas-host" aria-hidden="true" />
-      <div className={`forest-sign ${session.phase === 'prepare' ? '' : 'enemy-entry'}`}>
-        {session.phase === 'prepare'
-          ? '选择灵兽 · 布下守阵'
-          : `敌袭入口 · 接敌距离${-config.waves.spawnRow}格 ↓`}
-      </div>
-      {session.phase === 'prepare' && (
-        <div className="board-input" role="group" aria-label="六乘六布阵棋盘">
-          {Array.from({ length: 36 }, (_, i) => {
-            const p = { x: i % 6, y: Math.floor(i / 6) };
-            const u = unitAt(session.preparation, p);
-            const open = session.preparation.unlocked.includes(key(p));
-            return (
-              <button
-                key={i}
-                data-cell-x={p.x}
-                data-cell-y={p.y}
-                className="board-cell"
-                disabled={session.phase !== 'prepare'}
-                aria-label={`${p.x + 1}列${p.y + 1}行，${u ? `${appearances[u.kind].name}${u.rank}阶` : open ? '空地' : '未解锁'}`}
-                onClick={() => onCell(p)}
-                onPointerDown={(e) => {
-                  if (u) onDragStart(e, { type: 'unit', id: u.id }, p);
-                }}
-                onPointerEnter={() => onHover(p)}
-                onPointerLeave={() => onHover(null)}
-              />
-            );
-          })}
+    <>
+      <div className={`battlefield ${session.phase === 'prepare' ? '' : 'approach-field'}`}>
+        <div ref={host} className="canvas-host" aria-hidden="true" />
+        <div className={`forest-sign ${session.phase === 'prepare' ? '' : 'enemy-entry'}`}>
+          {session.phase === 'prepare'
+            ? '选择灵兽 · 布下守阵'
+            : `敌袭入口 · 接敌距离${-config.waves.spawnRow}格 ↓`}
         </div>
+        {session.phase === 'prepare' && (
+          <div className="board-input" role="group" aria-label="六乘六布阵棋盘">
+            {Array.from({ length: 36 }, (_, i) => {
+              const p = { x: i % 6, y: Math.floor(i / 6) };
+              const u = unitAt(session.preparation, p);
+              const open = session.preparation.unlocked.includes(key(p));
+              return (
+                <button
+                  key={i}
+                  data-cell-x={p.x}
+                  data-cell-y={p.y}
+                  className="board-cell"
+                  disabled={session.phase !== 'prepare'}
+                  aria-label={`${p.x + 1}列${p.y + 1}行，${u ? `${appearances[u.kind].name}${u.rank}阶` : open ? '空地' : '未解锁'}`}
+                  onClick={() => onCell(p)}
+                  onPointerDown={(e) => {
+                    if (u) onDragStart(e, { type: 'unit', id: u.id }, p);
+                  }}
+                  onPointerEnter={() => onHover(p)}
+                  onPointerLeave={() => onHover(null)}
+                />
+              );
+            })}
+          </div>
+        )}
+        {session.battle?.warnings.length ? (
+          <div className="cleave-alert" role="status">
+            横扫预警 · 第 {session.battle.warnings[0].row + 1} 行
+          </div>
+        ) : null}
+        <div className="board-caption">
+          {session.phase === 'prepare'
+            ? '同种同阶叠放合成 · 灵兽不自动换位'
+            : session.paused
+              ? '已暂停 · 继续后重新按住聚灵石'
+              : session.battle?.boosted
+                ? '聚灵加速中 · 攻速 +50%'
+                : '灵兽自动攻击 · 按住聚灵石加速'}
+        </div>
+      </div>
+      {showPerformance && (
+        <details className="mobile-performance" open>
+          <summary>开发性能 · 最近120帧（当前浏览器）</summary>
+          <output ref={performanceOutput}>等待采样…</output>
+        </details>
       )}
-      {session.battle?.warnings.length ? (
-        <div className="cleave-alert" role="status">
-          横扫预警 · 第 {session.battle.warnings[0].row + 1} 行
-        </div>
-      ) : null}
-      <div className="board-caption">
-        {session.phase === 'prepare'
-          ? '同种同阶叠放合成 · 灵兽不自动换位'
-          : session.paused
-            ? '已暂停 · 继续后重新按住聚灵石'
-            : session.battle?.boosted
-              ? '聚灵加速中 · 攻速 +50%'
-              : '灵兽自动攻击 · 按住聚灵石加速'}
-      </div>
-    </div>
+    </>
   );
 }

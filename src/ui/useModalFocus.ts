@@ -8,6 +8,8 @@ export function useModalFocus(active: boolean, context: string): void {
       document.querySelector<HTMLElement>('.top-modal .modal') ??
       document.querySelector<HTMLElement>('.modal');
     if (!modal) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     const buttons = () => [...modal.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
     buttons()[0]?.focus();
     const trap = (event: KeyboardEvent) => {
@@ -26,7 +28,9 @@ export function useModalFocus(active: boolean, context: string): void {
     document.addEventListener('keydown', trap);
     return () => {
       document.removeEventListener('keydown', trap);
-      if (previous instanceof HTMLElement && previous.isConnected) previous.focus();
+      document.body.style.overflow = previousOverflow;
+      if (previous instanceof HTMLElement && previous.isConnected)
+        previous.focus({ preventScroll: true });
     };
   }, [active, context]);
 }

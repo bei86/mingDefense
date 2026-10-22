@@ -1,0 +1,71 @@
+.titlebar .eyebrow {
+  font-size: 8px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.sound-button {
+  min-height: 40px;
+  padding: 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #23483bd9;
+  color: var(--mint);
+  white-space: nowrap;
+  font-size: 10px;
+}
+.sound-button[aria-pressed='false'] {
+  color: var(--muted);
+}
+.pause-sound {
+  margin: 8px 0;
+}
+.battle-notice-slot {
+  height: 40px;
+  display: grid;
+  align-items: stretch;
+  background: #183a31;
+}
+.battle-notice-idle {
+  align-self: center;
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+}
+.battle-notice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3px 9px;
+  padding: 7px 10px;
+  border: 1px solid #b99a6355;
+  background: #37462e;
+  color: var(--gold);
+  pointer-events: none;
+}
+.battle-notice strong {
+  white-space: nowrap;
+  font: 600 13px / 1.4 serif;
+  letter-spacing: 1px;
+}
+.battle-notice span {
+  font-size: 10px;
+}
+.notice-phase,
+.notice-warning {
+  color: #f6c4a2;
+  background: #503c2e;
+}
+@media (max-width: 350px) {
+  .titlebar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .titlebar-tools {
+    margin-left: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell button {
+    transition: none;
+  }
+}

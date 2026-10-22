@@ -132,4 +132,27 @@ describe('independent simulation scheduler', () => {
     expect(session.battle!.time).toBe(before!.time + 50);
     stopAgain();
   });
+
+  it('samples presentation after simulation and drops stalled presentation time', () => {
+    let gap = 0;
+    vi.spyOn(performance, 'now').mockImplementation(() => Date.now() + gap);
+    const session = battleSession();
+    const samples: { elapsed: number; time: number }[] = [];
+    const stop = startGameLoop(
+      new GameClock(session),
+      () => {},
+      (elapsed) => {
+        samples.push({ elapsed, time: session.battle!.time });
+      },
+    );
+    vi.advanceTimersByTime(100);
+    expect(samples).toHaveLength(4);
+    expect(samples[3]).toEqual({ elapsed: 25, time: 100 });
+    gap = 10000;
+    vi.advanceTimersByTime(25);
+    expect(samples[4]).toEqual({ elapsed: 0, time: 100 });
+    stop();
+    vi.advanceTimersByTime(100);
+    expect(samples).toHaveLength(5);
+  });
 });

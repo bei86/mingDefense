@@ -15,11 +15,16 @@ import { FirstBattleGuide } from './FirstBattleGuide';
 import { DefeatAdvice } from './DefeatAdvice';
 import { defeatRecap, type DefeatRecap } from './defeat-advice';
 import { SpiritHandbook } from './SpiritHandbook';
+import { CombatFeedback } from '../presentation/combat-feedback';
+import { GameAudio } from '../presentation/game-audio';
 
 export function App() {
   const [boot] = useState(loadBrowserSession);
   const session = boot.session;
   const [clock] = useState(() => new GameClock(session));
+  const [feedback] = useState(() => new CombatFeedback());
+  const audioRef = useRef<GameAudio | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(() => new GameAudio().enabled);
   const [, render] = useState(0);
   const [selected, setSelected] = useState<Source | null>(null);
   const [hover, setHover] = useState<Point | null>(null);
@@ -47,6 +52,7 @@ export function App() {
     `${dialog?.title}:${help}:${journal}:${handbook}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
+    pointerId: number;
     source: Source;
     x: number;
     y: number;
@@ -90,11 +96,30 @@ export function App() {
   const placeRef = useRef(place);
   placeRef.current = place;
   useEffect(() => {
-    const stopLoop = startGameLoop(clock, repaint);
+    const audio = new GameAudio();
+    audioRef.current = audio;
+    feedback.update(session, 0, !document.hidden);
+    let inactive = false;
+    const stopLoop = startGameLoop(clock, repaint, (elapsed) => {
+      const blocked = session.phase === 'combat' && !session.canAdvance;
+      if (blocked && !inactive) audio.stop();
+      inactive = blocked;
+      audio.playFeedback(feedback.update(session, elapsed, !document.hidden));
+    });
+    const unlock = (e: Event) => {
+      if (e instanceof KeyboardEvent && e.repeat) return;
+      audio.unlock();
+    };
+    const clickSound = (e: MouseEvent) => {
+      const button = e.target instanceof Element ? e.target.closest('button') : null;
+      if (button && !button.disabled && !button.hasAttribute('data-sound-toggle'))
+        audio.play('click');
+    };
     const stopHeld = () => {
       session.held = false;
     };
     const suspend = () => {
+      audio.stop();
       if (session.phase === 'combat') session.pause(true);
       stopHeld();
       drag.current = null;
@@ -108,7 +133,7 @@ export function App() {
     };
     const pointerMove = (e: PointerEvent) => {
       const d = drag.current;
-      if (!d) return;
+      if (!d || e.pointerId !== d.pointerId) return;
       if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 8) d.moving = true;
       if (!d.moving) return;
       setSelected(d.source);
@@ -120,8 +145,10 @@ export function App() {
       e.preventDefault();
     };
     const pointerUp = (e: PointerEvent) => {
+      if (!e.isPrimary) return;
       stopHeld();
       const d = drag.current;
+      if (d && e.pointerId !== d.pointerId) return;
       drag.current = null;
       setDragOffset(null);
       if (!d?.moving) return;
@@ -146,28 +173,37 @@ export function App() {
       }
       repaint();
     };
-    const cancelPointer = () => {
+    const cancelPointer = (e: PointerEvent) => {
+      if (!e.isPrimary || (drag.current && e.pointerId !== drag.current.pointerId)) return;
       stopHeld();
       drag.current = null;
       setDragOffset(null);
       setHover(null);
     };
     window.addEventListener('blur', suspend);
+    document.addEventListener('pointerdown', unlock, true);
+    document.addEventListener('keydown', unlock, true);
+    document.addEventListener('click', clickSound, true);
     document.addEventListener('visibilitychange', hidden);
     window.addEventListener('pointermove', pointerMove, { passive: false });
     window.addEventListener('pointerup', pointerUp);
     window.addEventListener('pointercancel', cancelPointer);
     return () => {
       stopLoop();
+      audio.dispose();
+      audioRef.current = null;
+      document.removeEventListener('pointerdown', unlock, true);
+      document.removeEventListener('keydown', unlock, true);
+      document.removeEventListener('click', clickSound, true);
       window.removeEventListener('blur', suspend);
       document.removeEventListener('visibilitychange', hidden);
       window.removeEventListener('pointermove', pointerMove);
       window.removeEventListener('pointerup', pointerUp);
       window.removeEventListener('pointercancel', cancelPointer);
     };
-  }, [clock, session]);
+  }, [clock, session, feedback]);
   const dragStart = (e: React.PointerEvent, source: Source, grabbedCell?: Point) => {
-    if (session.phase === 'prepare' && e.button === 0) {
+    if (session.phase === 'prepare' && e.isPrimary && e.button === 0 && !drag.current) {
       const position =
         source.type === 'unit'
           ? session.preparation.units.find((u) => u.id === source.id)?.position
@@ -176,7 +212,14 @@ export function App() {
         position && grabbedCell
           ? { x: grabbedCell.x - position.x, y: grabbedCell.y - position.y }
           : { x: 0, y: 0 };
-      drag.current = { source, x: e.clientX, y: e.clientY, moving: false, offset };
+      drag.current = {
+        pointerId: e.pointerId,
+        source,
+        x: e.clientX,
+        y: e.clientY,
+        moving: false,
+        offset,
+      };
     }
   };
   const choose = (source: Source) => {
@@ -235,6 +278,29 @@ export function App() {
     clock.reset();
     repaint();
   };
+  const audioUnavailable = audioRef.current?.unavailable ?? false;
+  let soundLabel = soundEnabled ? '音效开' : '音效关';
+  if (audioUnavailable) soundLabel = '音效不可用';
+  const soundControl = (
+    <button
+      className="sound-button"
+      data-sound-toggle
+      aria-label={audioUnavailable ? '音效不可用' : '游戏音效'}
+      aria-pressed={soundEnabled && !audioUnavailable}
+      disabled={audioUnavailable}
+      onClick={() => {
+        const enabled = !soundEnabled;
+        audioRef.current?.setEnabled(enabled);
+        if (enabled) {
+          audioRef.current?.unlock();
+          audioRef.current?.play('deploy');
+        }
+        setSoundEnabled(enabled);
+      }}
+    >
+      {soundLabel}
+    </button>
+  );
   return (
     <main className={`app-shell ${preparing ? 'preparation-view' : 'combat-view'}`}>
       {preparing ? (
@@ -245,6 +311,7 @@ export function App() {
             <h1 tabIndex={-1}>灵林守阵</h1>
           </div>
           <div className="titlebar-tools">
+            {soundControl}
             <button
               className="handbook-button"
               aria-label="灵兽图鉴"
@@ -340,6 +407,21 @@ export function App() {
       ) : (
         <CombatStatus session={session} />
       )}
+      {!preparing && (
+        <div className="battle-notice-slot" role="status">
+          {feedback.notice ? (
+            <div
+              className={`battle-notice notice-${feedback.notice.kind}`}
+              key={feedback.notice.id}
+            >
+              <strong>{feedback.notice.label}</strong>
+              <span>{feedback.notice.detail}</span>
+            </div>
+          ) : (
+            <span className="battle-notice-idle">守住阵线 · 灵兽自动迎敌</span>
+          )}
+        </div>
+      )}
       {preparing && <EnemyIntel stageId={p.stageId} />}
       {preparing && lastDefeat && <DefeatAdvice session={session} recap={lastDefeat} preparing />}
       {preparing && p.stageId === 1 && !lastDefeat && (
@@ -348,6 +430,7 @@ export function App() {
       <section className="field-panel">
         <Battlefield
           session={session}
+          feedback={feedback}
           selected={selected}
           hover={hover}
           dragOffset={dragOffset}
@@ -438,6 +521,7 @@ export function App() {
         !handbook && (
           <PauseMenu
             session={session}
+            soundControl={soundControl}
             onResume={resume}
             onPrepare={() =>
               setDialog({

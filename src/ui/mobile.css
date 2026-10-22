@@ -1,0 +1,74 @@
+/* Keep the playfield readable; short screens can scroll instead of scaling the page. */
+html {
+  scrollbar-gutter: stable;
+}
+.app-shell.preparation-view {
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  padding-left: max(16px, env(safe-area-inset-left));
+}
+.app-shell.combat-view {
+  padding-right: max(12px, env(safe-area-inset-right));
+  padding-left: max(12px, env(safe-area-inset-left));
+}
+.modal-backdrop {
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+.modal {
+  max-height: calc(
+    100dvh - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom))
+  );
+  overscroll-behavior: contain;
+}
+button {
+  touch-action: manipulation;
+}
+.board-cell,
+.offer-card,
+.reserve-slot,
+.energy-button {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.icon-button,
+.handbook-button,
+.sound-button,
+.experience button,
+.combat-view .experience button,
+.refresh-button,
+.reserve-slot,
+.handbook-ranks button,
+.save-notice button {
+  min-height: 44px;
+  min-width: 44px;
+}
+.mobile-performance {
+  padding: 10px;
+  color: var(--muted);
+  background: var(--forest);
+  font-size: 11px;
+  line-height: 1.8;
+}
+.mobile-performance summary {
+  cursor: pointer;
+}
+.mobile-performance output {
+  display: block;
+  height: 144px;
+  overflow: auto;
+  white-space: pre-line;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 350px) {
+  .handbook-ranks {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .app-shell.combat-view {
+    padding-right: max(8px, env(safe-area-inset-right));
+    padding-left: max(8px, env(safe-area-inset-left));
+  }
+}
