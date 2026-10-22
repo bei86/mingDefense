@@ -664,6 +664,53 @@ footer {
   background: #123327;
   text-align: left;
 }
+.defeat-advice {
+  margin: 12px 0;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--danger);
+  border-radius: 9px;
+  background: var(--panel);
+  text-align: left;
+}
+.defeat-advice summary {
+  padding: 12px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--gold);
+}
+.defeat-advice summary:focus-visible {
+  outline: 3px solid var(--gold);
+}
+.defeat-advice-content {
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.defeat-advice-content > strong {
+  color: var(--paper);
+}
+.defeat-advice-content p,
+.modal .defeat-advice-content p {
+  margin: 5px 0;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #c8d7c3;
+}
+.defeat-advice-content .defeat-fact {
+  color: var(--muted);
+}
+.defeat-advice-content ul {
+  margin: 10px 0;
+  padding-left: 18px;
+}
+.defeat-advice-content li + li {
+  margin-top: 8px;
+}
+.defeat-advice-content small {
+  display: block;
+  line-height: 1.7;
+}
 .unit-report summary {
   cursor: pointer;
   padding: 12px 10px;

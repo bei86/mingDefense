@@ -12,6 +12,8 @@ import { boardDrop } from './board-drop';
 import { ArtImage } from './ArtImage';
 import { CombatControls, CombatHeader, CombatStatus, EnemyIntel, PauseMenu } from './CombatPanels';
 import { FirstBattleGuide } from './FirstBattleGuide';
+import { DefeatAdvice } from './DefeatAdvice';
+import { defeatRecap, type DefeatRecap } from './defeat-advice';
 
 export function App() {
   const [boot] = useState(loadBrowserSession);
@@ -27,6 +29,7 @@ export function App() {
   const [dialog, setDialog] = useState<Confirmation | null>(null);
   const [help, setHelp] = useState(false);
   const [journal, setJournal] = useState(false);
+  const [lastDefeat, setLastDefeat] = useState<DefeatRecap | null>(null);
   const storage = useSessionStorage(session, boot.blocked, boot.message);
   useModalFocus(
     Boolean(
@@ -197,6 +200,7 @@ export function App() {
       label: '重新开始',
       action: () => {
         session.reset();
+        setLastDefeat(null);
         clock.reset();
         setSelected(null);
         setMessage('新一轮免费招募已备好。');
@@ -325,7 +329,8 @@ export function App() {
         <CombatStatus session={session} />
       )}
       {preparing && <EnemyIntel stageId={p.stageId} />}
-      {preparing && p.stageId === 1 && (
+      {preparing && lastDefeat && <DefeatAdvice session={session} recap={lastDefeat} preparing />}
+      {preparing && p.stageId === 1 && !lastDefeat && (
         <FirstBattleGuide session={session} selected={selected} choose={choose} />
       )}
       <section className="field-panel">
@@ -356,7 +361,9 @@ export function App() {
             confirm={setDialog}
             onStart={() => {
               clock.reset();
-              run(session.start(), '守阵开始！');
+              const error = session.start();
+              if (!error) setLastDefeat(null);
+              run(error, '守阵开始！');
             }}
             ignoreClick={() => performance.now() < ignoreClickUntil.current}
           />
@@ -392,13 +399,16 @@ export function App() {
           session={session}
           onNext={() => {
             clock.reset();
+            setLastDefeat(null);
             run(session.nextStage(), '全员恢复，已免费刷新本关招募。');
           }}
           onRetry={() => {
             clock.reset();
+            setLastDefeat(null);
             run(session.retry(), '重新守阵。');
           }}
           onPrepare={() => {
+            setLastDefeat(defeatRecap(session.battle));
             session.backToPreparation();
             setSelected(null);
             setMessage('已恢复阵容，可以继续调整布阵。');

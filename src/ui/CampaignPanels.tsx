@@ -5,6 +5,8 @@ import type { Session } from '../game/session';
 import { BattleReport } from './BattleReport';
 import { buffArt } from '../render/art';
 import { ArtImage } from './ArtImage';
+import { DefeatAdvice } from './DefeatAdvice';
+import { defeatRecap } from './defeat-advice';
 
 export function timeLabel(ms: number): string {
   return `${Math.floor(ms / 60000)
@@ -191,6 +193,7 @@ export function ResultModal({
           <span>击杀经验 {b.xpEarned}</span>
         </div>
         <BattleReport battle={b} />
+        {!win && <DefeatAdvice session={session} recap={defeatRecap(b)} />}
         {win && !session.complete && (
           <button className="primary" onClick={onNext}>
             前往第 {session.preparation.stageId + 1} 关整备 →
