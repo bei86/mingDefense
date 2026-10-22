@@ -4,6 +4,7 @@ import { loadBrowserSession } from './useSessionStorage';
 afterEach(() => vi.unstubAllGlobals());
 
 test.each([
+  ['onboarding', 1, '开发首战试玩'],
   ['calibration20', 20, 'v18三格规则合法经济路线'],
   ['calibration25', 25, 'v19三格规则合法经济路线'],
   ['calibration30', 30, 'v20三格规则合法经济路线'],

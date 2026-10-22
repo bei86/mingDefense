@@ -34,6 +34,13 @@ export function loadBrowserSession() {
   const playtest = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get('playtest')
     : null;
+  if (playtest === 'onboarding')
+    return {
+      session: new Session(),
+      message: '开发首战试玩：独立新局，不读取或写入正式存档，刷新后重新开始。',
+      recovered: false,
+      blocked: true,
+    };
   if (playtest === 'approach')
     return {
       session: approachPlaytest(),

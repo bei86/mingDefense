@@ -11,6 +11,7 @@ import { loadBrowserSession, useSessionStorage } from './useSessionStorage';
 import { boardDrop } from './board-drop';
 import { ArtImage } from './ArtImage';
 import { CombatControls, CombatHeader, CombatStatus, EnemyIntel, PauseMenu } from './CombatPanels';
+import { FirstBattleGuide } from './FirstBattleGuide';
 
 export function App() {
   const [boot] = useState(loadBrowserSession);
@@ -324,6 +325,9 @@ export function App() {
         <CombatStatus session={session} />
       )}
       {preparing && <EnemyIntel stageId={p.stageId} />}
+      {preparing && p.stageId === 1 && (
+        <FirstBattleGuide session={session} selected={selected} choose={choose} />
+      )}
       <section className="field-panel">
         <Battlefield
           session={session}

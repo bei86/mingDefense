@@ -60,6 +60,63 @@ small {
   min-height: 100vh;
   padding: 20px 16px 12px;
 }
+.first-battle-guide {
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.first-battle-guide summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  min-height: 40px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--gold);
+  font-size: 12px;
+}
+.first-battle-guide summary::-webkit-details-marker {
+  display: none;
+}
+.first-battle-guide summary:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+.first-battle-guide summary span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.guide-content {
+  padding: 0 12px 12px;
+}
+.guide-content h2 {
+  font-size: 14px;
+  color: var(--paper);
+  margin-bottom: 5px;
+}
+.guide-content p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #c8d7c3;
+}
+.guide-choice {
+  margin-top: 10px;
+  padding: 9px 12px;
+  min-height: 40px;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--forest);
+  color: var(--gold);
+  font-size: 12px;
+}
+.guide-choice[aria-pressed='true'] {
+  border-color: var(--mint);
+  color: var(--mint);
+}
 .titlebar {
   display: flex;
   align-items: center;
