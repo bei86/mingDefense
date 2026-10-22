@@ -42,7 +42,17 @@ test('v22三格校准只修改授权数值，保留其余完整配置 P', () => 
     Object.assign(wave.enemies, { ranged: 1 });
   });
   expected.stages[39].waves[1].atMs = 5000;
-  expect(config).toEqual(expected);
+  const { ninthBoss: _newBoss, ...prefix } = clone(config);
+  expect({
+    ...prefix,
+    contentVersion: expected.contentVersion,
+    status: expected.status,
+    scope: {
+      ...prefix.scope,
+      M2M3: { ...prefix.scope.M2M3, stageIds: prefix.scope.M2M3.stageIds.slice(0, 40) },
+    },
+    stages: prefix.stages.slice(0, 40),
+  }).toEqual(expected);
 });
 
 test.each([
@@ -162,7 +172,7 @@ test('当前经济检查点中途返回不结算，重试可复现第20关胜利
   expect(session.preparation.currency).toBe(167);
 });
 
-test('第40关合法不聚灵路线可中止重试、保存完成态且不会生成41关或重复结算', () => {
+test('第40关合法不聚灵路线可中止重试、保存胜利并继续41关且不重复结算', () => {
   if (!validSave(checkpoint40)) throw new Error('Invalid stage-40 checkpoint');
   const session = Session.restore(checkpoint40);
   const before = clone(session.preparation);
@@ -176,7 +186,7 @@ test('第40关合法不聚灵路线可中止重试、保存完成态且不会生
     session.tick();
   }
   expect(session.phase).toBe('victory');
-  expect(session.complete).toBe(true);
+  expect(session.complete).toBe(false);
   expect(session.battle!.time).toBe(98050);
   expect(session.totalHealth()).toBe(4919);
   expect(session.battle!.report!.boostedMs).toBe(0);
@@ -191,10 +201,15 @@ test('第40关合法不聚灵路线可中止重试、保存完成态且不会生
   const save = session.exportSave();
   expect(validSave(save)).toBe(true);
   const restored = Session.restore(save);
-  expect(restored.complete).toBe(true);
+  expect(restored.complete).toBe(false);
   expect(restored.totalHealth()).toBe(4919);
-  expect(restored.nextStage()).toBe('本轮已经完成');
   for (let i = 0; i < 20; i++) restored.tick();
   expect(restored.exportSave()).toEqual(save);
   expect(restored.preparation.stageId).toBe(40);
+  expect(restored.nextStage()).toBeNull();
+  expect(restored.preparation.stageId).toBe(41);
+  expect(restored.preparation.currency).toBe(326);
+  const next = clone(restored.preparation);
+  expect(restored.nextStage()).toBeTruthy();
+  expect(restored.preparation).toEqual(next);
 });

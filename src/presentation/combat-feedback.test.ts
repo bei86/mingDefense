@@ -159,4 +159,32 @@ describe('只读战斗反馈', () => {
     expect(feedback.notice).toBeNull();
     expect(center('ember_mouse', battle.allies[0].position)).toEqual({ x: 1.5, y: 3.5 });
   });
+
+  it('双段预警仅播一次且不被第二段覆盖；冻结延迟不重复播报，下一轮仍提示', () => {
+    const session = prepared();
+    session.preparation.stageId = 45;
+    session.start();
+    const battle = session.battle!;
+    const feedback = new CombatFeedback();
+    feedback.update(session, 0);
+    const first = { source: 100, row: 0, due: 2200 };
+    const echo = { source: 100, row: 0, due: 3100, echo: true };
+    battle.warnings = [first, echo];
+    expect(feedback.update(session, 25)).toEqual(['warning']);
+    expect(feedback.notice).toMatchObject({
+      label: '双段横扫将至',
+      detail: '第 1 行 · 两段锁定同一行',
+    });
+    first.due += 50;
+    echo.due += 50;
+    expect(feedback.update(session, 25)).toEqual([]);
+    battle.warnings = [echo];
+    expect(feedback.update(session, 25)).toEqual([]);
+    battle.warnings = [
+      { source: 100, row: 2, due: 16000 },
+      { source: 100, row: 2, due: 16900, echo: true },
+    ];
+    expect(feedback.update(session, 25)).toEqual(['warning']);
+    expect(feedback.notice?.detail).toContain('第 3 行');
+  });
 });

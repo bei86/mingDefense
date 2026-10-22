@@ -29,10 +29,13 @@ function restoreHistoricalNumbers(target: typeof config): void {
 }
 
 /** For historical snapshot comparisons only, without mutating live configuration. */
-export function historicalBalance(): typeof config {
+export function historicalBalance(): Omit<typeof config, 'ninthBoss'> {
   const historical = clone(config);
   restoreHistoricalNumbers(historical);
-  return historical;
+  historical.stages = historical.stages.slice(0, 40);
+  historical.scope.M2M3.stageIds = historical.scope.M2M3.stageIds.slice(0, 40);
+  const { ninthBoss: _newBoss, ...prefix } = historical;
+  return prefix;
 }
 
 /** Historical campaign goldens pin pre-v16 distance AND pre-v18/v19/v20/v21/v22 numerical balance. */

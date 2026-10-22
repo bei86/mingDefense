@@ -174,12 +174,20 @@ function updateEnemies(s: Combat, dt: number): void {
       const front = s.allies
         .filter((u) => u.hp > 0)
         .sort((a, b) => a.position.y - b.position.y || a.id - b.id)[0];
-      if (front)
+      if (front) {
         s.warnings.push({
           source: e.id,
           row: front.position.y,
           due: s.time + bossSkill.cleaveWarningMs,
         });
+        if (bossSkill.cleaveEchoDelayMs)
+          s.warnings.push({
+            source: e.id,
+            row: front.position.y,
+            due: s.time + bossSkill.cleaveWarningMs + bossSkill.cleaveEchoDelayMs,
+            echo: true,
+          });
+      }
       e.nextCleave = s.time + bossSkill.cleaveIntervalMs;
     }
   }
@@ -271,6 +279,9 @@ function resolveHits(s: Combat): void {
   s.fields = s.fields.filter((f) => f.hits < heroes.sword_eagle.skills.residueHitOffsetsMs!.length);
   for (const warning of s.warnings.filter((w) => w.due <= s.time)) {
     if (!s.enemies.some((e) => e.id === warning.source && e.hp > 0)) continue;
+    const skill = bossDefinition(s.stageId);
+    const damage =
+      skill.cleaveHitDamage * (warning.echo ? (skill.cleaveEchoDamagePercent ?? 100) / 100 : 1);
     for (const ally of s.allies)
       if (
         ally.hp > 0 &&
@@ -279,7 +290,7 @@ function resolveHits(s: Combat): void {
         packets.push({
           team: 'ally',
           id: ally.id,
-          damage: bossDefinition(s.stageId).cleaveHitDamage,
+          damage,
         });
   }
   s.warnings = s.warnings.filter((w) => w.due > s.time);

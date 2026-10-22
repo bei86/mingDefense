@@ -91,11 +91,18 @@ export const stageNames = [
   '裂雷狂潮',
   '群咒重围',
   '玄甲之主',
+  '羽岩长阵',
+  '咒影疾潮',
+  '裂甲奔袭',
+  '群影合围',
+  '回锋之主',
 ];
 type BossDefinition = typeof config.boss & {
   summonFromStart?: boolean;
   damageReductionPercent?: number;
   phase2SummonCount?: number;
+  cleaveEchoDelayMs?: number;
+  cleaveEchoDamagePercent?: number;
 };
 const bossDefinitions: BossDefinition[] = [
   config.boss,
@@ -106,6 +113,7 @@ const bossDefinitions: BossDefinition[] = [
   config.sixthBoss,
   config.seventhBoss,
   config.eighthBoss,
+  config.ninthBoss,
 ];
 export function bossDefinition(stageId: number): BossDefinition {
   const id = stages[stageId - 1].bossId;
@@ -130,6 +138,8 @@ export const enemyAppearances: Record<EnemyKind, { name: string; description: st
 };
 export function bossName(stageId: number): string {
   switch (bossDefinition(stageId).id) {
+    case config.ninthBoss.id:
+      return '回锋妖将';
     case config.secondBoss.id:
       return '鸣咒统领';
     case config.thirdBoss.id:
@@ -160,6 +170,10 @@ export function bossDescription(stageId: number): string {
     `生命降至${skill.phase2HpPercent}%时攻速提高${skill.phase2AttackSpeedBonusPercent}%`,
   );
   effects.push(`横扫预警${skill.cleaveWarningMs / 1000}秒后攻击前排`);
+  if (skill.cleaveEchoDelayMs)
+    effects.push(
+      `双段横扫：首段后${skill.cleaveEchoDelayMs / 1000}秒追击锁定同一行，造成首段${skill.cleaveEchoDamagePercent}%伤害，不跳后排`,
+    );
   effects.push(
     `每${skill.summonIntervalMs / 1000}秒召${skill.summonCount}只咒影，上限${skill.maxLivingSummons}只`,
   );

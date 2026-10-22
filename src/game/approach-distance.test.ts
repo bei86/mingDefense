@@ -21,7 +21,7 @@ function fullBoard(stageId = 1) {
 }
 
 describe('3格接敌距离 P', () => {
-  it('排除v18校准后相对v15只改出生行和版本标识，阵地仍限6×6', () => {
+  it('前40关排除数值校准后相对v15只改出生行和版本标识，阵地仍限6×6', () => {
     expect({
       ...historicalBalance(),
       contentVersion: v15.contentVersion,
@@ -63,7 +63,7 @@ describe('3格接敌距离 P', () => {
     ['croc', 1],
     ['summoner', 8],
     ['splitter', 9],
-    ...[5, 10, 15, 20, 25, 30, 35, 40].map((stage): [EnemyKind, number] => ['boss', stage]),
+    ...[5, 10, 15, 20, 25, 30, 35, 40, 45].map((stage): [EnemyKind, number] => ['boss', stage]),
   ])('%s / 第%d关：满阵先行进，停在射程边界，再经过200ms前摇普攻', (kind, stageId) => {
     const s = fullBoard(stageId);
     s.spawns = [{ at: 0, x: 3.5, kind }];

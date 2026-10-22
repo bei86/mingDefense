@@ -47,9 +47,11 @@ describe('四十关与玄甲咒尊', () => {
       scope: v14.scope,
       waves: { ...old.waves, spawnRow: v14.waves.spawnRow },
     }).toEqual(v14);
-    expect(stages.map((s) => s.id)).toEqual(Array.from({ length: 40 }, (_, i) => i + 1));
+    expect(stages.slice(0, 40).map((s) => s.id)).toEqual(
+      Array.from({ length: 40 }, (_, i) => i + 1),
+    );
     expect(config.scope.M2M3.stageIds).toEqual(stages.map((s) => s.id));
-    expect(stages.filter((s) => s.bossId).map((s) => s.id)).toEqual([
+    expect(stages.filter((s) => s.id <= 40 && s.bossId).map((s) => s.id)).toEqual([
       5, 10, 15, 20, 25, 30, 35, 40,
     ]);
     expect(bossDefinition(40)).toEqual(config.eighthBoss);
@@ -279,16 +281,16 @@ describe('四十关与玄甲咒尊', () => {
     expect(loaded.session.nextStage()).toBeNull();
     expect(loaded.session.preparation.stageId).toBe(36);
   });
-  it('40为终点，重载不重领奖，失败/中止回滚', () => {
+  it('40可继续41，重载不重领奖，失败/中止回滚', () => {
     const s = won(40),
       save = s.exportSave();
-    expect(s.complete).toBe(true);
+    expect(s.complete).toBe(false);
     expect(validSave(save)).toBe(true);
     const loaded = Session.restore(save);
-    expect(loaded.complete).toBe(true);
-    expect(loaded.nextStage()).toBeTruthy();
-    loaded.tick();
-    expect(loaded.preparation).toEqual(save.preparation);
+    expect(loaded.complete).toBe(false);
+    expect(loaded.nextStage()).toBeNull();
+    expect(loaded.preparation.stageId).toBe(41);
+    expect(loaded.preparation.currency).toBe(save.preparation.currency);
     s.backToPreparation();
     const before = clone(s.preparation);
     s.start();

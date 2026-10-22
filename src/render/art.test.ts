@@ -10,7 +10,7 @@ describe('实际发布图片与关卡映射', () => {
       expect(asset, kind).toBeDefined();
       expect(battlefieldArt).toContain(asset);
     }
-    for (const stage of stages.filter((entry) => entry.bossId)) {
+    for (const stage of stages.filter((entry) => entry.bossId && entry.id <= 40)) {
       for (const phase2 of [false, true]) {
         expect(bossArtKey(stage.id, phase2)).toBeDefined();
         expect(battlefieldArt).toContain(bossArtKey(stage.id, phase2));
@@ -23,5 +23,7 @@ describe('实际发布图片与关卡映射', () => {
     expect(bossArtKey(30)).toBe('boss_30_idle');
     expect(Object.keys(artManifest).some((key) => key.includes('variant'))).toBe(false);
     expect(bossArtKey(1)).toBeUndefined();
+    // New boss uses its own procedural silhouette until art is provided.
+    expect(bossArtKey(45)).toBeUndefined();
   });
 });

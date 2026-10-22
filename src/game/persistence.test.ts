@@ -207,7 +207,7 @@ describe('本地检查点存档', () => {
     s.start();
     finish(s);
     expect(s.preparation.currency).toBeGreaterThan(70);
-    expect(config.contentVersion).toContain('v22');
+    expect(config.contentVersion).toContain('v23');
     const aborted = Session.restore({
       ...s.exportSave(),
       phase: 'prepare',

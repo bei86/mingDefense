@@ -1,5 +1,5 @@
-import { bossName, center, type EnemyKind, type Point } from '../game/content';
-import type { Combat, Flash } from '../game/combat-model';
+import { bossDefinition, bossName, center, type EnemyKind, type Point } from '../game/content';
+import type { Combat, Flash, Warning } from '../game/combat-model';
 import type { Session } from '../game/session';
 
 export type SoundCue =
@@ -58,7 +58,8 @@ export class CombatFeedback {
   private actors = new Map<string, Actor>();
   private enemies = new Map<number, { kind: EnemyKind; phase2: boolean; point: Point }>();
   private flashes = new WeakSet<Flash>();
-  private warnings = new Set<string>();
+  // Freeze changes due times; object identity still identifies the same warning.
+  private warnings = new WeakSet<Warning>();
   private serial = 0;
 
   update(session: Session, deltaMs: number, visible = true): SoundCue[] {
@@ -74,7 +75,7 @@ export class CombatFeedback {
       this.ghosts = [];
       this.notice = null;
       this.flashes = new WeakSet(battle?.flashes ?? []);
-      this.warnings = new Set(battle?.warnings.map((w) => `${w.source}:${w.due}`) ?? []);
+      this.warnings = new WeakSet(battle?.warnings ?? []);
     }
     if (!fresh && session.phase === 'prepare') {
       const units = session.preparation.units;
@@ -151,12 +152,13 @@ export class CombatFeedback {
           }
         }
         for (const warning of battle.warnings)
-          if (!this.warnings.has(`${warning.source}:${warning.due}`)) {
+          if (!warning.echo && !this.warnings.has(warning)) {
+            const double = !!bossDefinition(battle.stageId).cleaveEchoDelayMs;
             cues.add('warning');
             this.announce(
               'warning',
-              '横扫将至',
-              `第 ${warning.row + 1} 行 · 留意阵线`,
+              double ? '双段横扫将至' : '横扫将至',
+              `第 ${warning.row + 1} 行 · ${double ? '两段锁定同一行' : '留意阵线'}`,
               Math.min(1400, warning.due - battle.time),
             );
           }
@@ -183,7 +185,7 @@ export class CombatFeedback {
     this.phase = session.phase;
     this.income = battle?.income ?? 0;
     this.level = battle?.progression.level ?? 0;
-    this.warnings = new Set(battle?.warnings.map((w) => `${w.source}:${w.due}`) ?? []);
+    this.warnings = new WeakSet(battle?.warnings ?? []);
     this.preparation = new Map(
       session.preparation.units.map((u) => [
         u.id,

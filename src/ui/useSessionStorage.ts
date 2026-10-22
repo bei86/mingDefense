@@ -23,6 +23,8 @@ import stage31Checkpoint from '../game/fixtures/stage-31-checkpoint.json';
 import stage35Checkpoint from '../game/fixtures/stage-35-checkpoint.json';
 import stage36Checkpoint from '../game/fixtures/stage-36-checkpoint.json';
 import stage40Checkpoint from '../game/fixtures/stage-40-checkpoint.json';
+import stage41Checkpoint from '../game/fixtures/stage-41-checkpoint.json';
+import stage45Checkpoint from '../game/fixtures/stage-45-checkpoint.json';
 
 const browserStorage: StoragePort = {
   getItem: (key) => window.localStorage.getItem(key),
@@ -60,7 +62,9 @@ export function loadBrowserSession() {
     playtest === 'calibration25' ||
     playtest === 'calibration30' ||
     playtest === 'calibration35' ||
-    playtest === 'calibration40'
+    playtest === 'calibration40' ||
+    playtest === 'stage41' ||
+    playtest === 'stage45'
   ) {
     const { checkpoint, source } = {
       calibration20: {
@@ -82,6 +86,14 @@ export function loadBrowserSession() {
       calibration40: {
         checkpoint: calibration40Checkpoint,
         source: 'v22三格规则合法经济路线第40关',
+      },
+      stage41: {
+        checkpoint: stage41Checkpoint,
+        source: 'v23三格规则合法控制路线第41关',
+      },
+      stage45: {
+        checkpoint: stage45Checkpoint,
+        source: 'v23三格规则合法控制路线第45关',
       },
     }[playtest];
     const valid = validSave(checkpoint);

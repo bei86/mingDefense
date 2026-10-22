@@ -432,16 +432,19 @@ export function Battlefield({
           g.lineStyle(1.5, 0xa6e1df, 0.5).strokeCircle(p.x, p.y, SIZE * 1.1);
           g.fillStyle(0x87d1cb, 0.08).fillCircle(p.x, p.y, SIZE * 1.1);
         }
-        for (const warning of battle.warnings) {
+        for (const warning of battle.warnings.filter(
+          (warning, i, all) => all.findIndex((other) => other.row === warning.row) === i,
+        )) {
           const g = overlay;
           const p = pixel({ x: 0, y: warning.row });
-          g.fillStyle(0xf09c78, 0.18 + Math.sin(battle.time / 100) * 0.08).fillRect(
+          const color = warning.echo ? 0xbc9df2 : 0xf8b18a;
+          g.fillStyle(color, 0.18 + Math.sin(battle.time / 100) * 0.08).fillRect(
             ORIGIN.x,
             p.y,
             6 * SIZE,
             SIZE,
           );
-          g.lineStyle(2, 0xf8b18a, 0.8).strokeRect(ORIGIN.x, p.y, 6 * SIZE, SIZE);
+          g.lineStyle(2, color, 0.8).strokeRect(ORIGIN.x, p.y, 6 * SIZE, SIZE);
         }
         for (const ghost of feedback.ghosts) {
           const progress = (feedback.time - ghost.born) / 300;
@@ -488,6 +491,30 @@ export function Battlefield({
                 3,
               );
             }
+          } else if (boss && bossDefinition(battle.stageId).id === config.ninthBoss.id) {
+            const blade = e.phase2 ? 0xc6a1ff : 0x9ee4e2;
+            g.fillStyle(0x091e25, 0.5).fillEllipse(p.x, p.y + 29, 74, 24);
+            g.fillStyle(0x41526f).fillTriangle(
+              p.x - 24,
+              p.y + 25,
+              p.x + 24,
+              p.y + 25,
+              p.x,
+              p.y - 36,
+            );
+            g.fillStyle(0x34425b).fillRoundedRect(p.x - 17, p.y - 24, 34, 51, 8);
+            g.lineStyle(3, blade, 0.9)
+              .strokeEllipse(p.x - 27, p.y, 24, 65)
+              .strokeEllipse(p.x + 27, p.y, 24, 65)
+              .lineBetween(p.x - 15, p.y + 3, p.x - 32, p.y + 16)
+              .lineBetween(p.x + 15, p.y + 3, p.x + 32, p.y + 16);
+            g.fillStyle(blade)
+              .fillTriangle(p.x - 39, p.y - 12, p.x - 28, p.y - 38, p.x - 29, p.y - 8)
+              .fillTriangle(p.x + 39, p.y + 12, p.x + 28, p.y + 38, p.x + 29, p.y + 8)
+              .fillTriangle(p.x - 14, p.y - 22, p.x + 14, p.y - 22, p.x, p.y - 40);
+            g.fillStyle(0xe1f6fa)
+              .fillRect(p.x - 10, p.y - 9, 7, 3)
+              .fillRect(p.x + 3, p.y - 9, 7, 3);
           } else if (boss) {
             g.fillStyle(0x091e15, 0.5).fillEllipse(p.x, p.y + 29, 74, 24);
             g.fillStyle(color).fillRoundedRect(p.x - 25, p.y - 27, 50, 57, 12);
@@ -718,6 +745,11 @@ export function Battlefield({
       game.destroy(true);
     };
   }, [session, feedback, showPerformance]);
+  const warning = session.battle?.warnings[0];
+  let warningTitle = '横扫预警';
+  if (warning?.echo) warningTitle = '追击第2段';
+  else if (warning && bossDefinition(session.battle!.stageId).cleaveEchoDelayMs)
+    warningTitle = '双段横扫';
   return (
     <>
       <div className={`battlefield ${session.phase === 'prepare' ? '' : 'approach-field'}`}>
@@ -752,9 +784,13 @@ export function Battlefield({
             })}
           </div>
         )}
-        {session.battle?.warnings.length ? (
+        {warning && session.battle ? (
           <div className="cleave-alert" role="status">
-            横扫预警 · 第 {session.battle.warnings[0].row + 1} 行
+            {warningTitle}
+            {' · 第 '}
+            {warning.row + 1}
+            {' 行 · '}
+            {Math.max(0, (warning.due - session.battle.time) / 1000).toFixed(1)}秒
           </div>
         ) : null}
         <div className="board-caption">

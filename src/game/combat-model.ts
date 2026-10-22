@@ -66,7 +66,7 @@ export type Field = Point & {
   source?: number;
 };
 export type Flash = { from: Point; to: Point; at: number; team: 'ally' | 'enemy'; kind?: HeroId };
-export type Warning = { source: number; row: number; due: number };
+export type Warning = { source: number; row: number; due: number; echo?: boolean };
 export type Spawn = { at: number; x: number; kind?: EnemyKind };
 export type UnitBattleStats = {
   id: number;
