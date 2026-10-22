@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { loadSession, saveSession, validSave, type StoragePort } from '../game/persistence';
+import {
+  loadSession,
+  saveSession,
+  validSave,
+  type StoragePort,
+  type LoadResult,
+} from '../game/persistence';
 import { Session } from '../game/session';
 import bossCheckpoint from '../game/fixtures/boss-checkpoint.json';
 import { approachPlaytest, rosterPlaytest } from '../game/fixtures/roster-playtest';
@@ -28,13 +34,13 @@ import stage45Checkpoint from '../game/fixtures/stage-45-checkpoint.json';
 import stage46Checkpoint from '../game/fixtures/stage-46-checkpoint.json';
 import stage50Checkpoint from '../game/fixtures/stage-50-checkpoint.json';
 
-const browserStorage: StoragePort = {
+export const browserStorage: StoragePort = {
   getItem: (key) => window.localStorage.getItem(key),
   setItem: (key, value) => window.localStorage.setItem(key, value),
   removeItem: (key) => window.localStorage.removeItem(key),
 };
 let initialLoad: ReturnType<typeof loadSession> | null = null;
-export function loadBrowserSession() {
+export function loadBrowserSession(): LoadResult {
   const playtest = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get('playtest')
     : null;
@@ -44,6 +50,7 @@ export function loadBrowserSession() {
       message: '开发首战试玩：独立新局，不读取或写入正式存档，刷新后重新开始。',
       recovered: false,
       blocked: true,
+      isolated: true,
     };
   if (playtest === 'approach')
     return {
@@ -51,6 +58,7 @@ export function loadBrowserSession() {
       message: '开发三格接敌验收场景：固定满阵与第40关首领，不代表经济路线，不写入存档。',
       recovered: false,
       blocked: true,
+      isolated: true,
     };
   if (playtest === 'roster')
     return {
@@ -58,6 +66,7 @@ export function loadBrowserSession() {
       message: '开发八灵技能验收场景：固定阵容，不写入存档。',
       recovered: false,
       blocked: true,
+      isolated: true,
     };
   if (
     playtest === 'calibration20' ||
@@ -116,6 +125,7 @@ export function loadBrowserSession() {
         : '开发检查点无效，已进入临时新局；不读取或写入正常存档。',
       recovered: false,
       blocked: true,
+      isolated: true,
     };
   }
   if (
@@ -162,6 +172,7 @@ export function loadBrowserSession() {
         : '开发检查点无效，已进入临时新局；不读取或写入正常存档。',
       recovered: false,
       blocked: true,
+      isolated: true,
     };
   }
   return (initialLoad ??= loadSession(browserStorage));

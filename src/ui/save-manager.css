@@ -1,0 +1,117 @@
+.save-manager {
+  max-width: 400px;
+  padding: 22px 18px;
+  text-align: left;
+}
+.save-manager-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.save-manager-heading .icon-button {
+  flex-shrink: 0;
+  margin: 0;
+}
+.save-manager h2 {
+  font-size: 21px;
+}
+.save-manager h3 {
+  margin: 0 0 10px;
+  color: var(--gold);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.save-manager p {
+  margin: 8px 0 12px;
+  font-size: 11px;
+  line-height: 1.9;
+}
+.save-manager-note {
+  color: var(--muted);
+}
+.save-manager-section {
+  margin: 14px 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.save-manager label {
+  display: block;
+  margin: 12px 0 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.save-manager textarea {
+  display: block;
+  width: 100%;
+  height: 96px;
+  min-height: 64px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  background: var(--forest);
+  color: var(--paper);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.save-manager input[type='file'] {
+  width: 100%;
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.save-manager input::file-selector-button {
+  min-height: 36px;
+  margin-right: 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--forest);
+  color: var(--gold);
+}
+.save-manager textarea:focus-visible,
+.save-manager input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.save-manager-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.save-manager button.secondary,
+.save-manager button.primary {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 10px 6px;
+  font-size: 12px;
+}
+.save-preview {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: var(--forest);
+}
+.save-manager .save-manager-notice {
+  color: var(--gold);
+}
+@media (max-width: 350px) {
+  .save-manager {
+    padding: 18px 12px;
+  }
+}
+.preparation-view footer {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.preparation-save-tools {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.preparation-save-tools button {
+  min-height: 44px;
+}

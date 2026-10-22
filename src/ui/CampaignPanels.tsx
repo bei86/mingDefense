@@ -135,12 +135,14 @@ export function BuffJournal({ session, onClose }: { session: Session; onClose: (
 }
 export function ResultModal({
   session,
+  onSaves,
   onNext,
   onRetry,
   onPrepare,
   onReset,
 }: {
   session: Session;
+  onSaves: () => void;
   onNext: () => void;
   onRetry: () => void;
   onPrepare: () => void;
@@ -209,6 +211,9 @@ export function ResultModal({
             </button>
           </>
         )}
+        <button className="secondary" onClick={onSaves}>
+          存档备份与恢复
+        </button>
         <button className={session.complete ? 'primary' : 'text-button'} onClick={onReset}>
           重新开始五十关挑战
         </button>

@@ -10,6 +10,7 @@ export type LoadResult = {
   message: string;
   recovered: boolean;
   blocked: boolean;
+  isolated?: boolean;
 };
 type RecordValue = Record<string, unknown>;
 const record = (v: unknown): v is RecordValue =>
@@ -236,6 +237,37 @@ export function validSave(v: unknown): v is SessionSave {
   if (v.settled !== v.preparation.rewardedStages.includes(v.preparation.stageId)) return false;
   return true;
 }
+export function compatibleSave(value: unknown): SessionSave | null {
+  if (validSave(value)) return value;
+  if (!record(value)) return null;
+  const versions = [
+    'prototype-2026-10-15-v2',
+    'prototype-2026-10-16-v3',
+    'prototype-2026-10-16-v4',
+    'prototype-2026-10-16-v5',
+    'prototype-2026-10-16-v6',
+    'prototype-2026-10-16-v7',
+    'prototype-2026-10-16-v8',
+    'prototype-2026-10-16-v9',
+    'prototype-2026-10-18-v10',
+    'prototype-2026-10-18-v11',
+    'prototype-2026-10-18-v12',
+    'prototype-2026-10-18-v13',
+    'prototype-2026-10-21-v14',
+    'prototype-2026-10-21-v15',
+    'prototype-2026-10-21-v16',
+    'prototype-2026-10-21-v17',
+    'prototype-2026-10-21-v18',
+    'prototype-2026-10-21-v19',
+    'prototype-2026-10-21-v20',
+    'prototype-2026-10-21-v21',
+    'prototype-2026-10-21-v22',
+    'prototype-2026-10-22-v23',
+  ];
+  if (!versions.includes(value.contentVersion as string)) return null;
+  const candidate = { ...value, contentVersion: config.contentVersion };
+  return validSave(candidate) ? candidate : null;
+}
 export function loadSession(storage: StoragePort, seed = 20261014): LoadResult {
   const fresh = () => new Session(seed);
   let raw: string | null;
@@ -257,35 +289,9 @@ export function loadSession(storage: StoragePort, seed = 20261014): LoadResult {
     parsed = null;
   }
   let migrated = false;
-  if (
-    record(parsed) &&
-    [
-      'prototype-2026-10-15-v2',
-      'prototype-2026-10-16-v3',
-      'prototype-2026-10-16-v4',
-      'prototype-2026-10-16-v5',
-      'prototype-2026-10-16-v6',
-      'prototype-2026-10-16-v7',
-      'prototype-2026-10-16-v8',
-      'prototype-2026-10-16-v9',
-      'prototype-2026-10-18-v10',
-      'prototype-2026-10-18-v11',
-      'prototype-2026-10-18-v12',
-      'prototype-2026-10-18-v13',
-      'prototype-2026-10-21-v14',
-      'prototype-2026-10-21-v15',
-      'prototype-2026-10-21-v16',
-      'prototype-2026-10-21-v17',
-      'prototype-2026-10-21-v18',
-      'prototype-2026-10-21-v19',
-      'prototype-2026-10-21-v20',
-      'prototype-2026-10-21-v21',
-      'prototype-2026-10-21-v22',
-      'prototype-2026-10-22-v23',
-    ].includes(parsed.contentVersion as string)
-  ) {
-    const candidate = { ...parsed, contentVersion: config.contentVersion };
-    if (validSave(candidate)) {
+  if (record(parsed) && parsed.contentVersion !== config.contentVersion) {
+    const candidate = compatibleSave(parsed);
+    if (candidate) {
       try {
         storage.setItem(`${SAVE_KEY}:backup:${Date.now()}`, raw);
         storage.setItem(SAVE_KEY, JSON.stringify(candidate));

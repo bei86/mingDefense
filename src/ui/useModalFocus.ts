@@ -10,11 +10,16 @@ export function useModalFocus(active: boolean, context: string): void {
     if (!modal) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const buttons = () => [...modal.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
-    buttons()[0]?.focus();
+    const controls = () =>
+      [
+        ...modal.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), textarea:not(:disabled), input:not(:disabled):not([type="hidden"])',
+        ),
+      ].filter((element) => element.getClientRects().length > 0);
+    controls()[0]?.focus();
     const trap = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return;
-      const list = buttons();
+      const list = controls();
       const first = list[0];
       const last = list.at(-1);
       if (event.shiftKey && document.activeElement === first) {

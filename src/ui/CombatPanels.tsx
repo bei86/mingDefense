@@ -206,6 +206,7 @@ type PauseProps = {
   onHelp: () => void;
   onBuffs: () => void;
   onHandbook: () => void;
+  onSaves: () => void;
   onReset: () => void;
 };
 export function PauseMenu({
@@ -216,6 +217,7 @@ export function PauseMenu({
   onHelp,
   onBuffs,
   onHandbook,
+  onSaves,
   onReset,
 }: PauseProps) {
   return (
@@ -242,6 +244,9 @@ export function PauseMenu({
           </button>
           <button className="secondary" onClick={onHandbook}>
             灵兽图鉴
+          </button>
+          <button className="secondary" onClick={onSaves}>
+            存档备份与恢复
           </button>
         </div>
         <EnemyIntel stageId={session.preparation.stageId} />

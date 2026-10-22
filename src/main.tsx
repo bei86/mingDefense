@@ -7,6 +7,7 @@ import './ui/combat.css';
 import './ui/handbook.css';
 import './ui/feedback.css';
 import './ui/mobile.css';
+import './ui/save-manager.css';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

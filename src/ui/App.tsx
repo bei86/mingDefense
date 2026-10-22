@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { appearances, config, enemyCount, stages, stageNames, type Point } from '../game/content';
-import { unitAt, type Source } from '../game/session';
+import { unitAt, type Source, type Session } from '../game/session';
+import type { LoadResult } from '../game/persistence';
 import { GameClock } from '../game/clock';
 import { startGameLoop } from './game-loop';
 import { Battlefield } from '../render/Battlefield';
@@ -17,9 +18,29 @@ import { defeatRecap, type DefeatRecap } from './defeat-advice';
 import { SpiritHandbook } from './SpiritHandbook';
 import { CombatFeedback } from '../presentation/combat-feedback';
 import { GameAudio } from '../presentation/game-audio';
+import { SaveManager } from './SaveManager';
 
 export function App() {
-  const [boot] = useState(loadBrowserSession);
+  const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
+  return (
+    <GameApp
+      key={game.generation}
+      boot={game.boot}
+      onRestore={(session) => {
+        setGame((previous) => ({
+          generation: previous.generation + 1,
+          boot: {
+            session,
+            recovered: true,
+            blocked: false,
+            message: '备份已恢复并保存，可继续游戏。替换前进度可在存档中恢复。',
+          },
+        }));
+      }}
+    />
+  );
+}
+function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: Session) => void }) {
   const session = boot.session;
   const [clock] = useState(() => new GameClock(session));
   const [feedback] = useState(() => new CombatFeedback());
@@ -36,6 +57,7 @@ export function App() {
   const [help, setHelp] = useState(false);
   const [journal, setJournal] = useState(false);
   const [handbook, setHandbook] = useState(false);
+  const [saves, setSaves] = useState(false);
   const [lastDefeat, setLastDefeat] = useState<DefeatRecap | null>(null);
   const storage = useSessionStorage(session, boot.blocked, boot.message);
   useModalFocus(
@@ -44,12 +66,13 @@ export function App() {
         help ||
         journal ||
         handbook ||
+        saves ||
         session.hasChoices ||
         (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${dialog?.title}:${help}:${journal}:${handbook}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${dialog?.title}:${help}:${journal}:${handbook}:${saves}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -475,9 +498,14 @@ export function App() {
       {preparing && (
         <footer>
           <span>五十关原型 · 临时数值待校准 · 自动保存检查点</span>
-          <button className="text-button" onClick={reset}>
-            重新开始
-          </button>
+          <div className="preparation-save-tools">
+            <button className="text-button" onClick={() => setSaves(true)}>
+              存档
+            </button>
+            <button className="text-button" onClick={reset}>
+              重新开始
+            </button>
+          </div>
         </footer>
       )}
       {session.hasChoices && (
@@ -492,6 +520,7 @@ export function App() {
       {(session.phase === 'victory' || session.phase === 'defeat') && !session.hasChoices && (
         <ResultModal
           session={session}
+          onSaves={() => setSaves(true)}
           onNext={() => {
             clock.reset();
             setLastDefeat(null);
@@ -518,7 +547,8 @@ export function App() {
         !dialog &&
         !help &&
         !journal &&
-        !handbook && (
+        !handbook &&
+        !saves && (
           <PauseMenu
             session={session}
             soundControl={soundControl}
@@ -538,11 +568,20 @@ export function App() {
             onHelp={() => setHelp(true)}
             onBuffs={() => setJournal(true)}
             onHandbook={() => setHandbook(true)}
+            onSaves={() => setSaves(true)}
             onReset={reset}
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
       {handbook && <SpiritHandbook onClose={() => setHandbook(false)} />}
+      {saves && (
+        <SaveManager
+          session={session}
+          isolated={boot.isolated ?? false}
+          onClose={() => setSaves(false)}
+          onRestore={onRestore}
+        />
+      )}
       {dialog && (
         <div className="modal-backdrop top-modal">
           <section

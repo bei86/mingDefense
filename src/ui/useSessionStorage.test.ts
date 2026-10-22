@@ -27,9 +27,27 @@ test.each([
   });
   const loaded = loadBrowserSession();
   expect(loaded.blocked).toBe(true);
+  expect(loaded.isolated).toBe(true);
   expect(loaded.recovered).toBe(false);
   expect(loaded.session.preparation.stageId).toBe(stageId);
   expect(loaded.message).toContain(source);
   expect(getItem).not.toHaveBeenCalled();
   expect(setItem).not.toHaveBeenCalled();
+});
+
+test('正式存储读取失败不标记为开发隔离，仍可导出当前进度自救', async () => {
+  vi.resetModules();
+  vi.stubGlobal('window', {
+    location: { search: '' },
+    localStorage: {
+      getItem: () => {
+        throw new Error('blocked');
+      },
+    },
+  });
+  const { loadBrowserSession: load } = await import('./useSessionStorage');
+  const loaded = load();
+  expect(loaded.blocked).toBe(true);
+  expect(loaded.isolated).not.toBe(true);
+  expect(loaded.session.exportSave().preparation.stageId).toBe(1);
 });
