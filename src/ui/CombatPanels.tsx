@@ -11,7 +11,7 @@ import type { Session } from '../game/session';
 import { ArtImage } from './ArtImage';
 import { timeLabel } from './CampaignPanels';
 
-export function EnemyIntel({ stageId }: { stageId: number }) {
+export function EnemyIntel({ stageId, onDetails }: { stageId: number; onDetails: () => void }) {
   const stage = stages[stageId - 1];
   return (
     <details className="enemy-intel" key={stageId}>
@@ -25,6 +25,9 @@ export function EnemyIntel({ stageId }: { stageId: number }) {
         ))}
       </ul>
       {stage.bossId && <p>{bossDescription(stageId)}</p>}
+      <button className="intel-open" onClick={onDetails}>
+        关卡敌情手册 ›
+      </button>
     </details>
   );
 }
@@ -206,6 +209,7 @@ type PauseProps = {
   onHelp: () => void;
   onBuffs: () => void;
   onHandbook: () => void;
+  onIntel: () => void;
   onSaves: () => void;
   onReset: () => void;
 };
@@ -217,6 +221,7 @@ export function PauseMenu({
   onHelp,
   onBuffs,
   onHandbook,
+  onIntel,
   onSaves,
   onReset,
 }: PauseProps) {
@@ -249,7 +254,7 @@ export function PauseMenu({
             存档备份与恢复
           </button>
         </div>
-        <EnemyIntel stageId={session.preparation.stageId} />
+        <EnemyIntel stageId={session.preparation.stageId} onDetails={onIntel} />
         <p className="pause-income">
           灵钱 {session.preparation.currency} · 本关待结 {session.battle!.income}
         </p>

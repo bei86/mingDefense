@@ -19,6 +19,7 @@ import { SpiritHandbook } from './SpiritHandbook';
 import { CombatFeedback } from '../presentation/combat-feedback';
 import { GameAudio } from '../presentation/game-audio';
 import { SaveManager } from './SaveManager';
+import { StageIntel } from './StageIntel';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -57,6 +58,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [help, setHelp] = useState(false);
   const [journal, setJournal] = useState(false);
   const [handbook, setHandbook] = useState(false);
+  const [intel, setIntel] = useState(false);
   const [saves, setSaves] = useState(false);
   const [lastDefeat, setLastDefeat] = useState<DefeatRecap | null>(null);
   const storage = useSessionStorage(session, boot.blocked, boot.message);
@@ -66,13 +68,14 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         help ||
         journal ||
         handbook ||
+        intel ||
         saves ||
         session.hasChoices ||
         (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${dialog?.title}:${help}:${journal}:${handbook}:${saves}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -445,7 +448,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           )}
         </div>
       )}
-      {preparing && <EnemyIntel stageId={p.stageId} />}
+      {preparing && <EnemyIntel stageId={p.stageId} onDetails={() => setIntel(true)} />}
       {preparing && lastDefeat && <DefeatAdvice session={session} recap={lastDefeat} preparing />}
       {preparing && p.stageId === 1 && !lastDefeat && (
         <FirstBattleGuide session={session} selected={selected} choose={choose} />
@@ -548,6 +551,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         !help &&
         !journal &&
         !handbook &&
+        !intel &&
         !saves && (
           <PauseMenu
             session={session}
@@ -568,12 +572,14 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             onHelp={() => setHelp(true)}
             onBuffs={() => setJournal(true)}
             onHandbook={() => setHandbook(true)}
+            onIntel={() => setIntel(true)}
             onSaves={() => setSaves(true)}
             onReset={reset}
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
       {handbook && <SpiritHandbook onClose={() => setHandbook(false)} />}
+      {intel && <StageIntel currentStageId={p.stageId} onClose={() => setIntel(false)} />}
       {saves && (
         <SaveManager
           session={session}
