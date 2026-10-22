@@ -16,6 +16,14 @@
 .sound-button[aria-pressed='false'] {
   color: var(--muted);
 }
+.audio-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.titlebar {
+  flex-wrap: wrap;
+}
 .pause-sound {
   margin: 8px 0;
 }

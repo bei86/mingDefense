@@ -18,6 +18,7 @@ import { defeatRecap, type DefeatRecap } from './defeat-advice';
 import { SpiritHandbook } from './SpiritHandbook';
 import { CombatFeedback } from '../presentation/combat-feedback';
 import { GameAudio } from '../presentation/game-audio';
+import { GameMusic, musicMood } from '../presentation/game-music';
 import { SaveManager } from './SaveManager';
 import { StageIntel } from './StageIntel';
 import { FormationSwap } from './FormationSwap';
@@ -48,6 +49,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [feedback] = useState(() => new CombatFeedback());
   const audioRef = useRef<GameAudio | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(() => new GameAudio().enabled);
+  const [musicEnabled, setMusicEnabled] = useState(() => new GameMusic().enabled);
   const [, render] = useState(0);
   const [selected, setSelected] = useState<Source | null>(null);
   const [hover, setHover] = useState<Point | null>(null);
@@ -129,14 +131,17 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
     audioRef.current = audio;
     feedback.update(session, 0, !document.hidden);
     let inactive = false;
+    let musicActive = true;
     const stopLoop = startGameLoop(clock, repaint, (elapsed) => {
       const blocked = session.phase === 'combat' && !session.canAdvance;
-      if (blocked && !inactive) audio.stop();
+      if (blocked && !inactive) audio.suspend();
       inactive = blocked;
       audio.playFeedback(feedback.update(session, elapsed, !document.hidden));
+      audio.updateMusic(musicActive ? musicMood(session) : null);
     });
     const unlock = (e: Event) => {
       if (e instanceof KeyboardEvent && e.repeat) return;
+      musicActive = true;
       audio.unlock();
     };
     const clickSound = (e: MouseEvent) => {
@@ -148,7 +153,8 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
       session.held = false;
     };
     const suspend = () => {
-      audio.stop();
+      musicActive = false;
+      audio.suspend();
       if (session.phase === 'combat') session.pause(true);
       stopHeld();
       drag.current = null;
@@ -309,26 +315,45 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   };
   const audioUnavailable = audioRef.current?.unavailable ?? false;
   let soundLabel = soundEnabled ? '音效开' : '音效关';
+  let musicLabel = musicEnabled ? '音乐开' : '音乐关';
   if (audioUnavailable) soundLabel = '音效不可用';
+  if (audioUnavailable) musicLabel = '音乐不可用';
   const soundControl = (
-    <button
-      className="sound-button"
-      data-sound-toggle
-      aria-label={audioUnavailable ? '音效不可用' : '游戏音效'}
-      aria-pressed={soundEnabled && !audioUnavailable}
-      disabled={audioUnavailable}
-      onClick={() => {
-        const enabled = !soundEnabled;
-        audioRef.current?.setEnabled(enabled);
-        if (enabled) {
-          audioRef.current?.unlock();
-          audioRef.current?.play('deploy');
-        }
-        setSoundEnabled(enabled);
-      }}
-    >
-      {soundLabel}
-    </button>
+    <div className="audio-controls" role="group" aria-label="游戏声音">
+      <button
+        className="sound-button"
+        data-sound-toggle
+        aria-label={audioUnavailable ? '音效不可用' : '游戏音效'}
+        aria-pressed={soundEnabled && !audioUnavailable}
+        disabled={audioUnavailable}
+        onClick={() => {
+          const enabled = !soundEnabled;
+          audioRef.current?.setEnabled(enabled);
+          if (enabled) {
+            audioRef.current?.unlock();
+            audioRef.current?.play('deploy');
+          }
+          setSoundEnabled(enabled);
+        }}
+      >
+        {soundLabel}
+      </button>
+      <button
+        className="sound-button"
+        data-sound-toggle
+        aria-label={audioUnavailable ? '音乐不可用' : '背景音乐'}
+        aria-pressed={musicEnabled && !audioUnavailable}
+        disabled={audioUnavailable}
+        onClick={() => {
+          const enabled = !musicEnabled;
+          audioRef.current?.setMusicEnabled(enabled);
+          if (enabled) audioRef.current?.unlock();
+          setMusicEnabled(enabled);
+        }}
+      >
+        {musicLabel}
+      </button>
+    </div>
   );
   return (
     <main className={`app-shell ${preparing ? 'preparation-view' : 'combat-view'}`}>

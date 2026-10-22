@@ -1,4 +1,5 @@
 import type { SoundCue } from './combat-feedback';
+import { GameMusic, type MusicMood } from './game-music';
 
 type Note = {
   frequency: number;
@@ -57,6 +58,7 @@ type AudioOptions = {
 export class GameAudio {
   enabled = true;
   unavailable = false;
+  readonly music: GameMusic;
   private context: AudioContext | null = null;
   private voices = new Set<Voice>();
   private last = new Map<SoundCue, number>();
@@ -66,6 +68,7 @@ export class GameAudio {
   private disposed = false;
 
   constructor(private options: AudioOptions = {}) {
+    this.music = new GameMusic(() => this.store());
     try {
       this.enabled = this.store().getItem(SOUND_PREFERENCE_KEY) !== 'off';
     } catch {
@@ -75,7 +78,13 @@ export class GameAudio {
 
   /** Must be called directly from a pointer or keyboard gesture. */
   unlock(): void {
-    if (!this.enabled || this.unavailable || this.disposed || this.resuming) return;
+    if (
+      (!this.enabled && !this.music.enabled) ||
+      this.unavailable ||
+      this.disposed ||
+      this.resuming
+    )
+      return;
     try {
       this.context ??= this.options.context ? this.options.context() : new AudioContext();
       if (this.context.state === 'closed') {
@@ -148,6 +157,7 @@ export class GameAudio {
     } catch {
       this.unavailable = true;
       this.stop();
+      this.music.dispose();
     }
   }
 
@@ -159,6 +169,26 @@ export class GameAudio {
     } catch {
       /* Gameplay must remain available. */
     }
+  }
+
+  updateMusic(mood: MusicMood | null): void {
+    if (this.disposed || this.unavailable) return;
+    try {
+      this.music.update(this.context, this.hidden() ? null : mood);
+    } catch {
+      this.unavailable = true;
+      this.music.dispose();
+      this.stop();
+    }
+  }
+
+  setMusicEnabled(enabled: boolean): void {
+    this.music.setEnabled(enabled, this.context);
+  }
+
+  suspend(): void {
+    this.stop();
+    this.music.stop(this.context);
   }
 
   playFeedback(cues: SoundCue[]): void {
@@ -192,6 +222,7 @@ export class GameAudio {
   dispose(): void {
     this.disposed = true;
     this.stop();
+    this.music.dispose();
     if (this.context && this.context.state !== 'closed') void this.context.close().catch(() => {});
     this.context = null;
   }
