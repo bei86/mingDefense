@@ -29,12 +29,12 @@ function restoreHistoricalNumbers(target: typeof config): void {
 }
 
 /** For historical snapshot comparisons only, without mutating live configuration. */
-export function historicalBalance(): Omit<typeof config, 'ninthBoss'> {
+export function historicalBalance(): Omit<typeof config, 'ninthBoss' | 'tenthBoss'> {
   const historical = clone(config);
   restoreHistoricalNumbers(historical);
   historical.stages = historical.stages.slice(0, 40);
   historical.scope.M2M3.stageIds = historical.scope.M2M3.stageIds.slice(0, 40);
-  const { ninthBoss: _newBoss, ...prefix } = historical;
+  const { ninthBoss: _ninthBoss, tenthBoss: _tenthBoss, ...prefix } = historical;
   return prefix;
 }
 

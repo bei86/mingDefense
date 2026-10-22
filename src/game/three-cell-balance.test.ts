@@ -42,7 +42,7 @@ test('v22三格校准只修改授权数值，保留其余完整配置 P', () => 
     Object.assign(wave.enemies, { ranged: 1 });
   });
   expected.stages[39].waves[1].atMs = 5000;
-  const { ninthBoss: _newBoss, ...prefix } = clone(config);
+  const { ninthBoss: _ninthBoss, tenthBoss: _tenthBoss, ...prefix } = clone(config);
   expect({
     ...prefix,
     contentVersion: expected.contentVersion,

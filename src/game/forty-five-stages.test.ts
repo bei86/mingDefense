@@ -54,7 +54,7 @@ function storage(raw: string, failure?: 'backup' | 'primary') {
 
 describe('四十五关与回锋妖将 P', () => {
   it('完整前40配置保持v22，新增五关连续每秒出怪、九首领隔离', () => {
-    const { ninthBoss: _newBoss, ...prefix } = clone(config);
+    const { ninthBoss: _ninthBoss, tenthBoss: _tenthBoss, ...prefix } = clone(config);
     expect({
       ...prefix,
       contentVersion: v22.contentVersion,
@@ -65,8 +65,12 @@ describe('四十五关与回锋妖将 P', () => {
       },
       stages: prefix.stages.slice(0, 40),
     }).toEqual(v22);
-    expect(stages.map((stage) => stage.id)).toEqual(Array.from({ length: 45 }, (_, i) => i + 1));
-    expect(config.scope.M2M3.stageIds).toEqual(stages.map((stage) => stage.id));
+    expect(stages.slice(0, 45).map((stage) => stage.id)).toEqual(
+      Array.from({ length: 45 }, (_, i) => i + 1),
+    );
+    expect(config.scope.M2M3.stageIds.slice(0, 45)).toEqual(
+      stages.slice(0, 45).map((stage) => stage.id),
+    );
     expect(bossDefinition(45)).toEqual(config.ninthBoss);
     expect(bossDefinition(40)).toEqual(config.eighthBoss);
     expect(bossName(45)).toBe('回锋妖将');
@@ -218,16 +222,21 @@ describe('四十五关与回锋妖将 P', () => {
       expect(loaded.session.preparation).toEqual(save.preparation);
     },
   );
-  it('45为终点，结算与重载幂等，失败/返回/刷新回滚收益和成长', () => {
+  it('旧45胜利重载不重复结算，可继续46；失败/返回/刷新回滚收益和成长', () => {
     const session = won(45),
       save = session.exportSave();
-    expect(session.complete).toBe(true);
+    expect(session.complete).toBe(false);
     expect(validSave(save)).toBe(true);
     const loaded = Session.restore(save);
-    expect(loaded.complete).toBe(true);
-    expect(loaded.nextStage()).toBeTruthy();
+    expect(loaded.complete).toBe(false);
     loaded.tick();
     expect(loaded.preparation).toEqual(save.preparation);
+    expect(loaded.nextStage()).toBeNull();
+    expect(loaded.preparation.stageId).toBe(46);
+    expect(loaded.preparation.currency).toBe(save.preparation.currency);
+    const next = clone(loaded.preparation);
+    expect(loaded.nextStage()).toBeTruthy();
+    expect(loaded.preparation).toEqual(next);
     session.backToPreparation();
     const before = clone(session.preparation);
     session.start();

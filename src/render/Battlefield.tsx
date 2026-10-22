@@ -491,6 +491,28 @@ export function Battlefield({
                 3,
               );
             }
+          } else if (boss && bossDefinition(battle.stageId).id === config.tenthBoss.id) {
+            const jade = e.phase2 ? 0xffd08a : 0x9ee2e4;
+            g.fillStyle(0x091e25, 0.5).fillEllipse(p.x, p.y + 29, 78, 24);
+            g.fillStyle(0x35536b).fillRoundedRect(p.x - 25, p.y - 28, 50, 59, 10);
+            g.fillStyle(0x648995)
+              .fillCircle(p.x - 23, p.y - 16, 12)
+              .fillCircle(p.x + 23, p.y - 16, 12);
+            g.lineStyle(3, jade, 0.95)
+              .strokeRoundedRect(p.x - 21, p.y - 21, 42, 46, 7)
+              .lineBetween(p.x - 36, p.y - 24, p.x - 36, p.y + 29)
+              .lineBetween(p.x + 36, p.y - 24, p.x + 36, p.y + 29);
+            g.fillStyle(jade)
+              .fillRoundedRect(p.x - 20, p.y - 39, 40, 9, 2)
+              .fillRoundedRect(p.x - 17, p.y - 47, 7, 13, 2)
+              .fillRoundedRect(p.x - 3, p.y - 49, 6, 15, 2)
+              .fillRoundedRect(p.x + 10, p.y - 47, 7, 13, 2)
+              .fillTriangle(p.x - 36, p.y - 38, p.x - 47, p.y - 16, p.x - 29, p.y - 22)
+              .fillTriangle(p.x + 36, p.y - 38, p.x + 47, p.y - 16, p.x + 29, p.y - 22)
+              .fillTriangle(p.x - 7, p.y + 4, p.x + 7, p.y + 4, p.x, p.y + 14);
+            g.fillStyle(0xe7edf0)
+              .fillRect(p.x - 12, p.y - 13, 8, 4)
+              .fillRect(p.x + 4, p.y - 13, 8, 4);
           } else if (boss && bossDefinition(battle.stageId).id === config.ninthBoss.id) {
             const blade = e.phase2 ? 0xc6a1ff : 0x9ee4e2;
             g.fillStyle(0x091e25, 0.5).fillEllipse(p.x, p.y + 29, 74, 24);

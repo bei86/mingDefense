@@ -25,5 +25,6 @@ describe('实际发布图片与关卡映射', () => {
     expect(bossArtKey(1)).toBeUndefined();
     // New boss uses its own procedural silhouette until art is provided.
     expect(bossArtKey(45)).toBeUndefined();
+    expect(bossArtKey(50)).toBeUndefined();
   });
 });

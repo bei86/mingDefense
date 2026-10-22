@@ -96,6 +96,11 @@ export const stageNames = [
   '裂甲奔袭',
   '群影合围',
   '回锋之主',
+  '雷羽长驱',
+  '咒岩合围',
+  '裂羽奔潮',
+  '万影压境',
+  '镇渊终战',
 ];
 type BossDefinition = typeof config.boss & {
   summonFromStart?: boolean;
@@ -114,6 +119,7 @@ const bossDefinitions: BossDefinition[] = [
   config.seventhBoss,
   config.eighthBoss,
   config.ninthBoss,
+  config.tenthBoss,
 ];
 export function bossDefinition(stageId: number): BossDefinition {
   const id = stages[stageId - 1].bossId;
@@ -138,6 +144,8 @@ export const enemyAppearances: Record<EnemyKind, { name: string; description: st
 };
 export function bossName(stageId: number): string {
   switch (bossDefinition(stageId).id) {
+    case config.tenthBoss.id:
+      return '镇渊妖君';
     case config.ninthBoss.id:
       return '回锋妖将';
     case config.secondBoss.id:

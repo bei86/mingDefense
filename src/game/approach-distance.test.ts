@@ -63,7 +63,7 @@ describe('3格接敌距离 P', () => {
     ['croc', 1],
     ['summoner', 8],
     ['splitter', 9],
-    ...[5, 10, 15, 20, 25, 30, 35, 40, 45].map((stage): [EnemyKind, number] => ['boss', stage]),
+    ...[5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((stage): [EnemyKind, number] => ['boss', stage]),
   ])('%s / 第%d关：满阵先行进，停在射程边界，再经过200ms前摇普攻', (kind, stageId) => {
     const s = fullBoard(stageId);
     s.spawns = [{ at: 0, x: 3.5, kind }];

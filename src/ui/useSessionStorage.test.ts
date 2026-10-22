@@ -12,6 +12,8 @@ test.each([
   ['calibration40', 40, 'v22三格规则合法经济路线'],
   ['stage41', 41, 'v23三格规则合法控制路线'],
   ['stage45', 45, 'v23三格规则合法控制路线'],
+  ['stage46', 46, 'v24三格规则合法控制路线'],
+  ['stage50', 50, 'v24三格规则合法控制路线'],
 ] as const)('%s开发校准入口不读取正式存档，并传递禁写标记', (entry, stageId, source) => {
   const getItem = vi.fn(() => {
     throw new Error('Must not read formal save');

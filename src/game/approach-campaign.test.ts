@@ -9,14 +9,16 @@ import checkpoint35 from './fixtures/calibration-35-checkpoint.json';
 import checkpoint40 from './fixtures/calibration-40-checkpoint.json';
 import checkpoint41 from './fixtures/stage-41-checkpoint.json';
 import checkpoint45 from './fixtures/stage-45-checkpoint.json';
+import checkpoint46 from './fixtures/stage-46-checkpoint.json';
+import checkpoint50 from './fixtures/stage-50-checkpoint.json';
 
 // These fixed buying policies are diagnostic samples, not a proof of optimal play.
-// v23 preserves the first 40 stages and adds 41–45. Fixed samples are not player win rates.
-test('v23三格规则：45关72条合法购买路线、前40回归和战报守恒', () => {
+// v24 preserves the first 45 stages and adds 46–50. Fixed samples are not player win rates.
+test('v24三格规则：50关72条合法购买路线、前45回归和战报守恒', () => {
   expect(config.waves.spawnRow).toBe(-3);
   const runs = Array.from({ length: 12 }, (_, i) => 20261014 + i).flatMap((seed) =>
     Object.keys(orders).flatMap((policy) =>
-      [true, false].map((boost) => ({ ...simulate(seed, policy, boost, 45, true), boost })),
+      [true, false].map((boost) => ({ ...simulate(seed, policy, boost, 50, true), boost })),
     ),
   );
   const wins = config.stages
@@ -84,10 +86,10 @@ test('v23三格规则：45关72条合法购买路线、前40回归和战报守�
     config.stages
       .slice(40)
       .map(({ id }) => runs.filter((r) => r.results[id - 1]?.result === 'victory').length),
-  ).toEqual([2, 2, 2, 2, 2]);
+  ).toEqual([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
   expect(source25.checkpoints[40]).toEqual(checkpoint41);
   expect(source25.checkpoints[44]).toEqual(checkpoint45);
-  expect(source25.results.slice(40).map((b) => [b.time, b.hp])).toEqual([
+  expect(source25.results.slice(40, 45).map((b) => [b.time, b.hp])).toEqual([
     [41500, 11192],
     [36500, 16380],
     [43400, 16045],
@@ -96,6 +98,17 @@ test('v23三格规则：45关72条合法购买路线、前40回归和战报守�
   ]);
   expect(validSave(checkpoint41)).toBe(true);
   expect(validSave(checkpoint45)).toBe(true);
+  expect(source25.checkpoints[45]).toEqual(checkpoint46);
+  expect(source25.checkpoints[49]).toEqual(checkpoint50);
+  expect(source25.results.slice(45).map((b) => [b.time, b.hp])).toEqual([
+    [44450, 11500],
+    [40150, 15597],
+    [48200, 9618],
+    [47150, 11923],
+    [83850, 9996],
+  ]);
+  expect(validSave(checkpoint46)).toBe(true);
+  expect(validSave(checkpoint50)).toBe(true);
   for (const run of runs) {
     expect(run.checkpoints.every(validSave)).toBe(true);
     for (const battle of run.results) {
