@@ -19,6 +19,8 @@ import { ArtLayer } from './ArtLayer';
 import { FrameMetrics } from './frame-metrics';
 import { attackEffect, FieldEffects } from './field-effects';
 import type { CombatFeedback } from '../presentation/combat-feedback';
+import { preparationRange, rangeDescription } from '../ui/preparation-range';
+import { RangeOverlay } from './RangeOverlay';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -323,7 +325,12 @@ export function Battlefield({
         if (over && choice && session.phase === 'prepare') {
           const kind = chosen?.kind ?? offer?.kind;
           if (kind) {
-            const destination = boardDrop(prep, choice, over, offset ?? undefined);
+            const currentPosition =
+              chosen?.position && !offset && unitAt(prep, over)?.id === chosen.id
+                ? chosen.position
+                : null;
+            const destination =
+              currentPosition ?? boardDrop(prep, choice, over, offset ?? undefined);
             const target =
               'merge' in destination ? prep.units.find((u) => u.id === destination.merge) : null;
             const rank = chosen?.rank ?? offer?.rank ?? 1;
@@ -768,6 +775,10 @@ export function Battlefield({
     };
   }, [session, feedback, showPerformance]);
   const warning = session.battle?.warnings[0];
+  const rangePreview =
+    session.phase === 'prepare'
+      ? preparationRange(session.preparation, selected, hover, dragOffset, session.maxRank)
+      : null;
   let warningTitle = '横扫预警';
   if (warning?.echo) warningTitle = '追击第2段';
   else if (warning && bossDefinition(session.battle!.stageId).cleaveEchoDelayMs)
@@ -776,6 +787,7 @@ export function Battlefield({
     <>
       <div className={`battlefield ${session.phase === 'prepare' ? '' : 'approach-field'}`}>
         <div ref={host} className="canvas-host" aria-hidden="true" />
+        {rangePreview && <RangeOverlay preview={rangePreview} />}
         <div className={`forest-sign ${session.phase === 'prepare' ? '' : 'enemy-entry'}`}>
           {session.phase === 'prepare'
             ? '选择灵兽 · 布下守阵'
@@ -801,6 +813,8 @@ export function Battlefield({
                   }}
                   onPointerEnter={() => onHover(p)}
                   onPointerLeave={() => onHover(null)}
+                  onFocus={() => onHover(p)}
+                  onBlur={() => onHover(null)}
                 />
               );
             })}
@@ -825,6 +839,23 @@ export function Battlefield({
                 : '灵兽自动攻击 · 按住聚灵石加速'}
         </div>
       </div>
+      {rangePreview && (
+        <div className={`range-summary ${rangePreview.status}`} role="status">
+          <strong>
+            {rangePreview.name} · {rangePreview.rank}阶 ·{' '}
+            {
+              {
+                current: '当前站位',
+                placement: '试放预览',
+                merge: '合成后预览',
+                unplaced: '待选位置',
+                invalid: '位置无效',
+              }[rangePreview.status]
+            }
+          </strong>
+          <p>{rangeDescription(rangePreview)}</p>
+        </div>
+      )}
       {showPerformance && (
         <details className="mobile-performance" open>
           <summary>开发性能 · 最近120帧（当前浏览器）</summary>
