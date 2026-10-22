@@ -16,6 +16,7 @@ import { expansionError, placementError, unitAt, type Session, type Source } fro
 import { boardDrop } from '../ui/board-drop';
 import { artUrl, battlefieldArt, bossArtKey, enemyArt, heroArt } from './art';
 import { ArtLayer } from './ArtLayer';
+import { attackEffect, FieldEffects } from './field-effects';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -164,6 +165,7 @@ export function Battlefield({
       private art!: ArtLayer;
       private preparing: boolean | null = null;
       private density = 0;
+      private effects = new FieldEffects();
       preload() {
         for (const key of battlefieldArt) this.load.image(key, artUrl(key));
       }
@@ -172,7 +174,7 @@ export function Battlefield({
         this.overlay = this.add.graphics().setDepth(10);
         this.art = new ArtLayer(this);
       }
-      update() {
+      update(_time: number, delta: number) {
         if (!this.drawing) return;
         const g = this.drawing;
         g.clear();
@@ -361,6 +363,20 @@ export function Battlefield({
           }
         }
         const battle = session.battle;
+        for (const { effect, progress } of this.effects.update(session, delta)) {
+          const p = pixel(effect.point);
+          const income = effect.key === 'fx_income';
+          const summon = effect.key === 'fx_summon';
+          this.art.draw(
+            effect.key,
+            p.x,
+            p.y + (summon ? 10 : 0) - (income ? 12 + progress * 32 : 0),
+            SIZE * (income ? 0.65 : 1.3),
+            SIZE * (summon ? 0.65 : 1.3),
+            summon ? 1 : 8,
+            0.8 * (1 - progress),
+          );
+        }
         if (!battle) {
           this.art.end();
           return;
@@ -387,7 +403,7 @@ export function Battlefield({
           const p = pixel(e);
           const boss = e.kind === 'boss';
           const color = enemyColors[e.kind ?? 'wolf'];
-          const picture = boss ? bossArtKey(battle.stageId) : enemyArt[e.kind ?? 'wolf'];
+          const picture = boss ? bossArtKey(battle.stageId, e.phase2) : enemyArt[e.kind ?? 'wolf'];
           const pictured = this.art.draw(
             picture,
             p.x,
@@ -396,7 +412,7 @@ export function Battlefield({
             boss ? 88 : 42,
             4,
             1,
-            boss && e.phase2 ? 0xffc898 : 0xffffff,
+            boss && e.phase2 && picture === bossArtKey(battle.stageId) ? 0xffc898 : 0xffffff,
           );
           if (pictured) {
             if (!boss) {
@@ -568,6 +584,20 @@ export function Battlefield({
           const g = overlay;
           const from = pixel(f.from);
           const to = pixel(f.to);
+          const effect = attackEffect(f, battle.time);
+          const pictured =
+            effect &&
+            this.art.draw(
+              effect.key,
+              pixel(effect.point).x,
+              pixel(effect.point).y,
+              effect.width * SIZE,
+              effect.height * SIZE,
+              8,
+              effect.alpha,
+              0xffffff,
+              effect.rotation,
+            );
           if (f.kind === 'boar')
             this.art.draw(
               'fx_heavy_hit',
@@ -582,11 +612,12 @@ export function Battlefield({
             f.team === 'enemy'
               ? 0xeb947e
               : Phaser.Display.Color.HexStringToColor(appearances[f.kind!].color).color;
-          g.lineStyle(
-            f.kind === 'sword_eagle' || f.kind === 'piercing_monkey' ? 3 : 2,
-            color,
-            Math.max(0, 1 - (battle.time - f.at) / 300),
-          ).lineBetween(from.x, from.y, to.x, to.y);
+          if (!pictured)
+            g.lineStyle(
+              f.kind === 'sword_eagle' || f.kind === 'piercing_monkey' ? 3 : 2,
+              color,
+              Math.max(0, 1 - (battle.time - f.at) / 300),
+            ).lineBetween(from.x, from.y, to.x, to.y);
           g.lineStyle(2, color, 0.7).strokeCircle(to.x, to.y, 8 + (battle.time - f.at) / 20);
         }
         this.art.end();

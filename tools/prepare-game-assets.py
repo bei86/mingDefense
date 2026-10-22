@@ -14,11 +14,19 @@ EXCLUDED = {
     "boss_05_phase2_variant": "painted checkerboard; different silhouette",
     "rock_armored_axe_warrior_variant": "painted checkerboard; unassigned character",
     "boss_25_phase2_variant": "human silhouette differs from base beast",
+    "boss_05_phase2_variant_02": "staff and silhouette differ from base tree",
+    "boss_10_phase2_variant": "human silhouette differs from base wolf",
+    "boss_15_phase2_variant": "axe warrior differs from rhino stone-fist base",
+    "boss_20_phase2_variant": "phase colors not distinct from base",
+    "boss_30_phase2_variant": "human silhouette differs from new bird base",
+    "boss_40_phase2_variant": "crown, silhouette and armor differ from base",
 }
 
 
 def prepare():
     DESTINATION.mkdir(parents=True, exist_ok=True)
+    manifest_path = ROOT / "src/render/art-manifest.json"
+    previous = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest = {}
     report = []
     for path in sorted(SOURCE.glob("*.png")):
@@ -60,9 +68,15 @@ def prepare():
         if hashlib.sha256(path.read_bytes()).hexdigest() != original_hash:
             raise ValueError(f"Original changed: {path.name}")
         report.append(entry)
-    (ROOT / "src/render/art-manifest.json").write_text(
+    manifest_path.write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
+    # Remove only outputs previously recorded by this converter, never source art.
+    for key in previous.keys() - manifest.keys():
+        stale = (DESTINATION / previous[key]["file"]).resolve()
+        if stale.parent != DESTINATION.resolve() or stale.suffix != ".webp":
+            raise ValueError(f"Unexpected stale output: {stale}")
+        stale.unlink(missing_ok=True)
     report_path = ROOT / "artifacts/art-preparation.json"
     report_path.parent.mkdir(exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

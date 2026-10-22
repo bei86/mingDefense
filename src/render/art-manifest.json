@@ -19,6 +19,11 @@
     "width": 302,
     "height": 384
   },
+  "boss_15_idle": {
+    "file": "boss_15_idle.webp",
+    "width": 384,
+    "height": 346
+  },
   "boss_20_idle": {
     "file": "boss_20_idle.webp",
     "width": 289,
@@ -29,10 +34,35 @@
     "width": 297,
     "height": 384
   },
-  "boss_30_phase2_variant": {
-    "file": "boss_30_phase2_variant.webp",
-    "width": 310,
+  "boss_25_phase2": {
+    "file": "boss_25_phase2.webp",
+    "width": 298,
     "height": 384
+  },
+  "boss_30_idle": {
+    "file": "boss_30_idle.webp",
+    "width": 266,
+    "height": 384
+  },
+  "boss_35_idle": {
+    "file": "boss_35_idle.webp",
+    "width": 384,
+    "height": 362
+  },
+  "boss_35_phase2": {
+    "file": "boss_35_phase2.webp",
+    "width": 384,
+    "height": 376
+  },
+  "boss_40_idle": {
+    "file": "boss_40_idle.webp",
+    "width": 323,
+    "height": 384
+  },
+  "croc_idle": {
+    "file": "croc_idle.webp",
+    "width": 384,
+    "height": 298
   },
   "ember_mouse_idle": {
     "file": "ember_mouse_idle.webp",
@@ -49,6 +79,16 @@
     "width": 384,
     "height": 363
   },
+  "fx_fireball": {
+    "file": "fx_fireball.webp",
+    "width": 106,
+    "height": 256
+  },
+  "fx_fist": {
+    "file": "fx_fist.webp",
+    "width": 256,
+    "height": 144
+  },
   "fx_freeze": {
     "file": "fx_freeze.webp",
     "width": 233,
@@ -59,6 +99,26 @@
     "width": 256,
     "height": 146
   },
+  "fx_income": {
+    "file": "fx_income.webp",
+    "width": 175,
+    "height": 256
+  },
+  "fx_levelup": {
+    "file": "fx_levelup.webp",
+    "width": 256,
+    "height": 218
+  },
+  "fx_merge": {
+    "file": "fx_merge.webp",
+    "width": 230,
+    "height": 256
+  },
+  "fx_pierce": {
+    "file": "fx_pierce.webp",
+    "width": 256,
+    "height": 73
+  },
   "fx_shield": {
     "file": "fx_shield.webp",
     "width": 256,
@@ -68,6 +128,11 @@
     "file": "fx_slow.webp",
     "width": 256,
     "height": 253
+  },
+  "fx_summon": {
+    "file": "fx_summon.webp",
+    "width": 256,
+    "height": 162
   },
   "fx_sword_field": {
     "file": "fx_sword_field.webp",
@@ -174,6 +239,11 @@
     "width": 293,
     "height": 384
   },
+  "split_fragment_idle": {
+    "file": "split_fragment_idle.webp",
+    "width": 347,
+    "height": 384
+  },
   "splitter_idle": {
     "file": "splitter_idle.webp",
     "width": 384,
@@ -203,5 +273,10 @@
     "file": "ui_panel.webp",
     "width": 434,
     "height": 640
+  },
+  "wolf_idle": {
+    "file": "wolf_idle.webp",
+    "width": 334,
+    "height": 384
   }
 }

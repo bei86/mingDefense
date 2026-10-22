@@ -4,6 +4,7 @@ import { App } from './ui/App';
 import './ui/style.css';
 import './ui/art.css';
 import './ui/combat.css';
+import './ui/handbook.css';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

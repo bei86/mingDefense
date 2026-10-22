@@ -14,6 +14,7 @@ import { CombatControls, CombatHeader, CombatStatus, EnemyIntel, PauseMenu } fro
 import { FirstBattleGuide } from './FirstBattleGuide';
 import { DefeatAdvice } from './DefeatAdvice';
 import { defeatRecap, type DefeatRecap } from './defeat-advice';
+import { SpiritHandbook } from './SpiritHandbook';
 
 export function App() {
   const [boot] = useState(loadBrowserSession);
@@ -29,6 +30,7 @@ export function App() {
   const [dialog, setDialog] = useState<Confirmation | null>(null);
   const [help, setHelp] = useState(false);
   const [journal, setJournal] = useState(false);
+  const [handbook, setHandbook] = useState(false);
   const [lastDefeat, setLastDefeat] = useState<DefeatRecap | null>(null);
   const storage = useSessionStorage(session, boot.blocked, boot.message);
   useModalFocus(
@@ -36,12 +38,13 @@ export function App() {
       dialog ||
         help ||
         journal ||
+        handbook ||
         session.hasChoices ||
         (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${dialog?.title}:${help}:${journal}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${dialog?.title}:${help}:${journal}:${handbook}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     source: Source;
@@ -241,16 +244,25 @@ export function App() {
             <span className="eyebrow">MING DEFENSE · 四十关原型</span>
             <h1 tabIndex={-1}>灵林守阵</h1>
           </div>
-          <button
-            className="icon-button"
-            aria-label="玩法说明"
-            onClick={() => {
-              pauseForMenu();
-              setHelp(true);
-            }}
-          >
-            ?
-          </button>
+          <div className="titlebar-tools">
+            <button
+              className="handbook-button"
+              aria-label="灵兽图鉴"
+              onClick={() => setHandbook(true)}
+            >
+              图鉴
+            </button>
+            <button
+              className="icon-button"
+              aria-label="玩法说明"
+              onClick={() => {
+                pauseForMenu();
+                setHelp(true);
+              }}
+            >
+              ?
+            </button>
+          </div>
         </header>
       ) : (
         <CombatHeader
@@ -422,7 +434,8 @@ export function App() {
         !session.hasChoices &&
         !dialog &&
         !help &&
-        !journal && (
+        !journal &&
+        !handbook && (
           <PauseMenu
             session={session}
             onResume={resume}
@@ -440,10 +453,12 @@ export function App() {
             }
             onHelp={() => setHelp(true)}
             onBuffs={() => setJournal(true)}
+            onHandbook={() => setHandbook(true)}
             onReset={reset}
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
+      {handbook && <SpiritHandbook onClose={() => setHandbook(false)} />}
       {dialog && (
         <div className="modal-backdrop top-modal">
           <section

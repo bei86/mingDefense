@@ -1,0 +1,198 @@
+.titlebar-tools {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.titlebar-tools .icon-button {
+  margin-left: 0;
+}
+.handbook-button {
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--gold);
+  background: var(--forest);
+  font-size: 11px;
+}
+.handbook-modal {
+  max-width: 400px;
+  padding: 22px 18px;
+  text-align: left;
+  overscroll-behavior: contain;
+}
+.handbook-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.handbook-heading .icon-button {
+  flex-shrink: 0;
+}
+.handbook-modal .handbook-note {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.8;
+}
+.handbook-roster {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.handbook-roster button {
+  padding: 6px 2px;
+  background: var(--forest);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.handbook-roster .art-image {
+  height: 44px;
+  margin-bottom: 4px;
+}
+.handbook-roster button[aria-pressed='true'],
+.handbook-ranks button[aria-pressed='true'] {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: #324c37;
+  box-shadow: inset 0 0 0 1px #ead19733;
+}
+.handbook-ranks {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+  margin: 14px 0;
+}
+.handbook-ranks button {
+  min-height: 36px;
+  padding: 4px 0;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 11px;
+  background: var(--forest);
+}
+.handbook-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.handbook-profile > .art-image {
+  width: 56px;
+  height: 64px;
+  flex-shrink: 0;
+}
+.handbook-profile h3 {
+  margin: 0 0 6px;
+  color: var(--paper);
+  font-size: 14px;
+}
+.handbook-profile p {
+  margin: 0;
+  font-size: 11px;
+}
+.handbook-shape {
+  display: grid;
+  grid-template-columns: repeat(3, 12px);
+  gap: 3px;
+  margin-left: auto;
+}
+.handbook-shape span {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #72846c66;
+  border-radius: 2px;
+  background: var(--forest);
+}
+.handbook-shape .occupied {
+  border-color: var(--gold);
+  background: var(--gold);
+}
+.handbook-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+  margin: 0 0 12px;
+  padding: 2px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--forest);
+}
+.handbook-stats > div {
+  padding: 10px 0;
+}
+.handbook-stats dt {
+  margin-bottom: 5px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.handbook-stats dd {
+  margin: 0;
+  color: var(--gold);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.handbook-skills {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.handbook-skills li {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.handbook-skills li > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.handbook-skills strong {
+  font-size: 12px;
+  color: var(--mint);
+}
+.handbook-skills small {
+  flex-shrink: 0;
+  color: var(--gold);
+}
+.handbook-skills .locked strong,
+.handbook-skills .locked small {
+  color: var(--muted);
+}
+.handbook-skills p {
+  margin: 7px 0 0;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.pause-tools > .secondary {
+  min-width: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-size: 11px;
+}
+@media (max-width: 350px) {
+  .titlebar {
+    gap: 7px;
+  }
+  .titlebar .eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.4px;
+  }
+  .titlebar .brand-mark {
+    flex-shrink: 0;
+  }
+  .handbook-modal {
+    padding: 20px 12px;
+  }
+  .handbook-profile {
+    gap: 7px;
+  }
+  .handbook-profile h3 {
+    font-size: 13px;
+  }
+}

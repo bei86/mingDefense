@@ -194,9 +194,18 @@ type PauseProps = {
   onPrepare: () => void;
   onHelp: () => void;
   onBuffs: () => void;
+  onHandbook: () => void;
   onReset: () => void;
 };
-export function PauseMenu({ session, onResume, onPrepare, onHelp, onBuffs, onReset }: PauseProps) {
+export function PauseMenu({
+  session,
+  onResume,
+  onPrepare,
+  onHelp,
+  onBuffs,
+  onHandbook,
+  onReset,
+}: PauseProps) {
   return (
     <div className="modal-backdrop">
       <section
@@ -217,6 +226,9 @@ export function PauseMenu({ session, onResume, onPrepare, onHelp, onBuffs, onRes
           </button>
           <button className="secondary" onClick={onHelp}>
             玩法说明
+          </button>
+          <button className="secondary" onClick={onHandbook}>
+            灵兽图鉴
           </button>
         </div>
         <EnemyIntel stageId={session.preparation.stageId} />
