@@ -22,6 +22,7 @@ type Props = {
   confirm: (d: Confirmation) => void;
   onStart: () => void;
   onSwap: (unitId: number) => void;
+  fieldReady: boolean;
   ignoreClick: () => boolean;
 };
 export function PreparationPanel({
@@ -34,6 +35,7 @@ export function PreparationPanel({
   confirm,
   onStart,
   onSwap,
+  fieldReady,
   ignoreClick,
 }: Props) {
   const p = session.preparation;
@@ -188,8 +190,8 @@ export function PreparationPanel({
             遣散
           </button>
         )}
-        <button className="primary start-button" onClick={onStart}>
-          开始守阵 <span>→</span>
+        <button className="primary start-button" onClick={onStart} disabled={!fieldReady}>
+          {fieldReady ? '开始守阵' : '准备战场…'} <span>→</span>
         </button>
       </div>
     </>

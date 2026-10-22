@@ -247,6 +247,51 @@ small {
 .canvas-host canvas {
   display: block;
 }
+.field-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: radial-gradient(ellipse at top, #294b3b, #102e28);
+}
+.field-loading-card {
+  width: min(100%, 260px);
+  text-align: center;
+  color: #f0e4bb;
+}
+.field-loading-card strong {
+  font-size: 18px;
+}
+.field-loading-card p,
+.field-loading-card small {
+  color: #bbccb0;
+  font-size: 12px;
+}
+.field-loading-card progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  margin: 18px 0 10px;
+  accent-color: #d8c287;
+}
+.field-load-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  color: #e2d5a8;
+  font-size: 12px;
+  background: #1a392e;
+}
+.field-load-notice span {
+  flex: 1 1 180px;
+}
+.field-load-notice button {
+  min-height: 44px;
+}
 .forest-sign {
   position: absolute;
   top: 11.5%;

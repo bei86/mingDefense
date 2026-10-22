@@ -46,6 +46,7 @@ type BattlefieldProps = View & {
   onCell: (p: Point) => void;
   onDragStart: (e: React.PointerEvent, source: Source, grabbedCell?: Point) => void;
   onHover: (p: Point | null) => void;
+  onReadyChange: (ready: boolean) => void;
 };
 
 function animal(g: Phaser.GameObjects.Graphics, kind: HeroId, x: number, y: number, dead: boolean) {
@@ -153,7 +154,10 @@ export function Battlefield({
   onCell,
   onDragStart,
   onHover,
+  onReadyChange,
 }: BattlefieldProps) {
+  const [loading, setLoading] = useState({ ready: false, completed: 0, failed: 0 });
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [targetingOpen, setTargetingOpen] = useState(false);
   const [targetingColumn, setTargetingColumn] = useState<number>(config.waves.spawnColumns[0]);
   const host = useRef<HTMLDivElement>(null);
@@ -164,6 +168,14 @@ export function Battlefield({
   view.current = { selected, hover, dragOffset };
   useEffect(() => {
     if (!host.current) return;
+    let disposed = false;
+    let failed = 0;
+    onReadyChange(false);
+    const markReady = () => {
+      if (disposed) return;
+      setLoading({ ready: true, completed: battlefieldArt.length, failed });
+      onReadyChange(true);
+    };
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let reducedMotion = motionQuery.matches;
     const updateMotion = () => {
@@ -191,12 +203,25 @@ export function Battlefield({
       private density = 0;
       private effects = new FieldEffects();
       preload() {
-        for (const key of battlefieldArt) this.load.image(key, artUrl(key));
+        this.load.maxRetries = 0;
+        this.load.on(Phaser.Loader.Events.PROGRESS, (progress: number) => {
+          if (disposed) return;
+          setLoading({
+            ready: false,
+            completed: Math.round(progress * battlefieldArt.length),
+            failed: 0,
+          });
+        });
+        for (const key of battlefieldArt)
+          this.load.image(key, artUrl(key), { responseType: 'blob', timeout: 8000 });
       }
       create() {
         this.drawing = this.add.graphics();
         this.overlay = this.add.graphics().setDepth(10);
         this.art = new ArtLayer(this);
+        failed = battlefieldArt.filter((key) => !this.textures.exists(key)).length;
+        // Scene creation alone does not mean a visible frame has been drawn.
+        this.game.events.once(Phaser.Core.Events.POST_RENDER, markReady);
       }
       private finishFrame(started: number) {
         this.art.end();
@@ -772,13 +797,15 @@ export function Battlefield({
     resize.observe(host.current!);
     window.addEventListener('resize', resizeField);
     return () => {
+      disposed = true;
+      game.events.off(Phaser.Core.Events.POST_RENDER, markReady);
       motionQuery.removeEventListener('change', updateMotion);
       document.removeEventListener('visibilitychange', resetMetrics);
       resize.disconnect();
       window.removeEventListener('resize', resizeField);
       game.destroy(true);
     };
-  }, [session, feedback, showPerformance]);
+  }, [session, feedback, showPerformance, loadAttempt, onReadyChange]);
   const warning = session.battle?.warnings[0];
   const targeting =
     session.phase === 'prepare' && targetingOpen
@@ -794,7 +821,10 @@ export function Battlefield({
     warningTitle = '双段横扫';
   return (
     <>
-      <div className={`battlefield ${session.phase === 'prepare' ? '' : 'approach-field'}`}>
+      <div
+        className={`battlefield ${session.phase === 'prepare' ? '' : 'approach-field'}`}
+        aria-busy={!loading.ready}
+      >
         <div ref={host} className="canvas-host" aria-hidden="true" />
         {rangePreview && <RangeOverlay preview={rangePreview} />}
         {targeting && <TargetingOverlay preview={targeting} />}
@@ -815,7 +845,7 @@ export function Battlefield({
                   data-cell-x={p.x}
                   data-cell-y={p.y}
                   className="board-cell"
-                  disabled={session.phase !== 'prepare'}
+                  disabled={!loading.ready || session.phase !== 'prepare'}
                   aria-label={`${p.x + 1}列${p.y + 1}行，${u ? `${appearances[u.kind].name}${u.rank}阶` : open ? '空地' : '未解锁'}`}
                   onClick={() => onCell(p)}
                   onPointerDown={(e) => {
@@ -848,7 +878,46 @@ export function Battlefield({
                 ? '聚灵加速中 · 攻速 +50%'
                 : '灵兽自动攻击 · 按住聚灵石加速'}
         </div>
+        {!loading.ready && (
+          <div className="field-loading">
+            <div className="field-loading-card">
+              <strong role="status">
+                {loading.completed === battlefieldArt.length ? '正在绘制战场' : '正在准备战场'}
+              </strong>
+              <p>画面准备好后即可布阵与守卫</p>
+              <progress
+                aria-label="战场素材处理进度"
+                value={loading.completed}
+                max={battlefieldArt.length}
+              />
+              <small>
+                已处理 {loading.completed} / {battlefieldArt.length} 张
+              </small>
+            </div>
+          </div>
+        )}
       </div>
+      {loading.ready && loading.failed > 0 && (
+        <div className="field-load-notice" role="status">
+          <span>
+            {loading.failed} 张战场图片未加载，已使用简化显示，可正常游玩。
+            {session.phase !== 'prepare' && '返回布阵后可重试。'}
+          </span>
+          {session.phase === 'prepare' && (
+            <button
+              className="secondary"
+              onClick={() => {
+                if (session.phase !== 'prepare') return;
+                onReadyChange(false);
+                setLoading({ ready: false, completed: 0, failed: 0 });
+                setLoadAttempt((attempt) => attempt + 1);
+              }}
+            >
+              重试战场图片
+            </button>
+          )}
+        </div>
+      )}
       {rangePreview && (
         <div className={`range-summary ${rangePreview.status}`} role="status">
           <strong>

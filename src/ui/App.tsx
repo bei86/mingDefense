@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { appearances, config, enemyCount, stages, stageNames, type Point } from '../game/content';
 import { unitAt, type Source, type Session } from '../game/session';
 import type { LoadResult } from '../game/persistence';
@@ -47,6 +47,17 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const session = boot.session;
   const [clock] = useState(() => new GameClock(session));
   const [feedback] = useState(() => new CombatFeedback());
+  const [fieldReady, setFieldReady] = useState(false);
+  const fieldReadyRef = useRef(false);
+  const onFieldReady = useCallback(
+    (ready: boolean) => {
+      fieldReadyRef.current = ready;
+      session.held = false;
+      clock.reset();
+      setFieldReady(ready);
+    },
+    [clock, session],
+  );
   const audioRef = useRef<GameAudio | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(() => new GameAudio().enabled);
   const [musicEnabled, setMusicEnabled] = useState(() => new GameMusic().enabled);
@@ -132,13 +143,19 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
     feedback.update(session, 0, !document.hidden);
     let inactive = false;
     let musicActive = true;
-    const stopLoop = startGameLoop(clock, repaint, (elapsed) => {
-      const blocked = session.phase === 'combat' && !session.canAdvance;
-      if (blocked && !inactive) audio.suspend();
-      inactive = blocked;
-      audio.playFeedback(feedback.update(session, elapsed, !document.hidden));
-      audio.updateMusic(musicActive ? musicMood(session) : null);
-    });
+    const stopLoop = startGameLoop(
+      clock,
+      repaint,
+      (elapsed) => {
+        const ready = fieldReadyRef.current;
+        const blocked = !ready || (session.phase === 'combat' && !session.canAdvance);
+        if (blocked && !inactive) audio.suspend();
+        inactive = blocked;
+        audio.playFeedback(feedback.update(session, elapsed, ready && !document.hidden));
+        audio.updateMusic(musicActive && ready ? musicMood(session) : null);
+      },
+      () => fieldReadyRef.current,
+    );
     const unlock = (e: Event) => {
       if (e instanceof KeyboardEvent && e.repeat) return;
       musicActive = true;
@@ -493,6 +510,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           }}
           onDragStart={dragStart}
           onHover={setHover}
+          onReadyChange={onFieldReady}
         />
       </section>
       <section
@@ -509,7 +527,9 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             run={run}
             confirm={setDialog}
             onSwap={setSwapUnitId}
+            fieldReady={fieldReady}
             onStart={() => {
+              if (!fieldReadyRef.current) return;
               clock.reset();
               const error = session.start();
               if (!error) setLastDefeat(null);

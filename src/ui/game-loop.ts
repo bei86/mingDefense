@@ -5,15 +5,24 @@ export function startGameLoop(
   clock: GameClock,
   repaint: () => void,
   afterAdvance?: (elapsed: number) => void,
+  canRun?: () => boolean,
 ): () => void {
   let lastHud = performance.now();
   let lastSample = lastHud;
-  clock.advance(lastHud);
+  const advance = (now: number) => {
+    if (canRun && !canRun()) {
+      clock.reset();
+      return false;
+    }
+    clock.advance(now);
+    return true;
+  };
+  advance(lastHud);
   const timer = setInterval(() => {
     const now = performance.now();
-    clock.advance(now);
+    const running = advance(now);
     const elapsed = now - lastSample;
-    afterAdvance?.(elapsed > 250 ? 0 : Math.max(0, elapsed));
+    afterAdvance?.(!running || elapsed > 250 ? 0 : Math.max(0, elapsed));
     lastSample = now;
     if (now - lastHud >= 100) {
       repaint();

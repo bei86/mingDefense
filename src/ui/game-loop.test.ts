@@ -155,4 +155,57 @@ describe('independent simulation scheduler', () => {
     vi.advanceTimersByTime(100);
     expect(samples).toHaveLength(5);
   });
+
+  it('waits for the battlefield without changing the battle or catching up afterward', () => {
+    const session = battleSession();
+    const before = structuredClone(session.battle);
+    const preparation = structuredClone(session.preparation);
+    let ready = false;
+    const sample = vi.fn();
+    const stop = startGameLoop(
+      new GameClock(session),
+      () => {},
+      sample,
+      () => ready,
+    );
+    vi.advanceTimersByTime(30000);
+    expect(session.battle).toEqual(before);
+    expect(session.preparation).toEqual(preparation);
+    expect(sample).toHaveBeenLastCalledWith(0);
+    ready = true;
+    vi.advanceTimersByTime(25);
+    expect(session.battle).toEqual(before);
+    vi.advanceTimersByTime(100);
+    expect(session.battle!.time).toBe(100);
+    stop();
+  });
+
+  it('drops partial ticks when readiness is lost and preserves a manual pause', () => {
+    const session = battleSession();
+    let ready = true;
+    const stop = startGameLoop(
+      new GameClock(session),
+      () => {},
+      undefined,
+      () => ready,
+    );
+    vi.advanceTimersByTime(125);
+    expect(session.battle!.time).toBe(100);
+    ready = false;
+    const before = structuredClone(session.battle);
+    vi.advanceTimersByTime(10000);
+    expect(session.battle).toEqual(before);
+    session.pause(true);
+    ready = true;
+    vi.advanceTimersByTime(1000);
+    expect(session.paused).toBe(true);
+    expect(session.battle).toEqual(before);
+    session.pause(false);
+    vi.advanceTimersByTime(50);
+    expect(session.battle!.time).toBe(100);
+    vi.advanceTimersByTime(25);
+    expect(session.battle!.time).toBe(150);
+    stop();
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });
