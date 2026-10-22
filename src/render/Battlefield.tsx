@@ -24,6 +24,7 @@ import { RangeOverlay } from './RangeOverlay';
 import { targetingPreview } from '../ui/targeting-preview';
 import { TargetingPanel } from '../ui/TargetingPanel';
 import { TargetingOverlay } from './TargetingOverlay';
+import { CombatNumberLayer } from './CombatNumberLayer';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -199,6 +200,7 @@ export function Battlefield({
       private drawing!: Phaser.GameObjects.Graphics;
       private overlay!: Phaser.GameObjects.Graphics;
       private art!: ArtLayer;
+      private numbers!: CombatNumberLayer;
       private preparing: boolean | null = null;
       private density = 0;
       private effects = new FieldEffects();
@@ -219,12 +221,19 @@ export function Battlefield({
         this.drawing = this.add.graphics();
         this.overlay = this.add.graphics().setDepth(10);
         this.art = new ArtLayer(this);
+        this.numbers = new CombatNumberLayer(this);
         failed = battlefieldArt.filter((key) => !this.textures.exists(key)).length;
         // Scene creation alone does not mean a visible frame has been drawn.
         this.game.events.once(Phaser.Core.Events.POST_RENDER, markReady);
       }
       private finishFrame(started: number) {
         this.art.end();
+        this.numbers.draw(
+          session.phase === 'combat' ? feedback.numbers.active : [],
+          feedback.time,
+          renderDensity,
+          reducedMotion,
+        );
         if (!metrics || !performanceOutput.current) return;
         if (document.hidden) {
           metrics.reset();
@@ -244,6 +253,7 @@ export function Battlefield({
           `绘制CPU 均值 ${summary.drawMeanMs.toFixed(1)} / P95 ${summary.drawP95Ms.toFixed(1)} ms`,
           `敌人 ${battle?.enemies.filter((e) => e.hp > 0).length ?? 0} · 攻击特效 ${battle?.flashes.length ?? 0}`,
           `图片 ${active} / 池 ${pooled} · 画布 ${game.canvas.width}×${game.canvas.height} (${renderDensity}×)`,
+          `飘字 ${this.numbers.stats.active} / 池 ${this.numbers.stats.pooled}（上限24）`,
           `状态 ${session.phase}${session.paused ? ' · 暂停' : ''} · ${session.speed}倍`,
         ].join('\n');
       }

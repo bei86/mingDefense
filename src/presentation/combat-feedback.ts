@@ -1,6 +1,7 @@
 import { bossDefinition, bossName, center, type EnemyKind, type Point } from '../game/content';
 import type { Combat, Flash, Warning } from '../game/combat-model';
 import type { Session } from '../game/session';
+import { CombatNumbers } from './combat-numbers';
 
 export type SoundCue =
   | 'click'
@@ -47,6 +48,7 @@ export type CombatNotice = {
 /** Disposable presentation state, sampled after simulation without modifying it. */
 export class CombatFeedback {
   time = 0;
+  readonly numbers = new CombatNumbers();
   notice: CombatNotice | null = null;
   ghosts: Ghost[] = [];
   private battle: Combat | null | undefined;
@@ -65,6 +67,7 @@ export class CombatFeedback {
   update(session: Session, deltaMs: number, visible = true): SoundCue[] {
     if (visible && (session.phase === 'prepare' || session.canAdvance))
       this.time += Math.max(0, Math.min(100, deltaMs)) * session.speed;
+    this.numbers.update(session, this.time, visible);
     const battle = session.battle;
     const fresh = this.battle !== battle || (battle !== null && battle.time < this.battleTime);
     const starting = fresh && this.phase === 'prepare' && session.phase === 'combat';
