@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './ui/App';
+import { Startup } from './ui/Startup';
 import './ui/style.css';
 import './ui/art.css';
 import './ui/combat.css';
@@ -15,6 +15,6 @@ import './ui/save-manager.css';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <Startup />
   </React.StrictMode>,
 );

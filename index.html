@@ -5,9 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#102e28" />
     <title>灵林守阵 · 五十关原型</title>
+    <link rel="stylesheet" href="/src/ui/startup.css" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="startup-screen" aria-labelledby="startup-title">
+        <section class="startup-panel">
+          <div class="startup-mark" aria-hidden="true">林</div>
+          <p class="startup-eyebrow">MING DEFENSE</p>
+          <h1 id="startup-title">灵林守阵</h1>
+          <p class="startup-status" role="status">
+            <span class="startup-pulse" aria-hidden="true"></span>正在准备灵兽与战场…
+          </p>
+          <p class="startup-note">首次进入需要片刻。长时间未进入时，可尝试重新加载。</p>
+          <noscript><p class="startup-note">请启用JavaScript后重新加载游戏。</p></noscript>
+          <a class="startup-reload" href="">重新加载</a>
+        </section>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

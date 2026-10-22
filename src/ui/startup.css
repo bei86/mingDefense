@@ -1,0 +1,115 @@
+/* Linked by HTML so the first screen survives an unavailable entry script. */
+.startup-screen {
+  /* The existing page decoration is a fixed body::before layer. */
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  color: #e4e8d4;
+  background: radial-gradient(ellipse at 50% 20%, #254b3d, #0c211d 75%);
+  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  text-align: center;
+}
+body {
+  margin: 0;
+}
+.startup-panel {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 360px;
+  padding: 32px 22px;
+  border: 1px solid #b8cea42b;
+  border-radius: 24px 5px;
+  background: #183a3180;
+}
+.startup-mark {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 24px;
+  border: 1px solid #c6bf8c;
+  border-radius: 16px 4px;
+  color: #ead197;
+  font: 32px / 1 serif;
+  transform: rotate(-5deg);
+}
+.startup-eyebrow {
+  margin: 0 0 8px;
+  color: #9bad9d;
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+.startup-panel h1 {
+  margin: 0 0 28px;
+  color: #f0ead4;
+  font: 600 32px / 1.4 serif;
+  letter-spacing: 4px;
+}
+.startup-status {
+  margin: 0 0 12px;
+  color: #c1daaa;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.startup-status[role='alert'] {
+  color: #e4a08c;
+}
+.startup-pulse {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #ead197;
+  animation: startup-breathe 1.6s ease-in-out infinite alternate;
+}
+.startup-note {
+  margin: 0;
+  color: #aebdac;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.startup-reload {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 132px;
+  min-height: 44px;
+  margin-top: 24px;
+  padding: 10px 20px;
+  border: 1px solid #b8cea455;
+  border-radius: 8px;
+  background: #25483b;
+  color: #ead197;
+  font-size: 13px;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+.startup-reload:hover {
+  background: #315847;
+}
+.startup-reload:focus-visible {
+  outline: 3px solid #f4d99a;
+  outline-offset: 4px;
+}
+@keyframes startup-breathe {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .startup-pulse {
+    animation: none;
+  }
+}
