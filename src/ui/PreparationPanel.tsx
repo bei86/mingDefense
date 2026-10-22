@@ -21,6 +21,7 @@ type Props = {
   run: (error: string | null, success: string) => void;
   confirm: (d: Confirmation) => void;
   onStart: () => void;
+  onSwap: (unitId: number) => void;
   ignoreClick: () => boolean;
 };
 export function PreparationPanel({
@@ -32,6 +33,7 @@ export function PreparationPanel({
   run,
   confirm,
   onStart,
+  onSwap,
   ignoreClick,
 }: Props) {
   const p = session.preparation;
@@ -166,6 +168,11 @@ export function PreparationPanel({
         >
           ↶ 撤销
         </button>
+        {chosen && (
+          <button className="secondary" onClick={() => onSwap(chosen.id)}>
+            换位
+          </button>
+        )}
         {chosen && (
           <button
             className="secondary danger"

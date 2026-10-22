@@ -54,7 +54,7 @@ describe('准备期命令与经济', () => {
     expect(s.transfer({ type: 'offer', id: 4 }, { x: 4, y: 5 })).toBeTruthy();
     expect(s.preparation).toEqual(before);
   });
-  it('不能覆盖、交换或旋转现有占地', () => {
+  it('普通部署不能覆盖现有占地或隐式换位、旋转', () => {
     const s = new Session(20261014, 'm1');
     s.transfer({ type: 'offer', id: 3 }, { x: 1, y: 3 });
     const before = clone(s.preparation);

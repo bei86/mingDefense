@@ -1,0 +1,99 @@
+.formation-swap {
+  max-width: 400px;
+  padding: 22px 18px;
+  text-align: left;
+}
+.swap-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.swap-heading h2 {
+  font-size: 21px;
+}
+.swap-heading .icon-button {
+  flex-shrink: 0;
+  margin: 0;
+}
+.swap-source,
+.swap-option button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.swap-source {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--forest);
+}
+.swap-source .art-image,
+.swap-option .art-image {
+  width: 42px;
+  height: 44px;
+  flex: 0 0 42px;
+  object-fit: contain;
+}
+.swap-source strong,
+.swap-option strong {
+  color: var(--paper);
+  font-size: 12px;
+}
+.swap-source small,
+.swap-option small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.formation-swap p {
+  margin: 10px 0;
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.swap-candidates {
+  display: grid;
+  gap: 8px;
+}
+.swap-option {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--forest);
+  overflow: hidden;
+}
+.swap-option button {
+  width: 100%;
+  min-height: 64px;
+  border: 0;
+  padding: 8px 10px;
+  background: transparent;
+  text-align: left;
+}
+.swap-option button > span:not(.art-image) {
+  min-width: 0;
+}
+.swap-option .swap-arrow {
+  margin-left: auto;
+  color: var(--gold);
+  font-size: 22px;
+}
+.swap-option p {
+  margin: 0;
+  padding: 0 10px 10px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.swap-option.unavailable p {
+  color: #efb5a1;
+}
+.prepare-actions {
+  flex-wrap: wrap;
+}
+.prepare-actions .secondary {
+  min-height: 44px;
+}
+.prepare-actions .start-button {
+  min-width: 132px;
+}

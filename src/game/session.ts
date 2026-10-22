@@ -1,4 +1,5 @@
 import {
+  appearances,
   cells,
   clone,
   config,
@@ -86,6 +87,34 @@ export function expansionError(p: Preparation, point: Point): string | null {
   ];
   if (!adjacent.some((d) => p.unlocked.includes(key({ x: point.x + d.x, y: point.y + d.y }))))
     return '新格子需要与已解锁区域相邻';
+  return null;
+}
+
+export function swapError(p: Preparation, sourceId: number, targetId: number): string | null {
+  const source = p.units.find((u) => u.id === sourceId);
+  const target = p.units.find((u) => u.id === targetId);
+  if (!source || !target) return '灵兽不存在，请重新选择';
+  if (sourceId === targetId) return '请选择另一只灵兽';
+  if (!source.position && !target.position) return '两只灵兽均在备战席，无需换位';
+  // Validate both complete shapes in the final layout, without mutating the preparation.
+  const next = {
+    ...p,
+    units: p.units.map((u) => {
+      if (u.id === sourceId) return { ...u, position: target.position };
+      if (u.id === targetId) return { ...u, position: source.position };
+      return u;
+    }),
+  };
+  for (const id of [sourceId, targetId]) {
+    const unit = next.units.find((u) => u.id === id)!;
+    if (!unit.position) continue;
+    const withoutSelf = { ...next, units: next.units.filter((u) => u.id !== id) };
+    const error = placementError(withoutSelf, unit.kind, unit.position);
+    if (error) {
+      const reason = error === '这里已有灵兽，可尝试同阶合成' ? '与其他灵兽占格重叠' : error;
+      return `${appearances[unit.kind].name}换位后放不下：${reason}`;
+    }
+  }
   return null;
 }
 
@@ -186,6 +215,16 @@ export class Session {
         offer.claimed = true;
         p.nextId++;
       }
+      return null;
+    });
+  }
+  swap(sourceId: number, targetId: number): string | null {
+    return this.edit((p) => {
+      const error = swapError(p, sourceId, targetId);
+      if (error) return error;
+      const source = p.units.find((u) => u.id === sourceId)!;
+      const target = p.units.find((u) => u.id === targetId)!;
+      [source.position, target.position] = [target.position, source.position];
       return null;
     });
   }

@@ -20,6 +20,7 @@ import { CombatFeedback } from '../presentation/combat-feedback';
 import { GameAudio } from '../presentation/game-audio';
 import { SaveManager } from './SaveManager';
 import { StageIntel } from './StageIntel';
+import { FormationSwap } from './FormationSwap';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -60,6 +61,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [handbook, setHandbook] = useState(false);
   const [intel, setIntel] = useState(false);
   const [saves, setSaves] = useState(false);
+  const [swapUnitId, setSwapUnitId] = useState<number | null>(null);
   const [lastDefeat, setLastDefeat] = useState<DefeatRecap | null>(null);
   const storage = useSessionStorage(session, boot.blocked, boot.message);
   useModalFocus(
@@ -70,12 +72,13 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         handbook ||
         intel ||
         saves ||
+        swapUnitId !== null ||
         session.hasChoices ||
         (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -480,6 +483,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             dragStart={dragStart}
             run={run}
             confirm={setDialog}
+            onSwap={setSwapUnitId}
             onStart={() => {
               clock.reset();
               const error = session.start();
@@ -578,6 +582,18 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
+      {preparing && swapUnitId !== null && (
+        <FormationSwap
+          session={session}
+          sourceId={swapUnitId}
+          onClose={() => setSwapUnitId(null)}
+          onSwap={(targetId) => {
+            const error = session.swap(swapUnitId, targetId);
+            run(error, '两只灵兽已换位，可撤销上一步。');
+            if (!error) setSwapUnitId(null);
+          }}
+        />
+      )}
       {handbook && <SpiritHandbook onClose={() => setHandbook(false)} />}
       {intel && <StageIntel currentStageId={p.stageId} onClose={() => setIntel(false)} />}
       {saves && (
@@ -625,6 +641,9 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             <h2 id="help-title">守过五十境，灵林长安</h2>
             <ol>
               <li>点招募再点空格部署，或拖动放置。同种同阶叠放合成，最高六阶；3/5阶会解锁技能。</li>
+              <li>
+                选中已有灵兽后点「换位」，可与其他上阵或备战席灵兽互换位置；多格放不下时会说明原因，成功后可撤销。
+              </li>
               <li>
                 八灵：
                 {Object.values(appearances)
