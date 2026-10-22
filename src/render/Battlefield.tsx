@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import {
   appearances,
@@ -21,6 +21,9 @@ import { attackEffect, FieldEffects } from './field-effects';
 import type { CombatFeedback } from '../presentation/combat-feedback';
 import { preparationRange, rangeDescription } from '../ui/preparation-range';
 import { RangeOverlay } from './RangeOverlay';
+import { targetingPreview } from '../ui/targeting-preview';
+import { TargetingPanel } from '../ui/TargetingPanel';
+import { TargetingOverlay } from './TargetingOverlay';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -151,6 +154,8 @@ export function Battlefield({
   onDragStart,
   onHover,
 }: BattlefieldProps) {
+  const [targetingOpen, setTargetingOpen] = useState(false);
+  const [targetingColumn, setTargetingColumn] = useState<number>(config.waves.spawnColumns[0]);
   const host = useRef<HTMLDivElement>(null);
   const performanceOutput = useRef<HTMLOutputElement>(null);
   const showPerformance =
@@ -775,8 +780,12 @@ export function Battlefield({
     };
   }, [session, feedback, showPerformance]);
   const warning = session.battle?.warnings[0];
+  const targeting =
+    session.phase === 'prepare' && targetingOpen
+      ? targetingPreview(session.preparation, targetingColumn)
+      : null;
   const rangePreview =
-    session.phase === 'prepare'
+    session.phase === 'prepare' && !targeting
       ? preparationRange(session.preparation, selected, hover, dragOffset, session.maxRank)
       : null;
   let warningTitle = '横扫预警';
@@ -788,6 +797,7 @@ export function Battlefield({
       <div className={`battlefield ${session.phase === 'prepare' ? '' : 'approach-field'}`}>
         <div ref={host} className="canvas-host" aria-hidden="true" />
         {rangePreview && <RangeOverlay preview={rangePreview} />}
+        {targeting && <TargetingOverlay preview={targeting} />}
         <div className={`forest-sign ${session.phase === 'prepare' ? '' : 'enemy-entry'}`}>
           {session.phase === 'prepare'
             ? '选择灵兽 · 布下守阵'
@@ -855,6 +865,14 @@ export function Battlefield({
           </strong>
           <p>{rangeDescription(rangePreview)}</p>
         </div>
+      )}
+      {session.phase === 'prepare' && (
+        <TargetingPanel
+          preview={targeting}
+          onToggle={() => setTargetingOpen((open) => !open)}
+          column={targetingColumn}
+          onColumn={setTargetingColumn}
+        />
       )}
       {showPerformance && (
         <details className="mobile-performance" open>

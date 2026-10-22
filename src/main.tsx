@@ -8,6 +8,7 @@ import './ui/handbook.css';
 import './ui/stage-intel.css';
 import './ui/preparation-range.css';
 import './ui/formation-swap.css';
+import './ui/targeting-preview.css';
 import './ui/feedback.css';
 import './ui/mobile.css';
 import './ui/save-manager.css';

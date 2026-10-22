@@ -1,0 +1,151 @@
+.targeting-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.targeting-entry {
+  fill: #efb5a1;
+}
+.targeting-front rect {
+  fill: none;
+  stroke: #d8c98d;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+.targeting-primary rect {
+  fill: #efb5a1;
+  fill-opacity: 0.07;
+  stroke: #efb5a1;
+  stroke-width: 2.5;
+}
+.targeting-marker circle {
+  fill: #7d3b30;
+  stroke: #f9d6b7;
+  stroke-width: 1.5;
+}
+.targeting-marker text {
+  fill: #fff0d3;
+  font-size: 13px;
+  font-weight: 700;
+}
+.targeting-panel {
+  border-top: 1px solid var(--border);
+  background: var(--forest);
+  font-size: 11px;
+}
+.targeting-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  padding: 10px 12px;
+  color: var(--gold);
+  background: transparent;
+  font-size: 12px;
+  text-align: left;
+}
+.targeting-toggle small {
+  display: inline-block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-left: 4px;
+}
+.targeting-toggle > span:last-child {
+  flex-shrink: 0;
+  font-size: 10px;
+}
+.targeting-content {
+  padding: 0 12px 12px;
+}
+.targeting-columns {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.targeting-columns > span {
+  color: var(--muted);
+  margin-right: auto;
+}
+.targeting-columns button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #16392e;
+  color: var(--paper);
+  font-size: 11px;
+}
+.targeting-columns button[aria-pressed='true'] {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: #354a32;
+}
+.targeting-content p {
+  color: var(--muted);
+  line-height: 1.8;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.targeting-content .targeting-first {
+  color: #efb5a1;
+}
+.targeting-content .targeting-reference {
+  font-size: 10px;
+}
+.targeting-row {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.targeting-row h3 {
+  margin: 10px 0 6px;
+  color: var(--paper);
+  font-size: 12px;
+}
+.targeting-row h3 span {
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 400;
+}
+.targeting-row ol {
+  margin: 0;
+  padding-left: 24px;
+  color: var(--gold);
+}
+.targeting-row li {
+  padding: 3px 0 3px 4px;
+}
+.targeting-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.targeting-unit .art-image {
+  width: 32px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.targeting-unit strong {
+  color: var(--paper);
+  font-size: 11px;
+}
+.targeting-unit small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+.targeting-content .targeting-note {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+}
