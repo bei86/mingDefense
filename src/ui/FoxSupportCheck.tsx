@@ -2,7 +2,8 @@ import { appearances, heroes } from '../game/content';
 import type { Preparation, Source } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
-import { foxSupport, type FoxSource } from './fox-support';
+import { foxSupport } from './fox-support';
+import { sourcesText } from './fox-support-text';
 import './fox-support.css';
 
 type Props = {
@@ -11,14 +12,6 @@ type Props = {
   choose: (source: Source) => void;
   fieldReady: boolean;
 };
-
-function sourcesText(sources: FoxSource[]): string {
-  return sources
-    .map(
-      (fox) => `狐${fox.rank}阶 · 编号${fox.id}（${fox.position.x + 1}列${fox.position.y + 1}行）`,
-    )
-    .join('、');
-}
 
 export function FoxSupportCheck({ preparation, selected, choose, fieldReady }: Props) {
   const model = foxSupport(preparation);

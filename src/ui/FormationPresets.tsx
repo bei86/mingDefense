@@ -11,6 +11,7 @@ import { PresetBoard } from './PresetBoard';
 import { FormationShare } from './FormationShare';
 import { FormationChanges } from './FormationChanges';
 import { FormationTargeting } from './FormationTargeting';
+import { FormationSupport } from './FormationSupport';
 import type { useFormationPresets } from './useFormationPresets';
 import './formation-presets.css';
 
@@ -107,6 +108,7 @@ export function FormationPresets({ session, library, isolated, onClose, onApply 
           preparation={session.preparation}
           plan={plan}
         />
+        <FormationSupport key={`support-${slot}`} preparation={session.preparation} plan={plan} />
         {difference && (
           <section className="preset-difference" aria-label="与当前阵容的差异">
             {(

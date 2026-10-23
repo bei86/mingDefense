@@ -1,0 +1,70 @@
+.formation-support {
+  margin: 12px 0;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--forest);
+  overflow-wrap: anywhere;
+}
+.formation-support summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--gold);
+}
+.formation-presets .formation-support p {
+  margin: 8px 0 12px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.formation-support table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+.formation-support th,
+.formation-support td {
+  padding: 8px 3px;
+  border-bottom: 1px solid var(--border);
+}
+.formation-support th {
+  font-weight: 400;
+  color: var(--muted);
+}
+.formation-support td {
+  color: var(--paper);
+}
+.formation-support section {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.formation-support h3 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--gold);
+}
+.formation-support dl {
+  margin: 8px 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.formation-support dl > div {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.formation-support dt {
+  color: var(--muted);
+  font-size: 11px;
+}
+.formation-support dd {
+  margin: 0;
+  color: var(--paper);
+}
+.formation-support dd > span {
+  display: block;
+}
