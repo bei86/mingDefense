@@ -1,0 +1,52 @@
+.formation-changes {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--forest);
+  overflow-wrap: anywhere;
+}
+.formation-changes h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--gold);
+}
+.formation-presets .formation-changes p {
+  margin: 8px 0;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.formation-changes summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--paper);
+}
+.formation-changes ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.formation-changes li {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.formation-changes li strong {
+  display: block;
+  color: var(--paper);
+}
+.formation-changes li small {
+  font-weight: 400;
+  color: var(--muted);
+}
+.formation-changes li span {
+  color: var(--mint);
+}
+.formation-changes li b {
+  padding: 0 3px;
+  color: var(--gold);
+}
