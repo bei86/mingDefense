@@ -41,6 +41,11 @@
   padding: 8px 4px;
   font-size: 11px;
 }
+.report-text .collect-report {
+  width: 100%;
+  min-height: 44px;
+  margin: 0 0 8px;
+}
 .report-export label {
   display: block;
   margin: 12px 0 6px;

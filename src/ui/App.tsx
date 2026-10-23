@@ -8,7 +8,7 @@ import { Battlefield } from '../render/Battlefield';
 import { useModalFocus } from './useModalFocus';
 import { BuffJournal, ExperienceBar, ResultModal, TalentModal, timeLabel } from './CampaignPanels';
 import { PreparationPanel, type Confirmation } from './PreparationPanel';
-import { loadBrowserSession, useSessionStorage } from './useSessionStorage';
+import { browserStorage, loadBrowserSession, useSessionStorage } from './useSessionStorage';
 import { boardDrop } from './board-drop';
 import { ArtImage } from './ArtImage';
 import { CombatControls, CombatHeader, CombatStatus, EnemyIntel, PauseMenu } from './CombatPanels';
@@ -30,6 +30,8 @@ import { useFormationPresets } from './useFormationPresets';
 import type { RendererRecoveryState } from '../render/renderer-recovery';
 import { RendererRecoveryDialog } from './RendererRecovery';
 import { MergePreview } from './MergePreview';
+import { ReportCollection } from './ReportCollection';
+import { temporaryReportStorage } from './report-collection';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -86,6 +88,10 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [handbook, setHandbook] = useState(false);
   const [intel, setIntel] = useState(false);
   const [saves, setSaves] = useState(false);
+  const [reports, setReports] = useState(false);
+  const [reportStorage] = useState(() =>
+    boot.isolated ? temporaryReportStorage() : browserStorage,
+  );
   const [inspection, setInspection] = useState(false);
   const [presets, setPresets] = useState(false);
   const formationLibrary = useFormationPresets(boot.isolated ?? false);
@@ -102,6 +108,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         handbook ||
         intel ||
         saves ||
+        reports ||
         inspection ||
         presets ||
         audioSettings ||
@@ -112,7 +119,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${presets}:${audioSettings}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -608,6 +615,9 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         <footer>
           <span>五十关原型 · 临时数值待校准 · 自动保存检查点</span>
           <div className="preparation-save-tools">
+            <button className="text-button" onClick={() => setReports(true)}>
+              战报收藏
+            </button>
             <button className="text-button" onClick={() => setSaves(true)}>
               存档
             </button>
@@ -630,6 +640,8 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         <ResultModal
           session={session}
           isolated={boot.isolated ?? false}
+          reportStorage={reportStorage}
+          onReports={() => setReports(true)}
           onSaves={() => setSaves(true)}
           onNext={() => {
             clock.reset();
@@ -660,6 +672,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         !handbook &&
         !intel &&
         !inspection &&
+        !reports &&
         !audioSettings &&
         !saves && (
           <PauseMenu
@@ -684,10 +697,18 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             onIntel={() => setIntel(true)}
             onSaves={() => setSaves(true)}
             onInspect={() => setInspection(true)}
+            onReports={() => setReports(true)}
             onReset={reset}
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
+      {reports && (
+        <ReportCollection
+          storage={reportStorage}
+          isolated={boot.isolated ?? false}
+          onClose={() => setReports(false)}
+        />
+      )}
       {audioSettings && (
         <AudioSettings
           sound={{

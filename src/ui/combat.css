@@ -234,11 +234,12 @@
   max-width: 355px;
 }
 .pause-tools {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 .pause-tools > button {
-  flex: 1;
+  min-height: 44px;
 }
 .pause-modal .enemy-intel {
   text-align: left;

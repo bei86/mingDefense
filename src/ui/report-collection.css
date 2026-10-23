@@ -1,0 +1,66 @@
+.report-collection {
+  max-width: 460px;
+  text-align: left;
+}
+.collection-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.collection-heading h2 {
+  margin: 6px 0 0;
+}
+.collection-heading .icon-button {
+  flex-shrink: 0;
+}
+.report-collection .collection-note,
+.report-collection .collection-confirm p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.collection-select {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 16px;
+}
+.collection-select select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 7px;
+  background: var(--forest);
+  color: var(--paper);
+  font: inherit;
+}
+.report-collection h3 {
+  color: var(--gold);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.collection-document {
+  padding: 12px;
+}
+.collection-confirm {
+  padding: 10px;
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  margin: 12px 0;
+}
+.report-collection > .primary,
+.report-collection > .secondary {
+  width: 100%;
+  min-height: 44px;
+}
+.report-collection .report-export-notice {
+  color: var(--gold);
+  font-size: 11px;
+  line-height: 1.8;
+}

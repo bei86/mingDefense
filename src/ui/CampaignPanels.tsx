@@ -2,6 +2,7 @@ import { bonus, buffDefinitions, buffLabels, threshold } from '../game/progressi
 import { stageNames } from '../game/content';
 import type { BuffId } from '../game/model';
 import type { Session } from '../game/session';
+import type { StoragePort } from '../game/persistence';
 import { BattleReport } from './BattleReport';
 import { buffArt } from '../render/art';
 import { ArtImage } from './ArtImage';
@@ -137,6 +138,8 @@ export function BuffJournal({ session, onClose }: { session: Session; onClose: (
 export function ResultModal({
   session,
   isolated,
+  reportStorage,
+  onReports,
   onSaves,
   onNext,
   onRetry,
@@ -145,6 +148,8 @@ export function ResultModal({
 }: {
   session: Session;
   isolated: boolean;
+  reportStorage: StoragePort;
+  onReports: () => void;
   onSaves: () => void;
   onNext: () => void;
   onRetry: () => void;
@@ -198,7 +203,7 @@ export function ResultModal({
           <span>击杀经验 {b.xpEarned}</span>
         </div>
         <BattleReport battle={b} />
-        <ReportExport session={session} isolated={isolated} />
+        <ReportExport session={session} isolated={isolated} storage={reportStorage} />
         {!win && <DefeatAdvice session={session} recap={defeatRecap(b)} />}
         {win && !session.complete && (
           <button className="primary" onClick={onNext}>
@@ -215,6 +220,9 @@ export function ResultModal({
             </button>
           </>
         )}
+        <button className="secondary" onClick={onReports}>
+          战报收藏
+        </button>
         <button className="secondary" onClick={onSaves}>
           存档备份与恢复
         </button>
