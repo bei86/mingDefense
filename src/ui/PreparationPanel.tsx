@@ -10,6 +10,7 @@ import { bonus } from '../game/progression';
 import { sourceUnit, type Session, type Source } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
+import { PreparationCheck } from './PreparationCheck';
 
 export type Confirmation = { title: string; body: string; action: () => void; label: string };
 type Props = {
@@ -166,6 +167,12 @@ export function PreparationPanel({
           {skill && <span>{skill}</span>}
         </div>
       )}
+      <PreparationCheck
+        session={session}
+        selected={selected}
+        choose={choose}
+        fieldReady={fieldReady}
+      />
       <div className="prepare-actions">
         <button className="secondary" onClick={onPresets}>
           阵型预设
