@@ -75,6 +75,7 @@ export function FormationPresets({ session, library, isolated, onClose, onApply 
   const current = captureFormation(session.preparation.units);
   const canSave = validFormation(current);
   const plan = preset ? planFormation(session.preparation, preset) : null;
+  const difference = plan && 'error' in plan ? plan.difference : undefined;
   let unavailable = '此槽位尚未保存';
   if (plan) unavailable = 'error' in plan ? plan.error : '阵容与占格校验通过，应用后可撤销';
   const save = (index: number, value: FormationPreset | null) => {
@@ -144,6 +145,38 @@ export function FormationPresets({ session, library, isolated, onClose, onApply 
           </div>
         )}
         <p className="preset-availability">{unavailable}</p>
+        {difference && (
+          <section className="preset-difference" aria-label="与当前阵容的差异">
+            {(
+              [
+                ['missing', '按预设还缺'],
+                ['extra', '当前多出'],
+              ] as const
+            ).map(([side, title]) => (
+              <div key={side}>
+                <h3>{title}</h3>
+                {difference[side].length ? (
+                  <ul aria-label={title}>
+                    {difference[side].map((unit) => (
+                      <li key={`${unit.kind}:${unit.rank}`}>
+                        <span>
+                          {appearances[unit.kind].name} · {unit.rank}阶
+                        </span>
+                        <strong>{unit.count}只</strong>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>无</p>
+                )}
+              </div>
+            ))}
+            <p className="preset-difference-note">
+              含上阵与备战席，按种类、阶数分别比较；高阶不抵低阶。“多出”仅指超出此预设。
+              如需保留当前阵容，请保存当前站位并确认覆盖。
+            </p>
+          </section>
+        )}
         {!canSave && <p className="preset-availability">请先在棋盘部署至少一只灵兽再保存。</p>}
         {(notice || library.error) && (
           <p className="preset-notice" role="status">

@@ -116,6 +116,48 @@
 .formation-presets .preset-availability {
   color: var(--gold);
 }
+.preset-difference {
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--forest);
+  overflow-wrap: anywhere;
+}
+.preset-difference h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--gold);
+}
+.preset-difference > div + div {
+  margin-top: 14px;
+}
+.preset-difference ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.preset-difference li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: var(--paper);
+}
+.preset-difference strong {
+  flex-shrink: 0;
+  color: var(--mint);
+}
+.formation-presets .preset-difference p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.formation-presets .preset-difference .preset-difference-note {
+  margin-top: 12px;
+  color: var(--muted);
+}
 .formation-presets .preset-notice {
   padding: 8px;
   border-radius: 8px;

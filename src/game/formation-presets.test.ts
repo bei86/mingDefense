@@ -20,6 +20,86 @@ function pair(): Session {
 }
 
 describe('阵型预设原子应用', () => {
+  it('同数量升阶或换种，分别列出缺少和多出的种类阶数', () => {
+    const s = pair();
+    const preset = captureFormation(s.preparation.units);
+    s.preparation.units[0].rank = 3;
+    s.preparation.units[1].kind = 'shield_fox';
+    expect(planFormation(s.preparation, preset)).toMatchObject({
+      difference: {
+        missing: [
+          { kind: 'ember_mouse', rank: 1, count: 1 },
+          { kind: 'boar', rank: 2, count: 1 },
+        ],
+        extra: [
+          { kind: 'boar', rank: 3, count: 1 },
+          { kind: 'shield_fox', rank: 1, count: 1 },
+        ],
+      },
+    });
+  });
+
+  it('重复同阶按净差计数，备战席计入，输出固定种类与阶数顺序', () => {
+    const s = prepared([
+      { id: 1, kind: 'ember_mouse', rank: 2, position: { x: 0, y: 0 } },
+      { id: 2, kind: 'ember_mouse', rank: 1, position: { x: 1, y: 0 } },
+      { id: 3, kind: 'ember_mouse', rank: 1, position: null },
+      { id: 4, kind: 'ember_mouse', rank: 1, position: null },
+    ]);
+    const preset = captureFormation(s.preparation.units);
+    s.preparation.units = [
+      { id: 12, kind: 'ember_mouse', rank: 3, position: null },
+      { id: 11, kind: 'ember_mouse', rank: 1, position: { x: 2, y: 0 } },
+      { id: 10, kind: 'ember_mouse', rank: 3, position: null },
+    ];
+    expect(planFormation(s.preparation, preset)).toMatchObject({
+      difference: {
+        missing: [
+          { kind: 'ember_mouse', rank: 1, count: 2 },
+          { kind: 'ember_mouse', rank: 2, count: 1 },
+        ],
+        extra: [{ kind: 'ember_mouse', rank: 3, count: 2 }],
+      },
+    });
+  });
+
+  it.each(['added', 'removed'] as const)('仅%s时另一侧为空且预览与拒绝不改状态', (change) => {
+    const s = pair();
+    const preset = captureFormation(s.preparation.units);
+    if (change === 'added')
+      s.preparation.units.push({ id: 13, kind: 'ice_fish', rank: 3, position: null });
+    else s.preparation.units.pop();
+    const difference = { kind: 'ice_fish', rank: 3, count: 1 };
+    const before = JSON.stringify({ session: s, preset });
+    const plan = planFormation(s.preparation, preset);
+    expect(plan).toMatchObject({
+      difference: {
+        missing: change === 'removed' ? [difference] : [],
+        extra: change === 'added' ? [difference] : [],
+      },
+    });
+    expect(s.applyFormation(preset)).toContain('种类、阶数或数量');
+    expect(JSON.stringify({ session: s, preset })).toBe(before);
+  });
+
+  it('ID、站位和数组顺序不算阵容差异，锁格与无效预设不误报', () => {
+    const s = pair();
+    const preset = captureFormation(s.preparation.units);
+    s.preparation.units.reverse();
+    s.preparation.units.forEach((unit) => {
+      unit.id += 100;
+    });
+    s.preparation.units[1].position = { x: 3, y: 0 };
+    expect(planFormation(s.preparation, preset)).toHaveProperty('units');
+    s.preparation.unlocked = [];
+    expect(planFormation(s.preparation, preset)).toEqual({
+      error: '岩甲豚的预设位置尚未完整解锁',
+    });
+    expect(planFormation(s.preparation, { units: [] })).toEqual({
+      error: '阵型数据无效，请重新保存',
+    });
+  });
+
   it('满36格可一次循环搬位，只改位置，撤销完整恢复且不触碰随机和资源', () => {
     const s = prepared(
       Array.from({ length: 36 }, (_, i) => ({
