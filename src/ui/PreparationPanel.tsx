@@ -11,6 +11,7 @@ import { sourceUnit, type Session, type Source } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { PreparationCheck } from './PreparationCheck';
+import { PreparationStats } from './PreparationStats';
 
 export type Confirmation = { title: string; body: string; action: () => void; label: string };
 type Props = {
@@ -167,6 +168,7 @@ export function PreparationPanel({
           {skill && <span>{skill}</span>}
         </div>
       )}
+      {chosen?.position && <PreparationStats key={chosen.id} preparation={p} unitId={chosen.id} />}
       <PreparationCheck
         session={session}
         selected={selected}
