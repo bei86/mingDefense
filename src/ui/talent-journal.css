@@ -1,0 +1,64 @@
+.talent-journal .journal-list {
+  max-height: none;
+  overflow: visible;
+}
+.talent-journal .journal-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.talent-journal .journal-title .icon-button {
+  flex-shrink: 0;
+  font-size: 22px;
+}
+.talent-journal .journal-hint {
+  font-size: 11px;
+  line-height: 1.7;
+}
+.talent-journal .journal-entry {
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.talent-journal .journal-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+}
+.talent-journal .journal-level {
+  color: var(--muted);
+  font-size: 11px;
+}
+.talent-journal .journal-entry p {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.talent-journal dl {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.talent-journal dl > div {
+  display: grid;
+  grid-template-columns: 4em minmax(0, 1fr);
+  gap: 8px;
+}
+.talent-journal dt {
+  color: var(--muted);
+}
+.talent-journal dd {
+  margin: 0;
+  color: var(--paper);
+}
+.talent-journal dd.journal-contribution {
+  color: var(--gold);
+  font-weight: 700;
+}
+.talent-journal .primary {
+  margin-top: 16px;
+}

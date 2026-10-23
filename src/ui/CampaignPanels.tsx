@@ -1,4 +1,4 @@
-import { bonus, buffDefinitions, buffLabels, threshold } from '../game/progression';
+import { buffDefinitions, buffLabels, threshold } from '../game/progression';
 import { stageNames } from '../game/content';
 import type { BuffId } from '../game/model';
 import type { Session } from '../game/session';
@@ -106,40 +106,6 @@ export function TalentModal({
         <p className="talent-preview-hint">
           累计仅表示本天赋贡献，实际效果受技能、上限与战场条件影响。
         </p>
-      </section>
-    </div>
-  );
-}
-export function BuffJournal({ session, onClose }: { session: Session; onClose: () => void }) {
-  const p = session.battle?.progression ?? session.preparation.progression;
-  const entries = Object.entries(p.buffs).filter(([, level]) => level > 0) as [BuffId, number][];
-  return (
-    <div className="modal-backdrop top-modal">
-      <section
-        className="modal help-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="buff-title"
-      >
-        <span className="eyebrow">本轮修行</span>
-        <h2 id="buff-title">天赋手札</h2>
-        {!entries.length && <p>击败敌人积累经验，升级后选择天赋。</p>}
-        <div className="journal-list">
-          {entries.map(([id, level]) => (
-            <div key={id}>
-              <strong>
-                <ArtImage asset={buffArt[id]} /> {buffLabels[id].name} <small>{level} 层</small>
-              </strong>
-              <p>
-                {buffLabels[id].description} · 当前累计 {bonus(p, id)}
-                {id === 'range' ? ' 格' : id === 'reward' ? ' 灵钱' : '%'}
-              </p>
-            </div>
-          ))}
-        </div>
-        <button className="primary" onClick={onClose}>
-          收起手札
-        </button>
       </section>
     </div>
   );
