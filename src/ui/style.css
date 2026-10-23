@@ -683,6 +683,9 @@ footer {
 .top-modal {
   z-index: 30;
 }
+.renderer-recovery {
+  z-index: 40;
+}
 .modal {
   width: 100%;
   max-width: 355px;

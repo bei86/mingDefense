@@ -5,6 +5,7 @@ export function useModalFocus(active: boolean, context: string): void {
     if (!active) return;
     const previous = document.activeElement;
     const modal =
+      document.querySelector<HTMLElement>('.renderer-recovery .modal') ??
       document.querySelector<HTMLElement>('.top-modal .modal') ??
       document.querySelector<HTMLElement>('.modal');
     if (!modal) return;

@@ -25,6 +25,7 @@ import { targetingPreview } from '../ui/targeting-preview';
 import { TargetingPanel } from '../ui/TargetingPanel';
 import { TargetingOverlay } from './TargetingOverlay';
 import { CombatNumberLayer } from './CombatNumberLayer';
+import { RendererRecovery, type RendererRecoveryState } from './renderer-recovery';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -48,6 +49,7 @@ type BattlefieldProps = View & {
   onDragStart: (e: React.PointerEvent, source: Source, grabbedCell?: Point) => void;
   onHover: (p: Point | null) => void;
   onReadyChange: (ready: boolean) => void;
+  onRecoveryChange: (state: RendererRecoveryState) => void;
 };
 
 function animal(g: Phaser.GameObjects.Graphics, kind: HeroId, x: number, y: number, dead: boolean) {
@@ -156,6 +158,7 @@ export function Battlefield({
   onDragStart,
   onHover,
   onReadyChange,
+  onRecoveryChange,
 }: BattlefieldProps) {
   const [loading, setLoading] = useState({ ready: false, completed: 0, failed: 0 });
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -172,11 +175,12 @@ export function Battlefield({
     let disposed = false;
     let failed = 0;
     onReadyChange(false);
-    const markReady = () => {
+    const recovery = new RendererRecovery((ready) => {
       if (disposed) return;
-      setLoading({ ready: true, completed: battlefieldArt.length, failed });
-      onReadyChange(true);
-    };
+      if (ready) setLoading({ ready: true, completed: battlefieldArt.length, failed });
+      else setLoading((previous) => ({ ...previous, ready: false }));
+      onReadyChange(ready);
+    }, onRecoveryChange);
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let reducedMotion = motionQuery.matches;
     const updateMotion = () => {
@@ -223,8 +227,7 @@ export function Battlefield({
         this.art = new ArtLayer(this);
         this.numbers = new CombatNumberLayer(this);
         failed = battlefieldArt.filter((key) => !this.textures.exists(key)).length;
-        // Scene creation alone does not mean a visible frame has been drawn.
-        this.game.events.once(Phaser.Core.Events.POST_RENDER, markReady);
+        recovery.created();
       }
       private finishFrame(started: number) {
         this.art.end();
@@ -795,6 +798,14 @@ export function Battlefield({
       audio: { noAudio: true },
       input: { mouse: false, touch: false },
       banner: false,
+      callbacks: {
+        // BOOT has a renderer but does not wait for default textures or scene loading.
+        preBoot: (booting) => {
+          booting.events.once(Phaser.Core.Events.BOOT, () => {
+            recovery.attach(booting.canvas, booting.renderer);
+          });
+        },
+      },
     });
     const resizeField = () => {
       renderDensity = samplingDensity();
@@ -808,14 +819,14 @@ export function Battlefield({
     window.addEventListener('resize', resizeField);
     return () => {
       disposed = true;
-      game.events.off(Phaser.Core.Events.POST_RENDER, markReady);
+      recovery.dispose();
       motionQuery.removeEventListener('change', updateMotion);
       document.removeEventListener('visibilitychange', resetMetrics);
       resize.disconnect();
       window.removeEventListener('resize', resizeField);
       game.destroy(true);
     };
-  }, [session, feedback, showPerformance, loadAttempt, onReadyChange]);
+  }, [session, feedback, showPerformance, loadAttempt, onReadyChange, onRecoveryChange]);
   const warning = session.battle?.warnings[0];
   const targeting =
     session.phase === 'prepare' && targetingOpen

@@ -25,6 +25,8 @@ import { FormationSwap } from './FormationSwap';
 import { BattleInspection } from './BattleInspection';
 import { FormationPresets } from './FormationPresets';
 import { useFormationPresets } from './useFormationPresets';
+import type { RendererRecoveryState } from '../render/renderer-recovery';
+import { RendererRecoveryDialog } from './RendererRecovery';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -51,6 +53,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [clock] = useState(() => new GameClock(session));
   const [feedback] = useState(() => new CombatFeedback());
   const [fieldReady, setFieldReady] = useState(false);
+  const [rendererRecovery, setRendererRecovery] = useState<RendererRecoveryState>(null);
   const fieldReadyRef = useRef(false);
   const onFieldReady = useCallback(
     (ready: boolean) => {
@@ -85,7 +88,8 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const storage = useSessionStorage(session, boot.blocked, boot.message);
   useModalFocus(
     Boolean(
-      dialog ||
+      rendererRecovery ||
+        dialog ||
         help ||
         journal ||
         handbook ||
@@ -99,7 +103,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${presets}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${presets}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -110,6 +114,20 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
     offset: Point;
   } | null>(null);
   const ignoreClickUntil = useRef(0);
+  const onFieldRecovery = useCallback(
+    (state: RendererRecoveryState) => {
+      if (state) {
+        if (session.phase === 'combat') session.pause(true);
+        session.held = false;
+        drag.current = null;
+        setDragOffset(null);
+        setHover(null);
+        clock.reset();
+      }
+      setRendererRecovery(state);
+    },
+    [clock, session],
+  );
   const selectedRef = useRef(selected);
   selectedRef.current = selected;
   const repaint = () => render((v) => v + 1);
@@ -122,7 +140,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
     repaint();
   };
   const place = (p: Point, source = selectedRef.current, offset?: Point) => {
-    if (session.phase !== 'prepare') return;
+    if (session.phase !== 'prepare' || !fieldReadyRef.current) return;
     const target = unitAt(session.preparation, p);
     if (!source) {
       if (target) {
@@ -263,7 +281,13 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
     };
   }, [clock, session, feedback]);
   const dragStart = (e: React.PointerEvent, source: Source, grabbedCell?: Point) => {
-    if (session.phase === 'prepare' && e.isPrimary && e.button === 0 && !drag.current) {
+    if (
+      fieldReadyRef.current &&
+      session.phase === 'prepare' &&
+      e.isPrimary &&
+      e.button === 0 &&
+      !drag.current
+    ) {
       const position =
         source.type === 'unit'
           ? session.preparation.units.find((u) => u.id === source.id)?.position
@@ -334,6 +358,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
       ?.focus({ preventScroll: true });
   }, [preparing, battle, session]);
   const resume = () => {
+    if (!fieldReadyRef.current) return;
     session.pause(false);
     clock.reset();
     repaint();
@@ -519,6 +544,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           onDragStart={dragStart}
           onHover={setHover}
           onReadyChange={onFieldReady}
+          onRecoveryChange={onFieldRecovery}
         />
       </section>
       <section
@@ -747,6 +773,13 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             </button>
           </section>
         </div>
+      )}
+      {rendererRecovery && (
+        <RendererRecoveryDialog
+          state={rendererRecovery}
+          phase={session.phase}
+          isolated={boot.isolated ?? false}
+        />
       )}
     </main>
   );
