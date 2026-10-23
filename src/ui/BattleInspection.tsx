@@ -3,6 +3,7 @@ import { appearances } from '../game/content';
 import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
+import { EnemyInspection } from './EnemyInspection';
 import { timeLabel } from './CampaignPanels';
 import { battleInspection, type InspectedAlly } from './battle-inspection';
 import './battle-inspection.css';
@@ -73,6 +74,7 @@ function AllyDetails({ unit }: { unit: InspectedAlly }) {
 export function BattleInspection({ session, onClose }: { session: Session; onClose: () => void }) {
   const view = battleInspection(session.battle, session.preparation.units);
   const [unitId, setUnitId] = useState(view?.initialId);
+  const [side, setSide] = useState<'ally' | 'enemy'>('ally');
   const unit = view?.allies.find((entry) => entry.id === unitId) ?? view?.allies[0];
   return (
     <div className="modal-backdrop top-modal">
@@ -107,39 +109,53 @@ export function BattleInspection({ session, onClose }: { session: Session; onClo
                 场上敌人 <strong>{view.enemyCount}</strong>
               </span>
             </div>
-            {unit ? (
-              <>
-                <label className="inspection-select">
-                  查看灵兽
-                  <select
-                    aria-label="查看灵兽"
-                    value={unit.id}
-                    onChange={(event) => setUnitId(Number(event.target.value))}
-                  >
-                    {view.allies.map((entry) => (
-                      <option key={entry.id} value={entry.id}>
-                        {unitLabel(entry)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <AllyDetails unit={unit} />
-              </>
+            <div className="inspection-sides" role="group" aria-label="查看阵营">
+              <button aria-pressed={side === 'ally'} onClick={() => setSide('ally')}>
+                灵兽
+              </button>
+              <button aria-pressed={side === 'enemy'} onClick={() => setSide('enemy')}>
+                敌人
+              </button>
+            </div>
+            {side === 'enemy' ? (
+              <EnemyInspection battle={session.battle} />
             ) : (
-              <p role="status">当前没有已上阵灵兽。</p>
+              <>
+                {unit ? (
+                  <>
+                    <label className="inspection-select">
+                      查看灵兽
+                      <select
+                        aria-label="查看灵兽"
+                        value={unit.id}
+                        onChange={(event) => setUnitId(Number(event.target.value))}
+                      >
+                        {view.allies.map((entry) => (
+                          <option key={entry.id} value={entry.id}>
+                            {unitLabel(entry)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <AllyDetails unit={unit} />
+                  </>
+                ) : (
+                  <p role="status">当前没有已上阵灵兽。</p>
+                )}
+                {view.reserves.length > 0 && (
+                  <p className="inspection-note">
+                    备战席（不参战）：
+                    {view.reserves
+                      .map((entry) => `${appearances[entry.kind].name}${entry.rank}阶`)
+                      .join('、')}
+                    。
+                  </p>
+                )}
+                <p className="inspection-note">
+                  锁定包含正在接近的敌人，不代表下一击或首领横扫目标。累计贡献仅计本关；承伤不含护盾吸收，提供护盾不等于实际吸收。
+                </p>
+              </>
             )}
-            {view.reserves.length > 0 && (
-              <p className="inspection-note">
-                备战席（不参战）：
-                {view.reserves
-                  .map((entry) => `${appearances[entry.kind].name}${entry.rank}阶`)
-                  .join('、')}
-                。
-              </p>
-            )}
-            <p className="inspection-note">
-              锁定包含正在接近的敌人，不代表下一击或首领横扫目标。累计贡献仅计本关；承伤不含护盾吸收，提供护盾不等于实际吸收。
-            </p>
           </>
         ) : (
           <p role="status">暂无战斗数据，开战后可在暂停菜单查看。</p>

@@ -128,3 +128,76 @@
   width: 100%;
   margin-top: 8px;
 }
+.inspection-sides {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.inspection-sides button {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  background: var(--forest);
+  font: inherit;
+}
+.inspection-sides button[aria-pressed='true'] {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: #66542740;
+}
+.inspection-enemy h3 small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.enemy-state {
+  margin: 14px 0;
+  display: grid;
+  gap: 12px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.enemy-state dt {
+  color: var(--muted);
+  font-size: 11px;
+}
+.enemy-state dd {
+  margin: 5px 0 0;
+  line-height: 1.6;
+}
+.enemy-effects,
+.enemy-warnings ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.enemy-effects li,
+.enemy-warnings li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+.enemy-effects strong {
+  color: var(--mint);
+}
+.enemy-warnings {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.enemy-warnings h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+.enemy-warnings li {
+  color: var(--danger);
+}
+.enemy-warnings p {
+  margin: 0;
+  color: var(--muted);
+}
