@@ -7,6 +7,7 @@ import { buffArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { DefeatAdvice } from './DefeatAdvice';
 import { defeatRecap } from './defeat-advice';
+import { ReportExport } from './ReportExport';
 
 export function timeLabel(ms: number): string {
   return `${Math.floor(ms / 60000)
@@ -135,6 +136,7 @@ export function BuffJournal({ session, onClose }: { session: Session; onClose: (
 }
 export function ResultModal({
   session,
+  isolated,
   onSaves,
   onNext,
   onRetry,
@@ -142,6 +144,7 @@ export function ResultModal({
   onReset,
 }: {
   session: Session;
+  isolated: boolean;
   onSaves: () => void;
   onNext: () => void;
   onRetry: () => void;
@@ -195,6 +198,7 @@ export function ResultModal({
           <span>击杀经验 {b.xpEarned}</span>
         </div>
         <BattleReport battle={b} />
+        <ReportExport session={session} isolated={isolated} />
         {!win && <DefeatAdvice session={session} recap={defeatRecap(b)} />}
         {win && !session.complete && (
           <button className="primary" onClick={onNext}>

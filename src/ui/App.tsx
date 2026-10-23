@@ -629,6 +629,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
       {(session.phase === 'victory' || session.phase === 'defeat') && !session.hasChoices && (
         <ResultModal
           session={session}
+          isolated={boot.isolated ?? false}
           onSaves={() => setSaves(true)}
           onNext={() => {
             clock.reset();
