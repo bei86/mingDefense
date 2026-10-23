@@ -1,27 +1,8 @@
 import { Session, placementError, expansionError } from '../session';
-import { appearances, clone, type HeroId } from '../content';
-import type { BuffId, Progression } from '../model';
-
-import type { Combat } from '../combat-model';
-import { observeEnemies, type EnemyLifetime } from '../combat-diagnostics';
-
-export type BattleSample = {
-  stage: number;
-  result: string;
-  time: number;
-  hp: number;
-  money: number;
-  bossHp?: number;
-  lineup: string;
-  damageDone: number;
-  damageTaken: number;
-  kills: number;
-  injured: number;
-  hpRatio: number;
-  report: Combat['report'];
-  buffs: Progression['buffs'];
-  enemies?: EnemyLifetime[];
-};
+import type { HeroId } from '../content';
+import { protectPeaches } from './campaign-audit';
+import { runPreparedBattle, type BattleSample, type SimulationOptions } from './campaign-battle';
+export type { BattleSample, SimulationOptions, CampaignBattleAudit } from './campaign-battle';
 
 export const orders: Record<string, HeroId[]> = {
   assault: [
@@ -123,6 +104,7 @@ export function simulate(
   boost = true,
   targetStage = 5,
   diagnostics = false,
+  options: SimulationOptions = {},
 ) {
   const s = new Session(seed);
   s.transfer({ type: 'offer', id: 1 }, { x: policy === 'control' ? 4 : 1, y: 3 });
@@ -137,68 +119,9 @@ export function simulate(
       s.refresh(true);
       claim(s, orders[policy]);
     }
+    const peachMoves = options.protectPeach ? protectPeaches(s) : 0;
     checkpoints.push(s.exportSave());
-    const lineup = s.preparation.units
-      .map((u) => `${appearances[u.kind].name}${u.rank}${u.position ? '' : '(备)'}`)
-      .join('/');
-    const error = s.start();
-    if (error) throw new Error(error);
-    const enemies = diagnostics ? observeEnemies(s.battle!) : undefined;
-    const priority: BuffId[] =
-      policy === 'economy'
-        ? [
-            'reward',
-            'attack',
-            'attack_speed',
-            'bear_attack',
-            'monkey_vulnerability',
-            'health',
-            'slow',
-            'range',
-          ]
-        : [
-            'attack',
-            'attack_speed',
-            'boar_attack',
-            'bear_attack',
-            'monkey_vulnerability',
-            'eagle_residue',
-            'health',
-            'slow',
-            'range',
-            'reward',
-          ];
-    for (let tick = 0; tick < 10000; tick++) {
-      if (s.hasChoices)
-        s.chooseBuff(
-          [...s.battle!.choices].sort(
-            (a, b) =>
-              (priority.indexOf(a) < 0 ? 99 : priority.indexOf(a)) -
-              (priority.indexOf(b) < 0 ? 99 : priority.indexOf(b)),
-          )[0],
-        );
-      else if (s.phase === 'combat') {
-        s.held = boost && s.battle!.energy >= 1;
-        s.tick();
-      } else break;
-    }
-    results.push({
-      stage,
-      result: s.phase,
-      time: s.battle!.time,
-      hp: s.totalHealth(),
-      money: s.preparation.currency,
-      bossHp: s.battle!.enemies.find((e) => e.kind === 'boss')?.hp,
-      lineup,
-      damageDone: s.battle!.damageDone,
-      damageTaken: s.battle!.damageTaken,
-      kills: s.battle!.kills,
-      injured: s.battle!.allies.filter((u) => u.hp <= 0).length,
-      hpRatio: s.totalHealth() / s.battle!.allies.reduce((n, u) => n + u.maxHp, 0),
-      report: clone(s.battle!.report),
-      buffs: s.battle!.progression.buffs,
-      ...(enemies ? { enemies: clone(enemies) } : {}),
-    });
+    results.push(runPreparedBattle(s, policy, boost, diagnostics, options, peachMoves));
     if (s.phase !== 'victory') break;
     if (stage < targetStage) s.nextStage();
   }

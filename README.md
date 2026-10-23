@@ -44,6 +44,40 @@ npm.cmd run preview
 
 `test` 包含当前3格规则的72条固定经济策略诊断、规则及迁移测试，以及明确标记“历史1格规则”的十至四十关经济路线回归。旧路线的通关数不代表新版3格结果。`build` 包含 TypeScript 检查与生产构建。
 
+### 50关配对平衡诊断
+
+固定原型数值，比较原领取脚本、合法桃后移、生存天赋优先及两者组合。原脚本的强攻/控制/经济是领取优先级标签，都会尽量领取全部招募；结果不是三种纯构筑或玩家胜率。默认测试跳过大矩阵与文件输出，显式运行：
+
+```powershell
+$env:AUDIT_CAMPAIGN_BALANCE='1'
+$env:AUDIT_SEED_COUNT='64'
+try {
+  npx.cmd vitest run tools/audit-campaign-balance.test.ts
+} finally {
+  Remove-Item Env:AUDIT_CAMPAIGN_BALANCE
+  Remove-Item Env:AUDIT_SEED_COUNT
+}
+```
+
+64种子×3领取策略×2聚灵状态×4实验，共1536条路线；前12种为历史对照，其余52种为新增验证组。`AUDIT_SEED_COUNT`支持1–128，省略时为64，设12可复跑历史试验。输出至忽略目录`artifacts/campaign-balance-audit/samples-64.json`及`summary-64.md`，保留逐关到达/胜利、同种子配对改善/退步、全灭/时限、50ms步长首次倒下者与终局阵容战报。工具不改数值或黄金检查点；结论与局限见 [平衡诊断验收](docs/reviews/2026-10-23-campaign-balance-audit.md)。
+
+### 第8/14/20关同检查点布阵实验
+
+从原领取脚本正常到达的开战存档独立恢复，比较原阵、同种高阶备战替换、狐覆盖调整及组合。固定规则只做合法移动/换位，不按试战结果选阵型，不改变资源、招募或数值：
+
+```powershell
+$env:AUDIT_FORMATION_REPLAY='1'
+$env:FORMATION_REPLAY_SEED_COUNT='64'
+try {
+  npx.cmd vitest run tools/audit-formation-replay.test.ts
+} finally {
+  Remove-Item Env:AUDIT_FORMATION_REPLAY
+  Remove-Item Env:FORMATION_REPLAY_SEED_COUNT
+}
+```
+
+种子数支持1–128、默认64，设12可试跑。64种子共602个到达检查点、2408场回放；更早失败不计到达。输出`artifacts/formation-replay/samples-64.json`及`summary-64.md`，含完整开战存档/动作、胜负配对、倒下记录、输出损失、护盾和逐兽战报。原阵回放逐字段核对原路线，默认测试跳过文件输出。这是单关策略实验，验证种子沿用上一轮，不能当成50关收益或玩家胜率；狐覆盖增加并不保证胜利，尚未自动应用到玩家阵型。结论见 [同检查点布阵验收](docs/reviews/2026-10-23-formation-replay.md)。
+
 ## 启动加载与恢复
 
 首次打开先显示「正在准备灵兽与战场」，准备完成后自动进入游戏。游戏脚本或引擎加载失败时显示恢复画面，点击「重新加载」可重新尝试；路径、查询参数及本地存档保留，战斗仍按开战检查点恢复。入口脚本本身无法执行时，HTML中的加载说明和重载链接仍可使用。恢复操作不会清档或重新开局。
@@ -107,6 +141,8 @@ Remove-Item Env:CHECK_STARTUP_BUILD
 可应用的预设会显示本次调整总数，以及场内换位、备战上阵、退回备战各几只；展开「查看逐只站位变化」，可按名称、阶数、编号核对每只灵兽的起点和终点。坐标指左上起点，多格占格见小图；预览直接取自实际应用方案。验证见 [站位预览验收](docs/reviews/2026-10-23-formation-changes.md)。
 
 展开「对照首个受击目标」，可分别查看第2、4、6列入口在当前站位与应用预设后的首个寻敌目标，包含名称、阶数、编号、位置和仇恨。默认收起，复用实际寻敌规则；这是固定入口的静态参考，不预测伤害或阵亡顺序。验证见 [首目标对照验收](docs/reviews/2026-10-23-formation-targeting.md)。
+
+展开「阵型分享码」，可生成并复制所选单套预设，带到另一浏览器或手机。粘贴后点击「校验分享码」，核对完整占格和备战席，再确认存入所选槽位；已有槽位会明确提示覆盖。取消、修改文本、切槽或收起会清除待确认预览。导入只保存站位，实际应用仍要求当前灵兽匹配、占格已解锁；不带入资源或灵兽，开发试玩导入仅临时保存。验证见 [阵型分享验收](docs/reviews/2026-10-23-formation-share.md)。
 
 ## 暂停战场详情
 
