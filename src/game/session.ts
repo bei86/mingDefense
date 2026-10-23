@@ -15,6 +15,7 @@ import { initialProgression, bonus } from './progression';
 import { maxHeroHp } from './combat-skills';
 import { random } from './random';
 import type { BuffId, Progression, Unit } from './model';
+import { planFormation, type FormationPreset } from './formation-presets';
 export type { Unit } from './model';
 
 export type Offer = { id: number; kind: HeroId | 'cell'; claimed: boolean; rank?: number };
@@ -225,6 +226,14 @@ export class Session {
       const source = p.units.find((u) => u.id === sourceId)!;
       const target = p.units.find((u) => u.id === targetId)!;
       [source.position, target.position] = [target.position, source.position];
+      return null;
+    });
+  }
+  applyFormation(preset: FormationPreset): string | null {
+    return this.edit((p) => {
+      const plan = planFormation(p, preset);
+      if ('error' in plan) return plan.error;
+      p.units = plan.units;
       return null;
     });
   }

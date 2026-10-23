@@ -1,0 +1,153 @@
+.formation-presets {
+  max-width: 410px;
+  padding: 22px 18px;
+  text-align: left;
+}
+.presets-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.presets-heading .icon-button {
+  flex-shrink: 0;
+}
+.formation-presets .presets-note,
+.formation-presets .presets-scope,
+.formation-presets .preset-availability,
+.formation-presets .preset-reserves,
+.formation-presets .preset-notice {
+  margin: 10px 0;
+  font-size: 11px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.formation-presets .presets-scope {
+  color: var(--gold);
+}
+.preset-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0;
+}
+.preset-tabs button {
+  padding: 10px 4px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--forest);
+}
+.preset-tabs button[aria-pressed='true'] {
+  border-color: var(--gold);
+  background: #365245;
+}
+.preset-tabs strong,
+.preset-tabs small {
+  display: block;
+}
+.preset-tabs strong {
+  color: var(--paper);
+  font-size: 13px;
+}
+.preset-tabs small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.preset-board {
+  position: relative;
+  display: grid;
+  grid-template: repeat(6, minmax(0, 1fr)) / repeat(6, minmax(0, 1fr));
+  aspect-ratio: 1;
+  max-width: 240px;
+  margin: 0 auto;
+  gap: 3px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0a241c;
+}
+.preset-cell {
+  border-radius: 4px;
+  background: #1d3c30;
+  border: 1px solid #3a5744;
+}
+.preset-unit {
+  z-index: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  border-radius: 5px;
+  background: #48624c;
+  border: 1px solid #a5b284;
+  overflow: hidden;
+}
+.preset-unit .art-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.preset-unit small {
+  position: absolute;
+  bottom: 0;
+  right: 1px;
+  padding: 1px 2px;
+  font-size: 8px;
+  border-radius: 3px;
+  background: #183124;
+  color: var(--paper);
+}
+.preset-empty {
+  display: grid;
+  align-content: center;
+  min-height: 160px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  line-height: 2;
+}
+.preset-empty small {
+  font-size: 11px;
+}
+.formation-presets .preset-availability {
+  color: var(--gold);
+}
+.formation-presets .preset-notice {
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--forest);
+  color: var(--paper);
+}
+.preset-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.preset-actions .text-button {
+  grid-column: 1 / -1;
+}
+.formation-presets .preset-actions > button {
+  min-width: 0;
+  margin: 0;
+  padding: 10px 5px;
+  font-size: 12px;
+}
+.preset-confirm {
+  padding: 12px;
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+}
+.preset-confirm p {
+  font-size: 12px;
+}
+.preset-confirm button {
+  width: 100%;
+}
+.formation-presets .preset-back {
+  width: 100%;
+  margin-top: 10px;
+}

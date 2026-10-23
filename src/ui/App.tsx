@@ -23,6 +23,8 @@ import { SaveManager } from './SaveManager';
 import { StageIntel } from './StageIntel';
 import { FormationSwap } from './FormationSwap';
 import { BattleInspection } from './BattleInspection';
+import { FormationPresets } from './FormationPresets';
+import { useFormationPresets } from './useFormationPresets';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -76,6 +78,8 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [intel, setIntel] = useState(false);
   const [saves, setSaves] = useState(false);
   const [inspection, setInspection] = useState(false);
+  const [presets, setPresets] = useState(false);
+  const formationLibrary = useFormationPresets(boot.isolated ?? false);
   const [swapUnitId, setSwapUnitId] = useState<number | null>(null);
   const [lastDefeat, setLastDefeat] = useState<DefeatRecap | null>(null);
   const storage = useSessionStorage(session, boot.blocked, boot.message);
@@ -88,13 +92,14 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         intel ||
         saves ||
         inspection ||
+        presets ||
         swapUnitId !== null ||
         session.hasChoices ||
         (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${presets}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -530,6 +535,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             run={run}
             confirm={setDialog}
             onSwap={setSwapUnitId}
+            onPresets={() => setPresets(true)}
             fieldReady={fieldReady}
             onStart={() => {
               if (!fieldReadyRef.current) return;
@@ -644,6 +650,20 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             const error = session.swap(swapUnitId, targetId);
             run(error, '两只灵兽已换位，可撤销上一步。');
             if (!error) setSwapUnitId(null);
+          }}
+        />
+      )}
+      {preparing && presets && (
+        <FormationPresets
+          session={session}
+          library={formationLibrary}
+          isolated={boot.isolated ?? false}
+          onClose={() => setPresets(false)}
+          onApply={(preset) => {
+            const error = session.applyFormation(preset);
+            run(error, '阵型已应用，可撤销上一步布阵。');
+            if (!error) setPresets(false);
+            return error;
           }}
         />
       )}

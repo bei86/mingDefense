@@ -22,6 +22,7 @@ type Props = {
   confirm: (d: Confirmation) => void;
   onStart: () => void;
   onSwap: (unitId: number) => void;
+  onPresets: () => void;
   fieldReady: boolean;
   ignoreClick: () => boolean;
 };
@@ -35,6 +36,7 @@ export function PreparationPanel({
   confirm,
   onStart,
   onSwap,
+  onPresets,
   fieldReady,
   ignoreClick,
 }: Props) {
@@ -163,6 +165,9 @@ export function PreparationPanel({
         </div>
       )}
       <div className="prepare-actions">
+        <button className="secondary" onClick={onPresets}>
+          阵型预设
+        </button>
         <button
           className="secondary"
           disabled={!session.canUndo}
