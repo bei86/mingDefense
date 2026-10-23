@@ -1,5 +1,6 @@
 import { appearances } from '../game/content';
 import type { Combat } from '../game/combat-model';
+import { BattleFormation } from './BattleFormation';
 import {
   fallTimeline,
   fallTimelineEmpty,
@@ -12,12 +13,18 @@ export function BattleReport({ battle }: { battle: Combat }) {
   const report = battle.report;
   const timeline = fallTimeline(battle);
   if (!report)
-    return <p className="report-note">这份旧战报未记录逐兽数据和重伤时间，下次战斗起提供。</p>;
+    return (
+      <>
+        <p className="report-note">这份旧战报未记录逐兽数据和重伤时间，下次战斗起提供。</p>
+        <BattleFormation battle={battle} />
+      </>
+    );
   return (
     <details className="unit-report">
       <summary>
         逐兽战报 <span>伤害 · 承伤 · 产钱</span>
       </summary>
+      <BattleFormation battle={battle} />
       <div className="report-table-wrap">
         <table className="report-table">
           <caption>本关上阵灵兽表现</caption>
