@@ -7,7 +7,7 @@ import {
 } from '../game/content';
 import { maxHeroHp } from '../game/combat-skills';
 import { bonus } from '../game/progression';
-import type { Session, Source } from '../game/session';
+import { sourceUnit, type Session, type Source } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 
@@ -23,6 +23,7 @@ type Props = {
   onStart: () => void;
   onSwap: (unitId: number) => void;
   onPresets: () => void;
+  onMergePreview: (source: Source) => void;
   fieldReady: boolean;
   ignoreClick: () => boolean;
 };
@@ -37,6 +38,7 @@ export function PreparationPanel({
   onStart,
   onSwap,
   onPresets,
+  onMergePreview,
   fieldReady,
   ignoreClick,
 }: Props) {
@@ -168,6 +170,15 @@ export function PreparationPanel({
         <button className="secondary" onClick={onPresets}>
           阵型预设
         </button>
+        {selected && sourceUnit(p, selected) && (
+          <button
+            className="secondary"
+            onClick={() => onMergePreview(selected)}
+            disabled={!fieldReady}
+          >
+            合成预览
+          </button>
+        )}
         <button
           className="secondary"
           disabled={!session.canUndo}

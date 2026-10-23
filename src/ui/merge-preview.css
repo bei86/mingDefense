@@ -1,0 +1,131 @@
+.merge-preview {
+  text-align: left;
+}
+.merge-heading,
+.merge-source,
+.merge-targets button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.merge-heading {
+  justify-content: space-between;
+}
+.merge-heading h2 {
+  margin-bottom: 8px;
+}
+.merge-source {
+  margin: 14px 0 8px;
+}
+.merge-source img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+.merge-source strong {
+  font-size: 13px;
+  color: var(--gold);
+}
+.merge-preview small {
+  display: block;
+  margin-top: 4px;
+  line-height: 1.6;
+}
+.merge-preview .merge-note,
+.merge-skills p,
+.merge-targets p,
+.merge-result p {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
+.merge-stats {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  table-layout: fixed;
+  font-size: 11px;
+}
+.merge-stats caption {
+  text-align: left;
+  color: var(--paper);
+  padding-bottom: 6px;
+}
+.merge-stats th,
+.merge-stats td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 3px;
+  font-weight: normal;
+  overflow-wrap: anywhere;
+}
+.merge-stats th:first-child {
+  width: 38%;
+}
+.merge-stats thead th,
+.merge-stats .changed {
+  color: var(--gold);
+}
+.merge-health,
+.merge-result {
+  padding: 10px;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #102e2877;
+  font-size: 11px;
+}
+.merge-health > strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--paper);
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.merge-skills h3 {
+  margin: 12px 0 5px;
+  color: var(--paper);
+  font-size: 12px;
+}
+.merge-targets {
+  min-width: 0;
+  margin: 14px 0;
+  padding: 0;
+  border: 0;
+}
+.merge-targets legend {
+  margin-bottom: 5px;
+  color: var(--gold);
+  font-size: 12px;
+}
+.merge-targets button {
+  width: 100%;
+  min-height: 52px;
+  margin: 7px 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--forest);
+  text-align: left;
+}
+.merge-targets button[aria-pressed='true'] {
+  border-color: var(--gold);
+  background: #466044;
+}
+.merge-targets button > span:nth-child(2) {
+  flex: 1;
+  font-size: 12px;
+}
+.merge-targets button img {
+  width: 32px;
+  height: 36px;
+  object-fit: contain;
+}
+.merge-targets button > span:last-child {
+  color: var(--gold);
+  font-size: 12px;
+}
+.merge-preview .merge-error {
+  color: var(--danger);
+  font-size: 12px;
+}

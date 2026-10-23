@@ -29,6 +29,7 @@ import { FormationPresets } from './FormationPresets';
 import { useFormationPresets } from './useFormationPresets';
 import type { RendererRecoveryState } from '../render/renderer-recovery';
 import { RendererRecoveryDialog } from './RendererRecovery';
+import { MergePreview } from './MergePreview';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -89,6 +90,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [presets, setPresets] = useState(false);
   const formationLibrary = useFormationPresets(boot.isolated ?? false);
   const [swapUnitId, setSwapUnitId] = useState<number | null>(null);
+  const [mergeSource, setMergeSource] = useState<Source | null>(null);
   const [lastDefeat, setLastDefeat] = useState<DefeatRecap | null>(null);
   const storage = useSessionStorage(session, boot.blocked, boot.message);
   useModalFocus(
@@ -103,13 +105,14 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         inspection ||
         presets ||
         audioSettings ||
+        mergeSource ||
         swapUnitId !== null ||
         session.hasChoices ||
         (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${presets}:${audioSettings}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${presets}:${audioSettings}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -358,6 +361,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
     setSelected(null);
     setHover(null);
     setDragOffset(null);
+    setMergeSource(null);
     window.scrollTo({ top: 0, behavior: 'instant' });
     document
       .querySelector<HTMLElement>(preparing ? '.titlebar h1' : '.combat-heading')
@@ -579,6 +583,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             confirm={setDialog}
             onSwap={setSwapUnitId}
             onPresets={() => setPresets(true)}
+            onMergePreview={setMergeSource}
             fieldReady={fieldReady}
             onStart={() => {
               if (!fieldReadyRef.current) return;
@@ -726,6 +731,21 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             const error = session.swap(swapUnitId, targetId);
             run(error, '两只灵兽已换位，可撤销上一步。');
             if (!error) setSwapUnitId(null);
+          }}
+        />
+      )}
+      {preparing && mergeSource && (
+        <MergePreview
+          session={session}
+          source={mergeSource}
+          fieldReady={fieldReady}
+          onClose={() => setMergeSource(null)}
+          onMerge={(targetId) => {
+            if (!fieldReadyRef.current) return '战场尚未准备好，请稍候。';
+            const error = session.transfer(mergeSource, { merge: targetId });
+            run(error, '合成成功，灵兽升阶！可撤销本次合成。');
+            if (!error) setMergeSource(null);
+            return error;
           }}
         />
       )}

@@ -58,6 +58,29 @@ export function unitAt(p: Preparation, point: Point): Unit | undefined {
     (u) => u.position && cells(u.kind, u.position).some((c) => key(c) === key(point)),
   );
 }
+
+/** Resolve an owned unit or an unclaimed hero offer without consuming it. */
+export function sourceUnit(p: Preparation, source: Source): Unit | null {
+  if (source.type === 'unit') return p.units.find((u) => u.id === source.id) ?? null;
+  const offer = p.offers.find((o) => o.id === source.id && !o.claimed);
+  if (!offer || offer.kind === 'cell') return null;
+  return { id: p.nextId, kind: offer.kind, rank: offer.rank ?? 1, position: null };
+}
+
+export function mergeError(
+  p: Preparation,
+  source: Source,
+  targetId: number,
+  maxRank: number,
+): string | null {
+  const unit = sourceUnit(p, source);
+  if (!unit) return '请先选择一只灵兽';
+  const target = p.units.find((u) => u.id === targetId);
+  if (!target || target.id === unit.id || target.kind !== unit.kind || target.rank !== unit.rank)
+    return '只有同种、同阶灵兽可以合成';
+  if (target.rank >= maxRank) return `本模式最高为 ${maxRank} 阶`;
+  return null;
+}
 export function placementError(
   p: Preparation,
   kind: HeroId,
@@ -180,37 +203,26 @@ export class Session {
         source.type === 'offer'
           ? p.offers.find((o) => o.id === source.id && !o.claimed)
           : undefined;
-      const existing = source.type === 'unit' ? p.units.find((u) => u.id === source.id) : undefined;
-      if (!existing && (!offer || offer.kind === 'cell')) return '请先选择一只灵兽';
-      const unit: Unit = existing ?? {
-        id: p.nextId,
-        kind: offer!.kind as HeroId,
-        rank: offer?.rank ?? 1,
-        position: null,
-      };
+      const owned = source.type === 'unit';
+      const unit = sourceUnit(p, source);
+      if (!unit) return '请先选择一只灵兽';
       if (typeof destination === 'object' && 'merge' in destination) {
-        const target = p.units.find((u) => u.id === destination.merge);
-        if (
-          !target ||
-          target.id === unit.id ||
-          target.kind !== unit.kind ||
-          target.rank !== unit.rank
-        )
-          return '只有同种、同阶灵兽可以合成';
-        if (target.rank >= this.maxRank) return `本模式最高为 ${this.maxRank} 阶`;
+        const error = mergeError(p, source, destination.merge, this.maxRank);
+        if (error) return error;
+        const target = p.units.find((u) => u.id === destination.merge)!;
         target.rank++;
         p.units = p.units.filter((u) => u.id !== unit.id);
       } else if (destination === 'reserve') {
-        if (unit.position === null && existing) return '这只灵兽已经在备战席';
+        if (unit.position === null && owned) return '这只灵兽已经在备战席';
         if (p.units.filter((u) => !u.position).length >= config.board.reserveUnitLimit)
           return '备战席已满，可直接放上棋盘或合成';
         unit.position = null;
-        if (!existing) p.units.push(unit);
+        if (!owned) p.units.push(unit);
       } else {
         const error = placementError(p, unit.kind, destination, unit.id);
         if (error) return error;
         unit.position = clone(destination);
-        if (!existing) p.units.push(unit);
+        if (!owned) p.units.push(unit);
       }
       if (offer) {
         offer.claimed = true;
