@@ -4,6 +4,7 @@ import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { EnemyInspection } from './EnemyInspection';
+import { UpcomingEnemies } from './UpcomingEnemies';
 import { timeLabel } from './CampaignPanels';
 import { battleInspection, type InspectedAlly } from './battle-inspection';
 import './battle-inspection.css';
@@ -74,7 +75,7 @@ function AllyDetails({ unit }: { unit: InspectedAlly }) {
 export function BattleInspection({ session, onClose }: { session: Session; onClose: () => void }) {
   const view = battleInspection(session.battle, session.preparation.units);
   const [unitId, setUnitId] = useState(view?.initialId);
-  const [side, setSide] = useState<'ally' | 'enemy'>('ally');
+  const [side, setSide] = useState<'ally' | 'enemy' | 'upcoming'>('ally');
   const unit = view?.allies.find((entry) => entry.id === unitId) ?? view?.allies[0];
   return (
     <div className="modal-backdrop top-modal">
@@ -109,17 +110,20 @@ export function BattleInspection({ session, onClose }: { session: Session; onClo
                 场上敌人 <strong>{view.enemyCount}</strong>
               </span>
             </div>
-            <div className="inspection-sides" role="group" aria-label="查看阵营">
+            <div className="inspection-sides" role="group" aria-label="查看战场信息">
               <button aria-pressed={side === 'ally'} onClick={() => setSide('ally')}>
                 灵兽
               </button>
               <button aria-pressed={side === 'enemy'} onClick={() => setSide('enemy')}>
                 敌人
               </button>
+              <button aria-pressed={side === 'upcoming'} onClick={() => setSide('upcoming')}>
+                后续敌袭
+              </button>
             </div>
-            {side === 'enemy' ? (
-              <EnemyInspection battle={session.battle} />
-            ) : (
+            {side === 'enemy' && <EnemyInspection battle={session.battle} />}
+            {side === 'upcoming' && <UpcomingEnemies battle={session.battle} />}
+            {side === 'ally' && (
               <>
                 {unit ? (
                   <>
