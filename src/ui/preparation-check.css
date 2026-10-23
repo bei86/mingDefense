@@ -118,6 +118,47 @@
 .preparation-check-content .preparation-check-note {
   margin-top: 14px;
 }
+.reserve-upgrade-badge {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  color: var(--gold);
+}
+.reserve-upgrades {
+  margin: 12px 0;
+  padding: 10px;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+}
+.reserve-upgrades h3 {
+  margin-top: 0;
+  color: var(--gold);
+}
+.reserve-upgrade-card + .reserve-upgrade-card {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.reserve-upgrades .preparation-check-unit strong small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: normal;
+}
+.reserve-upgrades .preparation-check-unit button {
+  min-height: 44px;
+}
+.preparation-check .reserve-upgrade-targets summary {
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 8px 0;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--paper);
+}
+.reserve-upgrades li > small {
+  overflow-wrap: anywhere;
+}
 @media (max-width: 360px) {
   .preparation-check summary {
     gap: 6px;

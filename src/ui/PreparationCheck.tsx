@@ -4,6 +4,8 @@ import type { Session, Source } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { preparationCheck } from './preparation-check';
+import { reserveUpgrades } from './reserve-upgrades';
+import { ReserveUpgrades } from './ReserveUpgrades';
 import './preparation-check.css';
 
 type Props = {
@@ -18,6 +20,7 @@ export function PreparationCheck({ session, selected, choose, fieldReady }: Prop
   const p = session.preparation;
   const reserveCount = p.units.filter((unit) => !unit.position).length;
   const pendingCount = p.offers.filter((offer) => !offer.claimed).length;
+  const upgrades = reserveUpgrades(p);
   const check = expanded ? preparationCheck(p, session.maxRank) : null;
   return (
     <details
@@ -29,6 +32,9 @@ export function PreparationCheck({ session, selected, choose, fieldReady }: Prop
         <strong>战前检查</strong>
         <small>
           备战{reserveCount} · 待领{pendingCount}
+          {upgrades.length > 0 && (
+            <em className="reserve-upgrade-badge">同种高阶{upgrades.length}只</em>
+          )}
         </small>
         <span>{expanded ? '收起 −' : '展开 ＋'}</span>
       </summary>
@@ -59,6 +65,12 @@ export function PreparationCheck({ session, selected, choose, fieldReady }: Prop
             </p>
           )}
           <p>只检查当前布阵，不预测胜负。备战与待领招募不计入参战生命或输出。</p>
+          <ReserveUpgrades
+            upgrades={upgrades}
+            selected={selected}
+            choose={choose}
+            fieldReady={fieldReady}
+          />
           {(['reserve', 'offer'] as const).map((origin) => {
             const items = check.items.filter((item) => item.origin === origin);
             return (
