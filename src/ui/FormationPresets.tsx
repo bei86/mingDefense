@@ -10,6 +10,7 @@ import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { FormationChanges } from './FormationChanges';
+import { FormationTargeting } from './FormationTargeting';
 import type { useFormationPresets } from './useFormationPresets';
 import './formation-presets.css';
 
@@ -147,6 +148,11 @@ export function FormationPresets({ session, library, isolated, onClose, onApply 
         )}
         <p className="preset-availability">{unavailable}</p>
         <FormationChanges key={`changes-${slot}`} current={session.preparation.units} plan={plan} />
+        <FormationTargeting
+          key={`targeting-${slot}`}
+          preparation={session.preparation}
+          plan={plan}
+        />
         {difference && (
           <section className="preset-difference" aria-label="与当前阵容的差异">
             {(

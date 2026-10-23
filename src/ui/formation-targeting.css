@@ -1,0 +1,53 @@
+.formation-targeting {
+  margin: 12px 0;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--forest);
+  overflow-wrap: anywhere;
+}
+.formation-targeting summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--gold);
+}
+.formation-presets .formation-targeting p {
+  margin: 8px 0 12px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.formation-targeting section {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.formation-targeting h3 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--gold);
+}
+.formation-targeting dl {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.formation-targeting dl > div {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.formation-targeting dt,
+.formation-targeting small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.formation-targeting dd {
+  margin: 0;
+  color: var(--paper);
+}
+.formation-target-position {
+  display: block;
+}
