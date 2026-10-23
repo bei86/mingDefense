@@ -3,6 +3,7 @@ import { appearances, clone, config } from '../game/content';
 import type { BattleReport, UnitBattleStats } from '../game/combat-model';
 import { Session } from '../game/session';
 import { battleReportDocument } from './battle-report-export';
+import { fallTimeline } from './fall-timeline';
 
 function completedBattle(reserve = false) {
   const s = new Session();
@@ -50,6 +51,11 @@ describe('结算战报导出', () => {
     }
     expect(s).toEqual(before);
     expect(s.exportSave()).toEqual(saved);
+    const timeline = fallTimeline(s.battle!)!;
+    expect(document.text).toContain('## 重伤时间线');
+    if (timeline.length) {
+      for (const line of timeline) expect(document.text).toContain(`- ${line}`);
+    } else expect(document.text).toContain('本关无灵兽重伤。');
   });
 
   it('胜利存档恢复后多次导出一致，不调用结算或再次入账', () => {
@@ -91,6 +97,9 @@ describe('结算战报导出', () => {
       else s.tick();
     }
     expect(s.phase).toBe('defeat');
+    const falls = s.battle!.report!.falls!;
+    expect(falls.length).toBeGreaterThan(0);
+    expect(falls.at(-1)!.at).toBe(s.battle!.time);
     s.lastReward = 987;
     s.lastIncome = 654;
     s.lastBonus = 321;
@@ -104,6 +113,8 @@ describe('结算战报导出', () => {
     );
     expect(document.text).toContain('本关产钱、转化和成长不保留');
     expect(document.text).not.toContain('987');
+    for (const line of fallTimeline(s.battle!)!) expect(document.text).toContain(`- ${line}`);
+    expect(document.text).toContain('同一批灵兽不区分重伤先后');
     expect(s).toEqual(before);
   });
 
@@ -113,8 +124,17 @@ describe('结算战报导出', () => {
     const text = battleReportDocument(s, false)!.text;
     expect(text).toContain('旧战报未记录逐兽数据');
     expect(text).toContain('聚灵实际生效：未记录');
+    expect(text).toContain('这份旧战报未记录重伤时间。');
     expect(text).toContain('| 未记录 | 未记录 | 未记录 | 未记录 | 未记录 |');
     expect(text).toContain('烬灵鼠 2阶 | 2列4行');
+  });
+
+  it('旧逐兽报告缺时间线明确未记录，不冒充无重伤', () => {
+    const s = completedBattle();
+    delete s.battle!.report!.falls;
+    const text = battleReportDocument(s, false)!.text;
+    expect(text).toContain('这份旧战报未记录重伤时间。');
+    expect(text).not.toContain('本关无灵兽重伤。');
   });
 
   it('旧逐兽缺盾和缺整行分别显示未记录，真实0保留为0', () => {

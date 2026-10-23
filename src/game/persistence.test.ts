@@ -4,6 +4,7 @@ import { loadSession, saveSession, SAVE_KEY, validSave, type StoragePort } from 
 import { Session } from './session';
 import { buffDefinitions } from './progression';
 import type { BuffId } from './model';
+import { spawnEnemy } from './combat-skills';
 
 class MemoryStorage implements StoragePort {
   values = new Map<string, string>();
@@ -34,6 +35,71 @@ function finish(s: Session) {
   throw new Error('未完成');
 }
 describe('本地检查点存档', () => {
+  function fallenVictory() {
+    const s = deployed();
+    s.start();
+    const b = s.battle!;
+    b.spawns = [];
+    b.allies.forEach((u) => (u.cooldown = 100000));
+    const e = spawnEnemy(b, 'wolf', { x: 1.5, y: 3.5 });
+    e.hp = 1;
+    e.cooldown = 100000;
+    b.allies[0].hp = 1;
+    b.attacks = [
+      { team: 'enemy', source: e.id, target: b.allies[0].id, ordinal: 0, due: 0 },
+      { team: 'ally', source: b.allies[0].id, target: e.id, ordinal: 1, due: 0 },
+    ];
+    s.tick();
+    finish(s);
+    expect(s.phase).toBe('victory');
+    return s;
+  }
+  it('胜利重伤时间线存档往返，缺字段的旧报告仍有效', () => {
+    const s = fallenVictory();
+    const storage = new MemoryStorage();
+    expect(s.battle!.report!.falls).toEqual([{ at: 50, unitIds: [s.battle!.allies[0].id] }]);
+    expect(saveSession(storage, s)).toBeNull();
+    expect(loadSession(storage).session.battle!.report!.falls).toEqual(s.battle!.report!.falls);
+    const old = s.exportSave();
+    delete old.battle!.report!.falls;
+    expect(validSave(old)).toBe(true);
+  });
+  it('可选时间线存在时严格拒绝伪造、漏记、重复和越界记录', () => {
+    const saved = fallenVictory().exportSave();
+    const fallen = saved.battle!.allies[0].id;
+    const alive = saved.battle!.allies[1].id;
+    for (const falls of [
+      null,
+      {},
+      [],
+      [{ at: 0, unitIds: [fallen] }],
+      [{ at: 51, unitIds: [fallen] }],
+      [{ at: 25.5, unitIds: [fallen] }],
+      [{ at: 50, unitIds: [] }],
+      [{ at: 50, unitIds: [fallen, fallen] }],
+      [{ at: 50, unitIds: [999] }],
+      [{ at: 50, unitIds: [alive] }],
+      [{ at: 50, unitIds: ['5'] }],
+      [
+        { at: 50, unitIds: [fallen] },
+        { at: 50, unitIds: [fallen] },
+      ],
+    ]) {
+      const bad = clone(saved);
+      (bad.battle!.report as unknown as Record<string, unknown>).falls = falls;
+      expect(validSave(bad), JSON.stringify(falls)).toBe(false);
+    }
+    const two = clone(saved);
+    two.battle!.time = 100;
+    two.battle!.allies[1].hp = 0;
+    two.battle!.report!.falls = [
+      { at: 50, unitIds: [fallen] },
+      { at: 100, unitIds: [alive] },
+    ];
+    expect(validSave(two)).toBe(true);
+    two.battle!.report!.falls.reverse();
+    expect(validSave(two)).toBe(false);
+  });
   it('准备状态完整往返，不保存可撤销临时对象', () => {
     const s = deployed();
     const storage = new MemoryStorage();

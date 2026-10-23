@@ -24,7 +24,7 @@ import {
   spawnEnemy,
 } from './combat-skills';
 import type { Combat, Packet, Spawn } from './combat-model';
-import { recordUnitStat } from './battle-report';
+import { recordFalls, recordUnitStat } from './battle-report';
 import { releaseLineHit } from './combat-projectiles';
 import { updateBossPhase as bossPhase, updateSummoner } from './enemy-abilities';
 export type { Ally, Attack, Combat, Enemy, Field, Flash } from './combat-model';
@@ -118,6 +118,7 @@ export function createCombat(units: Unit[], options: CombatOptions = {}): Combat
         shieldAbsorbed: 0,
       })),
       boostedMs: 0,
+      falls: [],
     },
   };
 }
@@ -376,6 +377,7 @@ export function stepCombat(s: Combat, held = false): void {
   collectDeaths(s);
   bossPhase(s);
   s.time += dt;
+  recordFalls(s);
   s.flashes = s.flashes.filter((f) => s.time - f.at < 300);
   if (!s.allies.some((u) => u.hp > 0)) s.result = 'defeat';
   else if (

@@ -49,6 +49,8 @@ describe('战报收藏备份', () => {
     expect(s.phase).toBe('defeat');
     const source = temporaryReportStorage();
     const report = reportSnapshot(s, true)!;
+    expect(report.document.text).toContain('## 重伤时间线');
+    expect(report.document.text).toContain('同一批灵兽不区分重伤先后');
     addReport(source, report, 1234);
     const before = JSON.stringify(s);
     const raw = source.getItem(REPORT_COLLECTION_KEY);

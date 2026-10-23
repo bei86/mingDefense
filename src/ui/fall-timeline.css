@@ -1,0 +1,28 @@
+.fall-timeline {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #b99c6540;
+  border-radius: 10px;
+  background: #fff8e50a;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.fall-timeline h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.fall-timeline ol {
+  margin: 0;
+  padding-left: 22px;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.fall-timeline li + li {
+  margin-top: 8px;
+}
+.modal .fall-timeline p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #c7baa2;
+}

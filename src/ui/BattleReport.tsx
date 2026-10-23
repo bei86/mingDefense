@@ -1,9 +1,18 @@
 import { appearances } from '../game/content';
 import type { Combat } from '../game/combat-model';
+import {
+  fallTimeline,
+  fallTimelineEmpty,
+  fallTimelineMissing,
+  fallTimelineNote,
+} from './fall-timeline';
+import './fall-timeline.css';
 
 export function BattleReport({ battle }: { battle: Combat }) {
   const report = battle.report;
-  if (!report) return <p className="report-note">这份旧战报未记录逐兽数据，下次战斗起提供。</p>;
+  const timeline = fallTimeline(battle);
+  if (!report)
+    return <p className="report-note">这份旧战报未记录逐兽数据和重伤时间，下次战斗起提供。</p>;
   return (
     <details className="unit-report">
       <summary>
@@ -49,6 +58,21 @@ export function BattleReport({ battle }: { battle: Combat }) {
           </tbody>
         </table>
       </div>
+      <section className="fall-timeline" aria-label="重伤时间线">
+        <h3>重伤时间线</h3>
+        {timeline === null && <p>{fallTimelineMissing}</p>}
+        {timeline?.length === 0 && <p>{fallTimelineEmpty}</p>}
+        {timeline && timeline.length > 0 && (
+          <>
+            <ol>
+              {timeline.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ol>
+            <p>{fallTimelineNote}</p>
+          </>
+        )}
+      </section>
       <p className="report-note">
         伤害仅计实际扣血，承伤不含护盾吸收；产钱仅计桃的产出。 聚灵实际生效{' '}
         {(report.boostedMs / 1000).toFixed(1)} 秒。

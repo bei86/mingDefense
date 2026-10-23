@@ -23,6 +23,72 @@ function enemy(s: Combat, hp = 10000, kind: 'wolf' | 'croc' = 'wolf') {
 }
 
 describe('逐兽战报', () => {
+  it('真实致命普攻按步末时间记录，同帧重伤一批且后续不重复', () => {
+    const s = arena([unit(2, 'ember_mouse'), unit(1, 'ember_mouse'), unit(3, 'boar')]);
+    const e = enemy(s);
+    s.allies.forEach((u) => (u.hp = 1));
+    s.attacks = [2, 1].map((target) => ({
+      team: 'enemy',
+      source: e.id,
+      target,
+      ordinal: 0,
+      due: 0,
+    }));
+    stepCombat(s);
+    expect(s.report!.falls).toEqual([{ at: 50, unitIds: [1, 2] }]);
+    stepCombat(s);
+    expect(s.report!.falls).toHaveLength(1);
+    s.attacks = [{ team: 'enemy', source: e.id, target: 3, ordinal: 0, due: s.time }];
+    stepCombat(s);
+    expect(s.report!.falls).toEqual([
+      { at: 50, unitIds: [1, 2] },
+      { at: 150, unitIds: [3] },
+    ]);
+    expect(s.result).toBe('defeat');
+    const before = clone(s);
+    stepCombat(s);
+    expect(s).toEqual(before);
+  });
+  it('首领横扫同帧重伤合并，护盾完全吸收不算重伤', () => {
+    const s = arena([unit(1, 'ember_mouse'), unit(2, 'ember_mouse'), unit(3, 'boar')]);
+    const boss = spawnEnemy(s, 'boss', { x: 3.5, y: -2 });
+    boss.cooldown = 100000;
+    boss.nextCleave = 100000;
+    s.allies.forEach((u) => (u.hp = 1));
+    s.allies[2].shield = 100000;
+    s.allies[2].shieldExpires = 10000;
+    s.warnings = [{ source: boss.id, row: 3, due: 0 }];
+    stepCombat(s);
+    expect(s.report!.falls).toEqual([{ at: 50, unitIds: [1, 2] }]);
+    expect(s.allies[2].hp).toBe(1);
+  });
+  it('无重伤初始化为空，天赋等待不记录，旧字段缺失不伪造历史', () => {
+    const s = arena();
+    expect(s.report!.falls).toEqual([]);
+    s.choices = ['attack'];
+    const before = clone(s);
+    stepCombat(s);
+    expect(s).toEqual(before);
+    s.choices = [];
+    delete s.report!.falls;
+    s.allies[0].hp = 0;
+    stepCombat(s);
+    expect(s.report!.falls).toBeUndefined();
+  });
+  it('完整出怪到全灭的时间线观察不改变战斗状态和随机流', () => {
+    const a = createCombat([unit(1, 'ember_mouse')]);
+    const b = clone(a);
+    delete b.report!.falls;
+    for (let i = 0; i < 10000 && !a.result; i++) {
+      stepCombat(a, i % 3 === 0);
+      stepCombat(b, i % 3 === 0);
+    }
+    expect(a.result).toBe('defeat');
+    expect(a.report!.falls).toEqual([{ at: a.time, unitIds: [1] }]);
+    const withoutTimeline = clone(a);
+    delete withoutTimeline.report!.falls;
+    expect(withoutTimeline).toEqual(b);
+  });
   it('同种不同实例分别统计，过量伤害只计实际扣血且不统计备战', () => {
     const s = arena([
       unit(1, 'ember_mouse'),
@@ -118,6 +184,7 @@ describe('逐兽战报', () => {
     stepCombat(s);
     expect(s.result).toBe('defeat');
     expect(s.report!.units[0]).toMatchObject({ damageDone: 5, damageTaken: 5 });
+    expect(s.report!.falls).toEqual([{ at: 50, unitIds: [1] }]);
   });
   it('统计不改变模拟结果或随机数；重试时清零', () => {
     const a = arena([unit(1, 'boar', 3)]);
@@ -140,5 +207,6 @@ describe('逐兽战报', () => {
     expect(s.retry()).toBeNull();
     expect(s.battle!.report!.units[0]).toMatchObject({ damageDone: 0, damageTaken: 0, income: 0 });
     expect(s.battle!.report!.boostedMs).toBe(0);
+    expect(s.battle!.report!.falls).toEqual([]);
   });
 });

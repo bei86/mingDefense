@@ -224,6 +224,34 @@ export function validSave(v: unknown): v is SessionSave {
       )
     )
       return false;
+    if (report.falls !== undefined) {
+      if (!Array.isArray(report.falls) || report.falls.length > allies.length) return false;
+      const recorded = new Set<number>();
+      let previousAt = 0;
+      for (const batch of report.falls) {
+        if (
+          !record(batch) ||
+          !integer(batch.at, previousAt + 1, b.time) ||
+          batch.at % config.runtime.tickMs !== 0 ||
+          !Array.isArray(batch.unitIds) ||
+          !batch.unitIds.length ||
+          batch.unitIds.length > allies.length
+        )
+          return false;
+        for (const id of batch.unitIds) {
+          if (
+            !integer(id, 1) ||
+            recorded.has(id) ||
+            !allies.some((ally) => record(ally) && ally.id === id && ally.hp === 0)
+          )
+            return false;
+          recorded.add(id);
+        }
+        previousAt = batch.at;
+      }
+      if (allies.some((ally) => record(ally) && ally.hp === 0 && !recorded.has(Number(ally.id))))
+        return false;
+    }
     for (const [field, total] of [
       ['damageDone', b.damageDone],
       ['damageTaken', b.damageTaken],

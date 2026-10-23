@@ -2,6 +2,12 @@ import { appearances, config, stageNames } from '../game/content';
 import { buffLabels } from '../game/progression';
 import type { BuffId } from '../game/model';
 import type { Session } from '../game/session';
+import {
+  fallTimeline,
+  fallTimelineEmpty,
+  fallTimelineMissing,
+  fallTimelineNote,
+} from './fall-timeline';
 
 export type BattleReportDocument = { fileName: string; text: string };
 
@@ -90,10 +96,13 @@ export function battleReportDocument(
   lines.push(
     '',
     '伤害只计实际扣血，承伤不含护盾吸收；逐兽产钱只计桃的产出，不含转化。缺失字段为未记录，不视为0。',
-    '',
-    '## 备战席（不参战）',
-    '',
   );
+  const timeline = fallTimeline(b);
+  lines.push('', '## 重伤时间线', '');
+  if (timeline === null) lines.push(fallTimelineMissing);
+  else if (!timeline.length) lines.push(fallTimelineEmpty);
+  else lines.push(...timeline.map((line) => `- ${line}`), '', fallTimelineNote);
+  lines.push('', '## 备战席（不参战）', '');
   const reserves = session.preparation.units.filter((unit) => !unit.position);
   lines.push(
     ...(reserves.length

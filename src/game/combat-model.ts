@@ -76,7 +76,11 @@ export type UnitBattleStats = {
   shieldGiven: number;
   shieldAbsorbed: number;
 };
-export type BattleReport = { units: UnitBattleStats[]; boostedMs: number };
+export type BattleReport = {
+  units: UnitBattleStats[];
+  boostedMs: number;
+  falls?: { at: number; unitIds: number[] }[];
+};
 export type Combat = {
   time: number;
   stageId: number;
