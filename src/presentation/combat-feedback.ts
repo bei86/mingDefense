@@ -2,19 +2,9 @@ import { bossDefinition, bossName, center, type EnemyKind, type Point } from '..
 import type { Combat, Flash, Warning } from '../game/combat-model';
 import type { Session } from '../game/session';
 import { CombatNumbers } from './combat-numbers';
+import { combatSound, type SoundCue } from './sound-cues';
 
-export type SoundCue =
-  | 'click'
-  | 'deploy'
-  | 'merge'
-  | 'attack'
-  | 'income'
-  | 'levelup'
-  | 'boss'
-  | 'phase'
-  | 'warning'
-  | 'victory'
-  | 'defeat';
+export type { SoundCue } from './sound-cues';
 type Team = 'ally' | 'enemy';
 type Actor = {
   id: number;
@@ -139,7 +129,7 @@ export class CombatFeedback {
         for (const flash of battle.flashes) {
           if (this.flashes.has(flash)) continue;
           this.flashes.add(flash);
-          cues.add('attack');
+          cues.add(combatSound(flash));
           const actor = [...this.actors.values()].find(
             (a) =>
               a.team === flash.team &&

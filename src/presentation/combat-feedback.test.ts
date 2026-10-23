@@ -40,11 +40,11 @@ describe('只读战斗反馈', () => {
     let attacked = false;
     for (let i = 0; i < 10 && !attacked; i++) {
       session.tick();
-      attacked = feedback.update(session, 50).includes('attack');
+      attacked = feedback.update(session, 50).includes('mouse_attack');
     }
     expect(attacked).toBe(true);
     const before = clone(session);
-    expect(feedback.update(session, 25)).not.toContain('attack');
+    expect(feedback.update(session, 25)).not.toContain('mouse_attack');
     const pose = feedback.pose('ally', 5);
     expect(Math.abs(pose.dx)).toBeLessThanOrEqual(4);
     expect(Math.abs(pose.dy)).toBeLessThanOrEqual(6.3);

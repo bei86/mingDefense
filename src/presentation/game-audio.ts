@@ -1,53 +1,10 @@
-import type { SoundCue } from './combat-feedback';
+import { combatSoundCues, isCombatSound, type CombatSoundCue, type SoundCue } from './sound-cues';
+import { soundPalette } from './sound-palette';
 import { GameMusic, type MusicMood } from './game-music';
 
-type Note = {
-  frequency: number;
-  end?: number;
-  duration: number;
-  delay?: number;
-  wave?: OscillatorType;
-};
-const notes: Record<SoundCue, Note[]> = {
-  click: [{ frequency: 520, duration: 0.035 }],
-  deploy: [{ frequency: 660, end: 880, duration: 0.09 }],
-  merge: [
-    { frequency: 660, duration: 0.1 },
-    { frequency: 990, duration: 0.16, delay: 0.08 },
-  ],
-  attack: [{ frequency: 180, end: 90, duration: 0.055, wave: 'triangle' }],
-  income: [{ frequency: 1175, end: 1568, duration: 0.085 }],
-  levelup: [
-    { frequency: 523, duration: 0.1 },
-    { frequency: 659, duration: 0.1, delay: 0.1 },
-    { frequency: 784, duration: 0.2, delay: 0.2 },
-  ],
-  boss: [
-    { frequency: 147, duration: 0.18, wave: 'triangle' },
-    { frequency: 196, duration: 0.23, delay: 0.16, wave: 'triangle' },
-  ],
-  phase: [
-    { frequency: 196, end: 294, duration: 0.15, wave: 'triangle' },
-    { frequency: 392, duration: 0.2, delay: 0.13 },
-  ],
-  warning: [
-    { frequency: 440, duration: 0.06 },
-    { frequency: 440, duration: 0.06, delay: 0.13 },
-  ],
-  victory: [
-    { frequency: 523, duration: 0.16 },
-    { frequency: 659, duration: 0.16, delay: 0.13 },
-    { frequency: 784, duration: 0.25, delay: 0.26 },
-  ],
-  defeat: [
-    { frequency: 330, duration: 0.18 },
-    { frequency: 262, duration: 0.2, delay: 0.16 },
-    { frequency: 196, duration: 0.24, delay: 0.33 },
-  ],
-};
 export const SOUND_PREFERENCE_KEY = 'ming-defense:audio';
 type PreferenceStore = Pick<Storage, 'getItem' | 'setItem'>;
-type Voice = { oscillator: OscillatorNode; gain: GainNode };
+type Voice = { oscillator: OscillatorNode; gain: GainNode | null };
 type AudioOptions = {
   context?: () => AudioContext;
   storage?: () => PreferenceStore;
@@ -63,6 +20,9 @@ export class GameAudio {
   private voices = new Set<Voice>();
   private last = new Map<SoundCue, number>();
   private lastAny = -Infinity;
+  private lastCombatAt = -Infinity;
+  private lastCombatCue: CombatSoundCue | undefined;
+  private criticalUntil = -Infinity;
   private lastCue: SoundCue | undefined;
   private resuming = false;
   private disposed = false;
@@ -120,24 +80,38 @@ export class GameAudio {
       return;
     const now = context.currentTime;
     const critical = ['boss', 'phase', 'warning', 'levelup', 'victory', 'defeat'].includes(cue);
-    const gap = cue === 'attack' ? 0.14 : 0.08;
+    const combat = isCombatSound(cue);
+    const gap = combat ? 0.14 : 0.08;
     const replacesClick = cue !== 'click' && this.lastCue === 'click';
     if (
       now - (this.last.get(cue) ?? -Infinity) < gap ||
+      (combat && now - this.lastCombatAt < 0.14) ||
+      (!critical && now < this.criticalUntil) ||
       (!critical && !replacesClick && now - this.lastAny < 0.045)
     )
       return;
     if (critical || replacesClick) this.stop();
-    if (this.voices.size + notes[cue].length > 12) return;
+    if (this.voices.size + soundPalette[cue].length > 12) return;
     this.last.set(cue, now);
     this.lastAny = now;
     this.lastCue = cue;
+    if (combat) {
+      this.lastCombatAt = now;
+      this.lastCombatCue = cue;
+    }
+    if (critical)
+      this.criticalUntil =
+        now +
+        Math.max(...soundPalette[cue].map((note) => (note.delay ?? 0) + note.duration)) +
+        0.02;
     try {
-      for (const note of notes[cue]) {
+      for (const note of soundPalette[cue]) {
         const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        const voice = { oscillator, gain };
+        // Track each node as soon as it exists, even if the next allocation fails.
+        const voice: Voice = { oscillator, gain: null };
         this.voices.add(voice);
+        const gain = context.createGain();
+        voice.gain = gain;
         oscillator.onended = () => this.release(voice);
         const at = now + (note.delay ?? 0);
         oscillator.type = note.wave ?? 'sine';
@@ -147,7 +121,7 @@ export class GameAudio {
           at + note.duration,
         );
         gain.gain.setValueAtTime(0, at);
-        gain.gain.linearRampToValueAtTime(cue === 'attack' ? 0.025 : 0.055, at + 0.008);
+        gain.gain.linearRampToValueAtTime(note.gain ?? 0.055, at + 0.008);
         gain.gain.exponentialRampToValueAtTime(0.0001, at + note.duration);
         oscillator.connect(gain);
         gain.connect(context.destination);
@@ -202,10 +176,20 @@ export class GameAudio {
       'merge',
       'deploy',
       'income',
-      'attack',
     ];
     const cue = priority.find((item) => cues.includes(item));
-    if (cue) this.play(cue);
+    if (cue) {
+      this.play(cue);
+      return;
+    }
+    const start = this.lastCombatCue ? combatSoundCues.indexOf(this.lastCombatCue) + 1 : 0;
+    for (let offset = 0; offset < combatSoundCues.length; offset++) {
+      const combat = combatSoundCues[(start + offset) % combatSoundCues.length];
+      if (cues.includes(combat)) {
+        this.play(combat);
+        return;
+      }
+    }
   }
 
   stop(): void {
@@ -230,7 +214,7 @@ export class GameAudio {
   private release(voice: Voice): void {
     voice.oscillator.onended = null;
     voice.oscillator.disconnect();
-    voice.gain.disconnect();
+    voice.gain?.disconnect();
     this.voices.delete(voice);
   }
 

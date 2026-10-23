@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameAudio, SOUND_PREFERENCE_KEY } from './game-audio';
 import { MUSIC_PREFERENCE_KEY } from './game-music';
+import { combatSoundCues } from './sound-cues';
 
 function setup(initial = 'on', music = 'off') {
   const oscillators: ReturnType<typeof oscillator>[] = [];
@@ -182,6 +183,127 @@ describe('本地合成短音', () => {
     expect(s.context.close).toHaveBeenCalledTimes(1);
     expect(s.factory).toHaveBeenCalledTimes(1);
     expect(s.oscillators).toHaveLength(1);
+  });
+});
+
+describe('灵兽战斗音色与共享声量预算', () => {
+  it('不同技能与敌方攻击共享140ms，不因切换种类绕过冷却', () => {
+    const s = setup();
+    s.audio.unlock();
+    s.audio.play('mouse_attack');
+    expect(s.oscillators).toHaveLength(2);
+    s.context.currentTime = 0.05;
+    s.audio.play('fox_shield');
+    s.context.currentTime = 0.1;
+    s.audio.play('attack');
+    expect(s.oscillators).toHaveLength(2);
+    s.context.currentTime = 0.15;
+    s.audio.play('boar_attack');
+    expect(s.oscillators).toHaveLength(4);
+  });
+
+  it('同次采样多种技能轮换，不排队；被冷却丢弃不推进轮换位置', () => {
+    const s = setup();
+    s.audio.unlock();
+    const play = vi.spyOn(s.audio, 'play');
+    const cues = [...combatSoundCues];
+    s.audio.playFeedback(cues);
+    expect(play).toHaveBeenLastCalledWith('mouse_attack');
+    s.context.currentTime = 0.05;
+    s.audio.playFeedback(cues);
+    expect(play).toHaveBeenLastCalledWith('boar_attack');
+    expect(s.oscillators).toHaveLength(2);
+    for (const [index, cue] of combatSoundCues.entries()) {
+      if (!index) continue;
+      s.oscillators.forEach((node) => node.onended?.());
+      s.context.currentTime = index * 0.2;
+      const count = s.oscillators.length;
+      s.audio.playFeedback(cues);
+      expect(play).toHaveBeenLastCalledWith(cue);
+      expect(s.oscillators.length).toBeGreaterThan(count);
+    }
+    const count = s.oscillators.length;
+    s.context.currentTime = 10;
+    s.audio.playFeedback([]);
+    expect(s.oscillators).toHaveLength(count);
+  });
+
+  it('首领/横扫/升级/结果优先于技能，保护到最后一音结束', () => {
+    for (const cue of ['boss', 'phase', 'warning', 'levelup', 'victory', 'defeat'] as const) {
+      const s = setup();
+      s.audio.unlock();
+      s.audio.playFeedback(['mouse_attack', 'fox_shield', cue]);
+      const count = s.oscillators.length;
+      expect(count).toBeGreaterThan(0);
+      s.context.currentTime = 0.1;
+      s.audio.play('boar_attack');
+      s.audio.play('click');
+      expect(s.oscillators).toHaveLength(count);
+      s.context.currentTime = 1;
+      s.audio.play('boar_attack');
+      expect(s.oscillators).toHaveLength(count + 2);
+    }
+  });
+
+  it('新音色遵循静音、不可见、暂停清理和音乐独立，解禁不会补播', () => {
+    const s = setup('off', 'on');
+    s.audio.unlock();
+    s.audio.playFeedback(['fox_shield']);
+    expect(s.oscillators).toHaveLength(0);
+    s.audio.updateMusic('combat');
+    expect(s.oscillators).toHaveLength(2);
+    s.audio.setEnabled(true);
+    s.audio.playFeedback([]);
+    expect(s.oscillators).toHaveLength(2);
+    s.audio.play('fox_shield');
+    expect(s.oscillators).toHaveLength(4);
+    expect(s.oscillators[0].disconnect).not.toHaveBeenCalled();
+    s.audio.suspend();
+    expect(s.oscillators[2].disconnect).toHaveBeenCalledOnce();
+    expect(s.oscillators[3].disconnect).toHaveBeenCalledOnce();
+    s.hide();
+    s.context.currentTime = 5;
+    s.audio.play('eagle_attack');
+    expect(s.oscillators).toHaveLength(4);
+  });
+
+  it('双声部攻击仍受12节点限制，结束可再用；关键提示释放旧节点', () => {
+    const s = setup();
+    s.audio.unlock();
+    for (let i = 0; i < 20; i++) {
+      s.context.currentTime = i * 0.2;
+      s.audio.play('monkey_attack');
+    }
+    expect(s.oscillators).toHaveLength(12);
+    s.oscillators[0].onended?.();
+    s.oscillators[1].onended?.();
+    s.context.currentTime = 5;
+    s.audio.play('bear_attack');
+    expect(s.oscillators).toHaveLength(14);
+    s.context.currentTime = 6;
+    s.audio.play('warning');
+    expect(s.oscillators).toHaveLength(16);
+    expect(s.oscillators.slice(0, 14).every((o) => o.disconnect.mock.calls.length === 1)).toBe(
+      true,
+    );
+  });
+
+  it.each([0, 1])('创建第%s个增益失败，已创建振荡器也释放，安静降级', (successful) => {
+    const s = setup();
+    s.audio.unlock();
+    const makeGain = s.context.createGain.getMockImplementation()!;
+    for (let i = 0; i < successful; i++) s.context.createGain.mockImplementationOnce(makeGain);
+    s.context.createGain.mockImplementationOnce(() => {
+      throw new Error('allocation failed');
+    });
+    expect(() => s.audio.play('mouse_attack')).not.toThrow();
+    expect(s.audio.unavailable).toBe(true);
+    expect(s.oscillators).toHaveLength(successful + 1);
+    expect(s.oscillators.every((node) => node.disconnect.mock.calls.length === 1)).toBe(true);
+    expect(s.gains.every((node) => node.disconnect.mock.calls.length === 1)).toBe(true);
+    s.context.currentTime = 5;
+    s.audio.play('eagle_attack');
+    expect(s.oscillators).toHaveLength(successful + 1);
   });
 });
 
