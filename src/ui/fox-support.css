@@ -1,0 +1,47 @@
+.fox-support {
+  margin: 12px 0;
+  padding: 10px;
+  border: 1px solid #c8a7d066;
+  border-radius: 8px;
+  background: #39334833;
+}
+.fox-support h3 {
+  margin-top: 0;
+}
+.fox-support-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 10px 0;
+}
+.fox-support-stats dt {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.fox-support-stats dd {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--paper);
+  overflow-wrap: anywhere;
+}
+.fox-support .fox-support-details summary {
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 8px 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--paper);
+}
+.fox-support .preparation-check-unit button {
+  min-height: 44px;
+}
+.fox-support .preparation-check-unit strong small {
+  display: block;
+  font-size: 10px;
+  font-weight: normal;
+  color: var(--muted);
+}
+.fox-support li > small {
+  overflow-wrap: anywhere;
+}

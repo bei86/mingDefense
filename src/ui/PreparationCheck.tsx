@@ -3,6 +3,7 @@ import { appearances } from '../game/content';
 import type { Session, Source } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
+import { FoxSupportCheck } from './FoxSupportCheck';
 import { preparationCheck } from './preparation-check';
 import { reserveUpgrades } from './reserve-upgrades';
 import { ReserveUpgrades } from './ReserveUpgrades';
@@ -67,6 +68,12 @@ export function PreparationCheck({ session, selected, choose, fieldReady }: Prop
           <p>只检查当前布阵，不预测胜负。备战与待领招募不计入参战生命或输出。</p>
           <ReserveUpgrades
             upgrades={upgrades}
+            selected={selected}
+            choose={choose}
+            fieldReady={fieldReady}
+          />
+          <FoxSupportCheck
+            preparation={p}
             selected={selected}
             choose={choose}
             fieldReady={fieldReady}
