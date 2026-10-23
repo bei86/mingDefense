@@ -1,4 +1,5 @@
 import type { Session } from '../game/session';
+import { AudioVolume, MUSIC_VOLUME_KEY } from './audio-volume';
 
 export type MusicMood = 'prepare' | 'combat';
 export const MUSIC_PREFERENCE_KEY = 'ming-defense:music';
@@ -92,13 +93,23 @@ export class GameMusic {
   private beat = 0;
   private voices = new Set<Voice>();
   private disposed = false;
+  private level: AudioVolume;
 
   constructor(private storage: () => PreferenceStore = () => localStorage) {
+    this.level = new AudioVolume(MUSIC_VOLUME_KEY, storage);
     try {
       this.enabled = storage().getItem(MUSIC_PREFERENCE_KEY) === 'on';
     } catch {
       /* Preferences are optional. */
     }
+  }
+
+  get volume(): number {
+    return this.level.value;
+  }
+
+  setVolume(value: number): void {
+    if (!this.disposed) this.level.set(value);
   }
 
   setEnabled(enabled: boolean, context: AudioContext | null): void {
@@ -113,7 +124,7 @@ export class GameMusic {
 
   update(context: AudioContext | null, mood: MusicMood | null): void {
     if (this.disposed) return;
-    if (!this.enabled || !context || context.state !== 'running' || !mood) {
+    if (!this.enabled || this.volume === 0 || !context || context.state !== 'running' || !mood) {
       this.stop(context);
       return;
     }
@@ -159,6 +170,7 @@ export class GameMusic {
   dispose(): void {
     this.disposed = true;
     for (const voice of this.voices) this.release(voice);
+    this.level.dispose();
   }
 
   private note(
@@ -170,6 +182,7 @@ export class GameMusic {
     wave: OscillatorType,
   ): void {
     if (this.voices.size >= 6) return;
+    const output = this.level.output(context);
     const oscillator = context.createOscillator();
     let gain: GainNode;
     try {
@@ -187,7 +200,7 @@ export class GameMusic {
     gain.gain.linearRampToValueAtTime(volume, at + 0.025);
     gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
     oscillator.connect(gain);
-    gain.connect(context.destination);
+    gain.connect(output);
     oscillator.start(at);
     oscillator.stop(at + duration + 0.02);
   }

@@ -2,8 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { GameAudio, SOUND_PREFERENCE_KEY } from './game-audio';
 import { MUSIC_PREFERENCE_KEY } from './game-music';
 import { combatSoundCues } from './sound-cues';
+import { MUSIC_VOLUME_KEY, SOUND_VOLUME_KEY } from './audio-volume';
 
-function setup(initial = 'on', music = 'off') {
+function setup(initial = 'on', music = 'off', levels: Record<string, string> = {}) {
   const oscillators: ReturnType<typeof oscillator>[] = [];
   function oscillator() {
     return {
@@ -49,7 +50,11 @@ function setup(initial = 'on', music = 'off') {
   };
   const factory = vi.fn(() => context as unknown as AudioContext);
   const storage = {
-    getItem: vi.fn((key: string) => (key === MUSIC_PREFERENCE_KEY ? music : initial)),
+    getItem: vi.fn((key: string) => {
+      if (key === MUSIC_PREFERENCE_KEY) return music;
+      if (key === SOUND_PREFERENCE_KEY) return initial;
+      return levels[key] ?? null;
+    }),
     setItem: vi.fn(),
   };
   let hidden = false;
@@ -59,7 +64,11 @@ function setup(initial = 'on', music = 'off') {
     context,
     factory,
     oscillators,
-    gains,
+    // Envelope nodes are the targets of oscillator connections; channel buses are separate.
+    get gains() {
+      return oscillators.flatMap((node) => node.connect.mock.calls.map((call) => call[0]));
+    },
+    allGains: gains,
     storage,
     hide: () => {
       hidden = true;
@@ -292,6 +301,7 @@ describe('灵兽战斗音色与共享声量预算', () => {
     const s = setup();
     s.audio.unlock();
     const makeGain = s.context.createGain.getMockImplementation()!;
+    s.context.createGain.mockImplementationOnce(makeGain); // Channel bus precedes envelopes.
     for (let i = 0; i < successful; i++) s.context.createGain.mockImplementationOnce(makeGain);
     s.context.createGain.mockImplementationOnce(() => {
       throw new Error('allocation failed');
@@ -436,6 +446,7 @@ describe('独立背景音乐与共享音频生命周期', () => {
   it.each([false, true])('部分音乐节点创建失败清理全部资源，已有音乐声部=%s', (partial) => {
     const s = setup('on', 'on');
     s.audio.unlock();
+    s.context.createGain.mockImplementationOnce(s.context.createGain.getMockImplementation()!);
     if (partial)
       s.context.createGain.mockImplementationOnce(s.context.createGain.getMockImplementation()!);
     s.context.createGain.mockImplementationOnce(() => {
@@ -458,6 +469,123 @@ describe('独立背景音乐与共享音频生命周期', () => {
     });
     expect(() => s.audio.play('attack')).not.toThrow();
     expect(s.audio.unavailable).toBe(true);
+    expect(s.oscillators.every((o) => o.disconnect.mock.calls.length === 1)).toBe(true);
+  });
+});
+
+describe('两路音量接入真实播放路径', () => {
+  it('保留旧开关，音量调整仅写自己的键，不创建或解锁音频', () => {
+    const s = setup('off', 'on', { [SOUND_VOLUME_KEY]: '35', [MUSIC_VOLUME_KEY]: '20' });
+    expect(s.audio.volume).toBe(35);
+    expect(s.audio.music.volume).toBe(20);
+    s.audio.setVolume(40);
+    s.audio.setMusicVolume(15);
+    expect(s.storage.setItem.mock.calls).toEqual([
+      [SOUND_VOLUME_KEY, '40'],
+      [MUSIC_VOLUME_KEY, '15'],
+    ]);
+    expect(s.audio.enabled).toBe(false);
+    expect(s.audio.music.enabled).toBe(true);
+    expect(s.factory).not.toHaveBeenCalled();
+    expect(s.allGains).toHaveLength(0);
+  });
+
+  it('包络接到各自总线，实时滑杆不改变另一通道、包络或声部数量', () => {
+    const s = setup('on', 'on');
+    s.audio.unlock();
+    s.audio.play('deploy');
+    s.audio.updateMusic('prepare');
+    const buses = s.allGains.filter((g) => g.connect.mock.calls[0]?.[0] === s.context.destination);
+    expect(buses).toHaveLength(2);
+    expect(s.gains[0].connect).toHaveBeenCalledWith(buses[0]);
+    expect(s.gains[1].connect).toHaveBeenCalledWith(buses[1]);
+    expect(s.gains[2].connect).toHaveBeenCalledWith(buses[1]);
+    expect(buses[0].gain.setValueAtTime).toHaveBeenCalledWith(1, 0);
+    s.context.currentTime = 0.05;
+    s.audio.setVolume(25);
+    expect(buses[0].gain.setTargetAtTime).toHaveBeenCalledWith(0.25, 0.05, 0.015);
+    expect(buses[1].gain.setTargetAtTime).not.toHaveBeenCalled();
+    s.audio.setMusicVolume(65);
+    expect(buses[1].gain.setTargetAtTime).toHaveBeenCalledWith(0.65, 0.05, 0.015);
+    expect(s.gains.every((g) => g.gain.setTargetAtTime.mock.calls.length === 0)).toBe(true);
+    expect(s.oscillators).toHaveLength(3);
+    s.audio.dispose();
+    expect(s.allGains.every((g) => g.disconnect.mock.calls.length === 1)).toBe(true);
+  });
+
+  it('两路零音量不创建上下文；恢复只播新事件，不排队也不改变开关', () => {
+    const s = setup('on', 'on', { [SOUND_VOLUME_KEY]: '0', [MUSIC_VOLUME_KEY]: '0' });
+    s.audio.unlock();
+    s.audio.play('warning');
+    s.audio.updateMusic('combat');
+    expect(s.factory).not.toHaveBeenCalled();
+    s.audio.setVolume(60);
+    expect(s.factory).not.toHaveBeenCalled();
+    s.audio.unlock();
+    expect(s.oscillators).toHaveLength(0);
+    s.audio.play('mouse_attack');
+    s.audio.updateMusic('combat');
+    expect(s.oscillators).toHaveLength(2);
+    s.context.currentTime = 1;
+    s.audio.setVolume(0);
+    s.audio.play('fox_shield');
+    expect(s.oscillators).toHaveLength(2);
+    s.audio.setMusicVolume(40);
+    s.audio.updateMusic(null); // Paused settings never start a new phrase.
+    expect(s.oscillators).toHaveLength(2);
+    s.audio.updateMusic('combat');
+    expect(s.oscillators).toHaveLength(4);
+    expect(s.audio.enabled).toBe(true);
+    expect(s.audio.music.enabled).toBe(true);
+    expect(s.storage.setItem.mock.calls.every(([key]) => key.endsWith('-volume'))).toBe(true);
+  });
+
+  it('关闭音效后滑杆不偷开，音乐仍可播放；后台和暂停音量调整不生成声部', () => {
+    const s = setup('off', 'on');
+    s.audio.setVolume(55);
+    s.audio.unlock();
+    s.audio.play('deploy');
+    s.audio.updateMusic('prepare');
+    expect(s.oscillators).toHaveLength(2);
+    s.audio.suspend();
+    s.audio.setMusicVolume(30);
+    s.audio.setVolume(80);
+    s.audio.updateMusic(null);
+    expect(s.oscillators).toHaveLength(2);
+    s.hide();
+    s.audio.updateMusic('combat');
+    expect(s.oscillators).toHaveLength(2);
+    expect(s.audio.enabled).toBe(false);
+  });
+
+  it.each(['sound', 'music'])('%s总线创建失败安静降级，未留下半创建声部', (channel) => {
+    const s = setup('on', 'on');
+    s.audio.unlock();
+    s.context.createGain.mockImplementationOnce(() => {
+      throw new Error('bus');
+    });
+    expect(() =>
+      channel === 'sound' ? s.audio.play('deploy') : s.audio.updateMusic('prepare'),
+    ).not.toThrow();
+    expect(s.audio.unavailable).toBe(true);
+    expect(s.oscillators).toHaveLength(0);
+    expect(s.allGains).toHaveLength(0);
+  });
+
+  it.each(['sound', 'music'])('%s实时增益失败时清理两路总线和全部声部', (channel) => {
+    const s = setup('on', 'on');
+    s.audio.unlock();
+    s.audio.play('deploy');
+    s.audio.updateMusic('prepare');
+    const buses = s.allGains.filter((g) => g.connect.mock.calls[0]?.[0] === s.context.destination);
+    buses[channel === 'sound' ? 0 : 1].gain.setTargetAtTime.mockImplementationOnce(() => {
+      throw new Error('gain');
+    });
+    expect(() =>
+      channel === 'sound' ? s.audio.setVolume(10) : s.audio.setMusicVolume(10),
+    ).not.toThrow();
+    expect(s.audio.unavailable).toBe(true);
+    expect(s.allGains.every((g) => g.disconnect.mock.calls.length === 1)).toBe(true);
     expect(s.oscillators.every((o) => o.disconnect.mock.calls.length === 1)).toBe(true);
   });
 });

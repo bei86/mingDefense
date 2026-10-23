@@ -1,6 +1,7 @@
 import { combatSoundCues, isCombatSound, type CombatSoundCue, type SoundCue } from './sound-cues';
 import { soundPalette } from './sound-palette';
 import { GameMusic, type MusicMood } from './game-music';
+import { AudioVolume, SOUND_VOLUME_KEY } from './audio-volume';
 
 export const SOUND_PREFERENCE_KEY = 'ming-defense:audio';
 type PreferenceStore = Pick<Storage, 'getItem' | 'setItem'>;
@@ -16,6 +17,7 @@ export class GameAudio {
   enabled = true;
   unavailable = false;
   readonly music: GameMusic;
+  private level: AudioVolume;
   private context: AudioContext | null = null;
   private voices = new Set<Voice>();
   private last = new Map<SoundCue, number>();
@@ -29,6 +31,7 @@ export class GameAudio {
 
   constructor(private options: AudioOptions = {}) {
     this.music = new GameMusic(() => this.store());
+    this.level = new AudioVolume(SOUND_VOLUME_KEY, () => this.store());
     try {
       this.enabled = this.store().getItem(SOUND_PREFERENCE_KEY) !== 'off';
     } catch {
@@ -36,10 +39,32 @@ export class GameAudio {
     }
   }
 
+  get volume(): number {
+    return this.level.value;
+  }
+
+  setVolume(value: number): void {
+    if (this.disposed) return;
+    try {
+      this.level.set(value);
+    } catch {
+      this.fail();
+    }
+  }
+
+  setMusicVolume(value: number): void {
+    if (this.disposed) return;
+    try {
+      this.music.setVolume(value);
+    } catch {
+      this.fail();
+    }
+  }
+
   /** Must be called directly from a pointer or keyboard gesture. */
   unlock(): void {
     if (
-      (!this.enabled && !this.music.enabled) ||
+      ((!this.enabled || this.volume === 0) && (!this.music.enabled || this.music.volume === 0)) ||
       this.unavailable ||
       this.disposed ||
       this.resuming
@@ -71,6 +96,7 @@ export class GameAudio {
     const context = this.context;
     if (
       !this.enabled ||
+      this.volume === 0 ||
       this.disposed ||
       this.unavailable ||
       !context ||
@@ -105,6 +131,7 @@ export class GameAudio {
         Math.max(...soundPalette[cue].map((note) => (note.delay ?? 0) + note.duration)) +
         0.02;
     try {
+      const output = this.level.output(context);
       for (const note of soundPalette[cue]) {
         const oscillator = context.createOscillator();
         // Track each node as soon as it exists, even if the next allocation fails.
@@ -124,14 +151,12 @@ export class GameAudio {
         gain.gain.linearRampToValueAtTime(note.gain ?? 0.055, at + 0.008);
         gain.gain.exponentialRampToValueAtTime(0.0001, at + note.duration);
         oscillator.connect(gain);
-        gain.connect(context.destination);
+        gain.connect(output);
         oscillator.start(at);
         oscillator.stop(at + note.duration + 0.015);
       }
     } catch {
-      this.unavailable = true;
-      this.stop();
-      this.music.dispose();
+      this.fail();
     }
   }
 
@@ -150,9 +175,7 @@ export class GameAudio {
     try {
       this.music.update(this.context, this.hidden() ? null : mood);
     } catch {
-      this.unavailable = true;
-      this.music.dispose();
-      this.stop();
+      this.fail();
     }
   }
 
@@ -207,8 +230,16 @@ export class GameAudio {
     this.disposed = true;
     this.stop();
     this.music.dispose();
+    this.level.dispose();
     if (this.context && this.context.state !== 'closed') void this.context.close().catch(() => {});
     this.context = null;
+  }
+
+  private fail(): void {
+    this.unavailable = true;
+    this.stop();
+    this.music.dispose();
+    this.level.dispose();
   }
 
   private release(voice: Voice): void {

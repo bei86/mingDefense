@@ -1,0 +1,75 @@
+.audio-settings {
+  text-align: left;
+}
+.audio-settings > .eyebrow,
+.audio-settings > h2 {
+  display: block;
+  text-align: center;
+}
+.volume-channel {
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #102e2866;
+}
+.volume-heading,
+.volume-slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.volume-heading {
+  justify-content: space-between;
+}
+.volume-heading label {
+  font-size: 13px;
+  color: var(--paper);
+}
+.volume-slider input {
+  min-width: 0;
+  flex: 1;
+  height: 44px;
+  margin: 0;
+  accent-color: var(--gold);
+}
+.volume-slider input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.volume-slider output {
+  width: 4ch;
+  text-align: right;
+  color: var(--gold);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.volume-channel small,
+.sound-preview small {
+  display: block;
+  line-height: 1.7;
+}
+.sound-preview > span {
+  color: var(--paper);
+  font-size: 12px;
+}
+.sound-preview-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 8px 0;
+}
+.sound-preview-buttons button {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--forest);
+  color: var(--mint);
+  font-size: 11px;
+}
+.audio-settings .audio-settings-note {
+  margin: 14px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}

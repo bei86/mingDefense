@@ -19,6 +19,8 @@ import { SpiritHandbook } from './SpiritHandbook';
 import { CombatFeedback } from '../presentation/combat-feedback';
 import { GameAudio } from '../presentation/game-audio';
 import { GameMusic, musicMood } from '../presentation/game-music';
+import { AudioVolume, MUSIC_VOLUME_KEY, SOUND_VOLUME_KEY } from '../presentation/audio-volume';
+import { AudioSettings } from './AudioSettings';
 import { SaveManager } from './SaveManager';
 import { StageIntel } from './StageIntel';
 import { FormationSwap } from './FormationSwap';
@@ -67,6 +69,9 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const audioRef = useRef<GameAudio | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(() => new GameAudio().enabled);
   const [musicEnabled, setMusicEnabled] = useState(() => new GameMusic().enabled);
+  const [soundVolume, setSoundVolume] = useState(() => new AudioVolume(SOUND_VOLUME_KEY).value);
+  const [musicVolume, setMusicVolume] = useState(() => new AudioVolume(MUSIC_VOLUME_KEY).value);
+  const [audioSettings, setAudioSettings] = useState(false);
   const [, render] = useState(0);
   const [selected, setSelected] = useState<Source | null>(null);
   const [hover, setHover] = useState<Point | null>(null);
@@ -97,13 +102,14 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         saves ||
         inspection ||
         presets ||
+        audioSettings ||
         swapUnitId !== null ||
         session.hasChoices ||
         (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${presets}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${presets}:${audioSettings}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -364,6 +370,19 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
     repaint();
   };
   const audioUnavailable = audioRef.current?.unavailable ?? false;
+  const changeSoundEnabled = (enabled: boolean) => {
+    audioRef.current?.setEnabled(enabled);
+    if (enabled) {
+      audioRef.current?.unlock();
+      audioRef.current?.play('deploy');
+    }
+    setSoundEnabled(enabled);
+  };
+  const changeMusicEnabled = (enabled: boolean) => {
+    audioRef.current?.setMusicEnabled(enabled);
+    if (enabled) audioRef.current?.unlock();
+    setMusicEnabled(enabled);
+  };
   let soundLabel = soundEnabled ? '音效开' : '音效关';
   let musicLabel = musicEnabled ? '音乐开' : '音乐关';
   if (audioUnavailable) soundLabel = '音效不可用';
@@ -376,15 +395,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         aria-label={audioUnavailable ? '音效不可用' : '游戏音效'}
         aria-pressed={soundEnabled && !audioUnavailable}
         disabled={audioUnavailable}
-        onClick={() => {
-          const enabled = !soundEnabled;
-          audioRef.current?.setEnabled(enabled);
-          if (enabled) {
-            audioRef.current?.unlock();
-            audioRef.current?.play('deploy');
-          }
-          setSoundEnabled(enabled);
-        }}
+        onClick={() => changeSoundEnabled(!soundEnabled)}
       >
         {soundLabel}
       </button>
@@ -394,14 +405,20 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         aria-label={audioUnavailable ? '音乐不可用' : '背景音乐'}
         aria-pressed={musicEnabled && !audioUnavailable}
         disabled={audioUnavailable}
-        onClick={() => {
-          const enabled = !musicEnabled;
-          audioRef.current?.setMusicEnabled(enabled);
-          if (enabled) audioRef.current?.unlock();
-          setMusicEnabled(enabled);
-        }}
+        onClick={() => changeMusicEnabled(!musicEnabled)}
       >
         {musicLabel}
+      </button>
+      <button
+        className="sound-button"
+        data-sound-toggle
+        aria-label="声音设置"
+        onClick={() => {
+          pauseForMenu();
+          setAudioSettings(true);
+        }}
+      >
+        音量
       </button>
     </div>
   );
@@ -637,6 +654,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         !handbook &&
         !intel &&
         !inspection &&
+        !audioSettings &&
         !saves && (
           <PauseMenu
             session={session}
@@ -664,6 +682,38 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
+      {audioSettings && (
+        <AudioSettings
+          sound={{
+            enabled: soundEnabled,
+            volume: soundVolume,
+            onEnabled: changeSoundEnabled,
+            onVolume: (value) => {
+              audioRef.current?.setVolume(value);
+              setSoundVolume(audioRef.current?.volume ?? soundVolume);
+            },
+          }}
+          music={{
+            enabled: musicEnabled,
+            volume: musicVolume,
+            onEnabled: changeMusicEnabled,
+            onVolume: (value) => {
+              audioRef.current?.setMusicVolume(value);
+              setMusicVolume(audioRef.current?.music.volume ?? musicVolume);
+            },
+          }}
+          unavailable={audioUnavailable}
+          paused={!preparing}
+          onPreview={(cue) => {
+            audioRef.current?.unlock();
+            audioRef.current?.play(cue);
+          }}
+          onClose={() => {
+            audioRef.current?.stop();
+            setAudioSettings(false);
+          }}
+        />
+      )}
       {inspection && session.phase === 'combat' && session.paused && !session.hasChoices && (
         <BattleInspection session={session} onClose={() => setInspection(false)} />
       )}
