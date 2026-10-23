@@ -22,6 +22,7 @@ import { GameMusic, musicMood } from '../presentation/game-music';
 import { SaveManager } from './SaveManager';
 import { StageIntel } from './StageIntel';
 import { FormationSwap } from './FormationSwap';
+import { BattleInspection } from './BattleInspection';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -74,6 +75,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [handbook, setHandbook] = useState(false);
   const [intel, setIntel] = useState(false);
   const [saves, setSaves] = useState(false);
+  const [inspection, setInspection] = useState(false);
   const [swapUnitId, setSwapUnitId] = useState<number | null>(null);
   const [lastDefeat, setLastDefeat] = useState<DefeatRecap | null>(null);
   const storage = useSessionStorage(session, boot.blocked, boot.message);
@@ -85,13 +87,14 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         handbook ||
         intel ||
         saves ||
+        inspection ||
         swapUnitId !== null ||
         session.hasChoices ||
         (session.phase === 'combat' && session.paused) ||
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${inspection}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -601,6 +604,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         !journal &&
         !handbook &&
         !intel &&
+        !inspection &&
         !saves && (
           <PauseMenu
             session={session}
@@ -623,10 +627,14 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             onHandbook={() => setHandbook(true)}
             onIntel={() => setIntel(true)}
             onSaves={() => setSaves(true)}
+            onInspect={() => setInspection(true)}
             onReset={reset}
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
+      {inspection && session.phase === 'combat' && session.paused && !session.hasChoices && (
+        <BattleInspection session={session} onClose={() => setInspection(false)} />
+      )}
       {preparing && swapUnitId !== null && (
         <FormationSwap
           session={session}

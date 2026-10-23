@@ -211,6 +211,7 @@ type PauseProps = {
   onHandbook: () => void;
   onIntel: () => void;
   onSaves: () => void;
+  onInspect: () => void;
   onReset: () => void;
 };
 export function PauseMenu({
@@ -223,6 +224,7 @@ export function PauseMenu({
   onHandbook,
   onIntel,
   onSaves,
+  onInspect,
   onReset,
 }: PauseProps) {
   return (
@@ -240,6 +242,9 @@ export function PauseMenu({
           继续守卫
         </button>
         <div className="pause-sound">{soundControl}</div>
+        <button className="secondary" onClick={onInspect}>
+          战场详情
+        </button>
         <div className="pause-tools">
           <button className="secondary" onClick={onBuffs}>
             天赋手札

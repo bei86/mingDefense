@@ -1,0 +1,153 @@
+import { useState } from 'react';
+import { appearances } from '../game/content';
+import type { Session } from '../game/session';
+import { heroArt } from '../render/art';
+import { ArtImage } from './ArtImage';
+import { timeLabel } from './CampaignPanels';
+import { battleInspection, type InspectedAlly } from './battle-inspection';
+import './battle-inspection.css';
+
+function unitLabel(unit: InspectedAlly): string {
+  return `${appearances[unit.kind].name} · ${unit.rank}阶 · ${unit.position.x + 1}列${unit.position.y + 1}行 · ${unit.alive ? '存活' : '已倒下'}`;
+}
+
+function AllyDetails({ unit }: { unit: InspectedAlly }) {
+  const stats = [
+    ['造成伤害', unit.stats?.damageDone],
+    ['承受伤害', unit.stats?.damageTaken],
+    ['提供护盾', unit.stats?.shieldGiven],
+    ['护盾吸收', unit.stats?.shieldAbsorbed],
+    ['产出灵钱', unit.stats?.income],
+  ] as const;
+  return (
+    <article className={`inspection-unit ${unit.alive ? '' : 'fallen'}`}>
+      <div className="inspection-profile">
+        <ArtImage key={unit.kind} asset={heroArt[unit.kind]} />
+        <div>
+          <h3>
+            {appearances[unit.kind].name} · {unit.rank}阶
+          </h3>
+          <p>
+            {unit.position.x + 1}列{unit.position.y + 1}行 ·{' '}
+            {unit.alive ? '正在守卫' : '已倒下，本关不再行动'}
+          </p>
+        </div>
+      </div>
+      <div className="inspection-health">
+        <span>生命</span>
+        <strong>
+          {unit.hp} / {unit.maxHp}
+        </strong>
+      </div>
+      <div
+        className="health-track"
+        role="progressbar"
+        aria-label="所选灵兽生命"
+        aria-valuenow={unit.hp}
+        aria-valuemin={0}
+        aria-valuemax={unit.maxHp}
+      >
+        <span style={{ width: `${Math.min(100, (unit.hp / unit.maxHp) * 100)}%` }} />
+      </div>
+      <div className="inspection-shield">
+        <span>
+          当前护盾 <strong>{unit.shield}</strong>
+        </span>
+        <small>{unit.shield > 0 ? `剩余 ${unit.shieldSeconds} 秒` : '无有效护盾'}</small>
+      </div>
+      <p className={`inspection-targets ${unit.targetedBy > 0 ? 'targeted' : ''}`}>
+        {unit.alive ? `当前被 ${unit.targetedBy} 只敌人锁定` : '已退出阵线'}
+      </p>
+      <dl className="inspection-stats" aria-label="本关累计贡献">
+        {stats.map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value === undefined ? '未记录' : Math.floor(value)}</dd>
+          </div>
+        ))}
+      </dl>
+    </article>
+  );
+}
+
+export function BattleInspection({ session, onClose }: { session: Session; onClose: () => void }) {
+  const view = battleInspection(session.battle, session.preparation.units);
+  const [unitId, setUnitId] = useState(view?.initialId);
+  const unit = view?.allies.find((entry) => entry.id === unitId) ?? view?.allies[0];
+  return (
+    <div className="modal-backdrop top-modal">
+      <section
+        className="modal inspection-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="inspection-title"
+      >
+        <div className="inspection-heading">
+          <div>
+            <span className="eyebrow">战场已暂停 · 第 {session.preparation.stageId} 关</span>
+            <h2 id="inspection-title">战场详情</h2>
+          </div>
+          <button className="icon-button" aria-label="关闭战场详情" onClick={onClose}>
+            ×
+          </button>
+        </div>
+        {view ? (
+          <>
+            <div className="inspection-summary">
+              <span>
+                已守 <strong>{timeLabel(view.time)}</strong>
+              </span>
+              <span>
+                存活{' '}
+                <strong>
+                  {view.aliveCount}/{view.allies.length}
+                </strong>
+              </span>
+              <span>
+                场上敌人 <strong>{view.enemyCount}</strong>
+              </span>
+            </div>
+            {unit ? (
+              <>
+                <label className="inspection-select">
+                  查看灵兽
+                  <select
+                    aria-label="查看灵兽"
+                    value={unit.id}
+                    onChange={(event) => setUnitId(Number(event.target.value))}
+                  >
+                    {view.allies.map((entry) => (
+                      <option key={entry.id} value={entry.id}>
+                        {unitLabel(entry)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <AllyDetails unit={unit} />
+              </>
+            ) : (
+              <p role="status">当前没有已上阵灵兽。</p>
+            )}
+            {view.reserves.length > 0 && (
+              <p className="inspection-note">
+                备战席（不参战）：
+                {view.reserves
+                  .map((entry) => `${appearances[entry.kind].name}${entry.rank}阶`)
+                  .join('、')}
+                。
+              </p>
+            )}
+            <p className="inspection-note">
+              锁定包含正在接近的敌人，不代表下一击或首领横扫目标。累计贡献仅计本关；承伤不含护盾吸收，提供护盾不等于实际吸收。
+            </p>
+          </>
+        ) : (
+          <p role="status">暂无战斗数据，开战后可在暂停菜单查看。</p>
+        )}
+        <button className="secondary" onClick={onClose}>
+          返回暂停菜单
+        </button>
+      </section>
+    </div>
+  );
+}
