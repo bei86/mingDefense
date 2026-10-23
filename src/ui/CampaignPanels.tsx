@@ -9,6 +9,8 @@ import { ArtImage } from './ArtImage';
 import { DefeatAdvice } from './DefeatAdvice';
 import { defeatRecap } from './defeat-advice';
 import { ReportExport } from './ReportExport';
+import { talentPreview } from './talent-preview';
+import { TalentPreview } from './TalentPreview';
 
 export function timeLabel(ms: number): string {
   return `${Math.floor(ms / 60000)
@@ -75,6 +77,7 @@ export function TalentModal({
           {b.choices.map((id) => {
             const definition = buffDefinitions[id];
             const label = buffLabels[id];
+            const preview = talentPreview(b, id);
             return (
               <button
                 key={id}
@@ -87,16 +90,22 @@ export function TalentModal({
                 <span>
                   <small>
                     {definition.quality === 'common' ? '通用' : '专属'} ·{' '}
-                    {(b.progression.buffs[id] ?? 0) + 1}/{definition.maxLevel} 层
+                    {b.progression.buffs[id] ?? 0} →{' '}
+                    {preview?.nextLevel ?? (b.progression.buffs[id] ?? 0) + 1}/{definition.maxLevel}{' '}
+                    层
                   </small>
                   <strong>{label.name}</strong>
                   <span>{label.description}</span>
+                  {preview && <TalentPreview preview={preview} />}
                 </span>
                 <b>＋</b>
               </button>
             );
           })}
         </div>
+        <p className="talent-preview-hint">
+          累计仅表示本天赋贡献，实际效果受技能、上限与战场条件影响。
+        </p>
       </section>
     </div>
   );

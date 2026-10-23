@@ -1,0 +1,26 @@
+.talent-card > span:nth-child(2) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.talent-card .talent-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-top: 1px solid #bdc69c40;
+  padding-top: 7px;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.talent-preview .talent-preview-total {
+  color: var(--gold);
+}
+.talent-preview .talent-preview-condition {
+  color: var(--muted);
+  font-size: 9px;
+}
+.talent-modal .talent-preview-hint {
+  font-size: 10px;
+  line-height: 1.8;
+  margin: 14px 0 0;
+  color: var(--muted);
+}
