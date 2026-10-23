@@ -1,0 +1,59 @@
+.report-backup {
+  margin: 16px 0;
+  padding: 0 12px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+.report-backup summary {
+  min-height: 44px;
+  align-content: center;
+  color: var(--gold);
+  font-size: 12px;
+  cursor: pointer;
+}
+.report-backup p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
+.report-backup label {
+  display: block;
+  margin: 12px 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.report-backup textarea,
+.report-backup input[type='file'] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--forest);
+  color: var(--paper);
+  font-size: 12px;
+}
+.report-backup textarea {
+  height: 130px;
+  resize: vertical;
+}
+.report-backup button {
+  min-height: 44px;
+  margin-top: 8px;
+  white-space: normal;
+}
+.report-backup-content > button {
+  width: 100%;
+}
+.report-backup-preview {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.report-backup-preview details {
+  border-top: 1px solid var(--border);
+}

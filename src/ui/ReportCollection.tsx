@@ -3,6 +3,7 @@ import { stageNames } from '../game/content';
 import type { StoragePort } from '../game/persistence';
 import { readReports, removeReport, REPORT_COLLECTION_LIMIT } from './report-collection';
 import { ReportText } from './ReportText';
+import { ReportCollectionBackup } from './ReportCollectionBackup';
 import './report-collection.css';
 
 export function ReportCollection({
@@ -18,6 +19,7 @@ export function ReportCollection({
   const [selectedId, setSelectedId] = useState(library.entries[0]?.id);
   const [removing, setRemoving] = useState<number | null>(null);
   const [notice, setNotice] = useState('');
+  const [backupRevision, setBackupRevision] = useState(0);
   const reloadButton = useRef<HTMLButtonElement>(null);
   const selected = library.entries.find((entry) => entry.id === selectedId) ?? library.entries[0];
   return (
@@ -56,6 +58,7 @@ export function ReportCollection({
             setLibrary(readReports(storage));
             setRemoving(null);
             setNotice('');
+            setBackupRevision((value) => value + 1);
           }}
         >
           重新读取收藏
@@ -131,6 +134,17 @@ export function ReportCollection({
             </p>
           ))}
         {notice && <p role="status">{notice}</p>}
+        {!library.error && removing === null && (
+          <ReportCollectionBackup
+            key={backupRevision}
+            storage={storage}
+            isolated={isolated}
+            onImported={(result) => {
+              setLibrary(result);
+              setNotice('');
+            }}
+          />
+        )}
         <button className="primary" onClick={onClose}>
           返回游戏
         </button>

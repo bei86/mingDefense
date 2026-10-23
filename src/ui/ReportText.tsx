@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import type { BattleReportDocument } from './battle-report-export';
+import { downloadText } from './text-download';
 import './report-export.css';
 
 export function ReportText({
@@ -44,22 +45,7 @@ export function ReportText({
           className="secondary"
           onClick={() => {
             try {
-              const url = URL.createObjectURL(
-                new Blob([report.text], { type: 'text/markdown;charset=utf-8' }),
-              );
-              try {
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = report.fileName;
-                document.body.append(link);
-                try {
-                  link.click();
-                } finally {
-                  link.remove();
-                }
-              } finally {
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
-              }
+              downloadText(report.text, report.fileName, 'text/markdown;charset=utf-8');
               setNotice('已发起战报下载，请检查浏览器下载记录；也可复制下方文本。');
             } catch {
               setNotice('下载不可用，请复制下方战报文本保存。');
