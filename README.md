@@ -86,6 +86,23 @@ try {
 
 种子数支持1–128、默认64，设12可试跑。64种子共602个到达检查点、2408场回放；更早失败不计到达。输出`artifacts/formation-replay/samples-64.json`及`summary-64.md`，含完整开战存档/动作、胜负配对、倒下记录、输出损失、护盾和逐兽战报。原阵回放逐字段核对原路线，默认测试跳过文件输出。这是单关策略实验，验证种子沿用上一轮，不能当成50关收益或玩家胜率；狐覆盖增加并不保证胜利，尚未自动应用到玩家阵型。结论见 [同检查点布阵验收](docs/reviews/2026-10-23-formation-replay.md)。
 
+### 第8/14/20关敌方伤害来源
+
+从合法原阵开战存档回放，区分各敌人实例/种类的普攻、首领横扫与追击，分别统计实际扣血和护盾吸收。仅显式工具开启，不写入战役存档或结算战报，也不改变数值：
+
+```powershell
+$env:AUDIT_ENEMY_DAMAGE='1'
+$env:ENEMY_DAMAGE_SEED_COUNT='64'
+try {
+  npx.cmd vitest run tools/audit-enemy-damage.test.ts
+} finally {
+  Remove-Item Env:AUDIT_ENEMY_DAMAGE
+  Remove-Item Env:ENEMY_DAMAGE_SEED_COUNT
+}
+```
+
+种子数支持1–128、默认64。64种子得到602场原阵回放，去除诊断字段后逐字段等于原路线，逐兽/全场扣血与吸盾守恒。输出`artifacts/enemy-damage-audit/samples-64.json`及`summary-64.md`，包含开战档与来源×目标×攻击方式汇总；普通测试跳过、不写文件。零贡献和过量伤害不计，致重伤包只代表最后一击，累计占比不能直接判断敌人强弱或玩家胜率。沿用既有种子，未作新留出验证；诊断结论见 [敌方伤害来源验收](docs/reviews/2026-10-26-enemy-damage-audit.md)。
+
 ## 启动加载与恢复
 
 首次打开先显示「正在准备灵兽与战场」，准备完成后自动进入游戏。游戏脚本或引擎加载失败时显示恢复画面，点击「重新加载」可重新尝试；路径、查询参数及本地存档保留，战斗仍按开战检查点恢复。入口脚本本身无法执行时，HTML中的加载说明和重载链接仍可使用。恢复操作不会清档或重新开局。

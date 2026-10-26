@@ -18,6 +18,7 @@ import { recordUnitStat } from './battle-report';
 import { releaseBearAttack, releaseMonkeyAttack } from './combat-projectiles';
 import { random } from './random';
 import { recordEnemyBirth, recordEnemyDeath } from './combat-diagnostics';
+import { tagEnemyDamage } from './enemy-damage-diagnostics';
 
 export function maxHeroHp(u: Unit, p: Progression): number {
   return Math.floor((heroes[u.kind].hp[u.rank - 1] * (100 + bonus(p, 'health'))) / 100);
@@ -133,7 +134,9 @@ export function releaseAttack(s: Combat, a: Attack, packets: Packet[]): void {
       );
       damage = Math.floor(damage * (1 + (stacks * skill.rageAttackPercent!) / 100));
     }
-    packets.push({ team: 'ally', id: target.id, damage });
+    const packet: Packet = { team: 'ally', id: target.id, damage };
+    tagEnemyDamage(s, packet, source, 'basic');
+    packets.push(packet);
     s.flashes.push({
       from: { x: source.x, y: source.y },
       to: center(target.kind, target.position),

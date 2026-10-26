@@ -12,12 +12,18 @@ import type { BuffId, Progression } from '../model';
 
 import type { Combat } from '../combat-model';
 import { observeEnemies, type EnemyLifetime } from '../combat-diagnostics';
+import {
+  observeEnemyDamage,
+  enemyDamageSnapshot,
+  type EnemyDamageReport,
+} from '../enemy-damage-diagnostics';
 
 export type SimulationOptions = {
   protectPeach?: boolean;
   survivalBuffs?: boolean;
   audit?: boolean;
   allDeaths?: boolean;
+  enemyDamage?: boolean;
 };
 export type CampaignBattleAudit = {
   deployed: number;
@@ -62,6 +68,7 @@ export type BattleSample = {
   buffs: Progression['buffs'];
   enemies?: EnemyLifetime[];
   audit?: CampaignBattleAudit;
+  enemyDamage?: EnemyDamageReport;
 };
 
 /** Execute exactly the current prepared battle; no recruiting or stage advancement. */
@@ -79,6 +86,7 @@ export function runPreparedBattle(
     .join('/');
   const error = s.start();
   if (error) throw new Error(error);
+  if (options.enemyDamage) observeEnemyDamage(s.battle!);
   const enemies = diagnostics ? observeEnemies(s.battle!) : undefined;
   const occupied = options.audit
     ? new Set(
@@ -184,5 +192,6 @@ export function runPreparedBattle(
     buffs: s.battle!.progression.buffs,
     ...(enemies ? { enemies: clone(enemies) } : {}),
     ...(audit ? { audit } : {}),
+    ...(options.enemyDamage ? { enemyDamage: enemyDamageSnapshot(s.battle!)! } : {}),
   };
 }

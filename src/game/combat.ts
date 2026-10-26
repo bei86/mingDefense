@@ -27,6 +27,7 @@ import type { Combat, Packet, Spawn } from './combat-model';
 import { recordFalls, recordUnitStat } from './battle-report';
 import { releaseLineHit } from './combat-projectiles';
 import { updateBossPhase as bossPhase, updateSummoner } from './enemy-abilities';
+import { recordEnemyDamage, tagEnemyDamage } from './enemy-damage-diagnostics';
 export type { Ally, Attack, Combat, Enemy, Field, Flash } from './combat-model';
 export { contact, enemyTarget, chooseCombatBuff } from './combat-skills';
 
@@ -279,7 +280,8 @@ function resolveHits(s: Combat): void {
   }
   s.fields = s.fields.filter((f) => f.hits < heroes.sword_eagle.skills.residueHitOffsetsMs!.length);
   for (const warning of s.warnings.filter((w) => w.due <= s.time)) {
-    if (!s.enemies.some((e) => e.id === warning.source && e.hp > 0)) continue;
+    const source = s.enemies.find((e) => e.id === warning.source && e.hp > 0);
+    if (!source) continue;
     const skill = bossDefinition(s.stageId);
     const damage =
       skill.cleaveHitDamage * (warning.echo ? (skill.cleaveEchoDamagePercent ?? 100) / 100 : 1);
@@ -287,12 +289,15 @@ function resolveHits(s: Combat): void {
       if (
         ally.hp > 0 &&
         heroes[ally.kind].shape.some(([, dy]) => ally.position.y + dy === warning.row)
-      )
-        packets.push({
+      ) {
+        const packet: Packet = {
           team: 'ally',
           id: ally.id,
           damage,
-        });
+        };
+        tagEnemyDamage(s, packet, source, warning.echo ? 'echo' : 'cleave');
+        packets.push(packet);
+      }
   }
   s.warnings = s.warnings.filter((w) => w.due > s.time);
   const vulnerabilities = new Map<number, { percent: number; durationMs: number }>();
@@ -330,6 +335,7 @@ function resolveHits(s: Combat): void {
       s.damageTaken += loss;
       recordUnitStat(s, ally.id, 'damageTaken', loss);
       recordUnitStat(s, ally.id, 'shieldAbsorbed', absorb);
+      recordEnemyDamage(s, packet, loss, absorb, ally.hp > 0 && loss === ally.hp);
     } else {
       const enemy = target as Combat['enemies'][number];
       const loss = Math.min(enemy.hp, damage);
