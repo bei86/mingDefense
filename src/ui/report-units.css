@@ -25,3 +25,13 @@
   color: var(--gold);
   font-weight: bold;
 }
+.report-kind-table {
+  table-layout: fixed;
+}
+.report-kind-table th:first-child {
+  width: 45%;
+}
+.report-kind-table th,
+.report-kind-table td {
+  overflow-wrap: anywhere;
+}
