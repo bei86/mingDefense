@@ -3,6 +3,7 @@ import { appearances } from '../game/content';
 import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
+import { BattleStats } from './BattleStats';
 import { EnemyInspection } from './EnemyInspection';
 import { UpcomingEnemies } from './UpcomingEnemies';
 import { timeLabel } from './CampaignPanels';
@@ -150,6 +151,7 @@ export function BattleInspection({ session, onClose, onHandbook, suspended = fal
                       </select>
                     </label>
                     <AllyDetails unit={unit} />
+                    <BattleStats key={unit.id} battle={session.battle} unitId={unit.id} />
                     <button
                       className="secondary inspection-handbook-button"
                       aria-label={`查看${appearances[unit.kind].name}${unit.rank}阶技能图鉴`}
