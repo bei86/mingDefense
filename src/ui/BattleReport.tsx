@@ -1,6 +1,6 @@
-import { appearances } from '../game/content';
 import type { Combat } from '../game/combat-model';
 import { BattleFormation } from './BattleFormation';
+import { ReportUnits } from './ReportUnits';
 import {
   fallTimeline,
   fallTimelineEmpty,
@@ -25,46 +25,7 @@ export function BattleReport({ battle }: { battle: Combat }) {
         逐兽战报 <span>伤害 · 承伤 · 产钱</span>
       </summary>
       <BattleFormation battle={battle} />
-      <div className="report-table-wrap">
-        <table className="report-table">
-          <caption>本关上阵灵兽表现</caption>
-          <thead>
-            <tr>
-              <th scope="col">灵兽</th>
-              <th scope="col">伤害</th>
-              <th scope="col">承伤</th>
-              <th scope="col">产钱</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[...report.units]
-              .sort((a, b) => b.damageDone - a.damageDone || a.id - b.id)
-              .map((entry) => {
-                const ally = battle.allies.find((u) => u.id === entry.id)!;
-                const skin = appearances[ally.kind];
-                return (
-                  <tr key={entry.id}>
-                    <th scope="row">
-                      <strong style={{ color: skin.color }}>{skin.name}</strong>
-                      <small>
-                        {ally.rank}阶 · {ally.position.x + 1}列{ally.position.y + 1}行
-                        {ally.hp <= 0 ? ' · 重伤' : ''}
-                      </small>
-                      {(entry.shieldGiven > 0 || entry.shieldAbsorbed > 0) && (
-                        <small>
-                          施盾 {entry.shieldGiven} · 吸收 {entry.shieldAbsorbed}
-                        </small>
-                      )}
-                    </th>
-                    <td>{entry.damageDone}</td>
-                    <td>{entry.damageTaken}</td>
-                    <td>{entry.income}</td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
-      </div>
+      <ReportUnits battle={battle} />
       <section className="fall-timeline" aria-label="重伤时间线">
         <h3>重伤时间线</h3>
         {timeline === null && <p>{fallTimelineMissing}</p>}

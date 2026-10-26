@@ -1,0 +1,27 @@
+.report-sort {
+  display: grid;
+  gap: 6px;
+  margin: 10px;
+  color: var(--paper);
+  font-size: 12px;
+}
+.report-sort select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid #738660;
+  border-radius: 8px;
+  background: #203a2c;
+  color: var(--paper);
+  font: inherit;
+}
+.report-sort select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.report-table .report-metric-active {
+  color: var(--gold);
+  font-weight: bold;
+}
