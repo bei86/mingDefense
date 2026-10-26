@@ -1,0 +1,45 @@
+.mobile-performance > summary {
+  min-height: 44px;
+  padding: 10px 0;
+}
+.performance-report p {
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.performance-report [role='status'] {
+  color: var(--gold);
+}
+.performance-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.performance-actions button.secondary {
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 4px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.performance-report label {
+  display: block;
+  margin: 10px 0 6px;
+}
+.performance-report textarea {
+  width: 100%;
+  min-width: 0;
+  height: 180px;
+  padding: 8px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--forest);
+  color: var(--paper);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.performance-report textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}

@@ -16,7 +16,12 @@ import { expansionError, placementError, unitAt, type Session, type Source } fro
 import { boardDrop } from '../ui/board-drop';
 import { artUrl, battlefieldArt, bossArtKey, enemyArt, heroArt } from './art';
 import { ArtLayer } from './ArtLayer';
-import { FrameMetrics } from './frame-metrics';
+import {
+  performanceContext,
+  PerformanceWindow,
+  type PerformanceSample,
+} from './performance-report';
+import { PerformanceReport } from './PerformanceReport';
 import { attackEffect, FieldEffects } from './field-effects';
 import type { CombatFeedback } from '../presentation/combat-feedback';
 import { preparationRange, rangeDescription } from '../ui/preparation-range';
@@ -166,6 +171,10 @@ export function Battlefield({
   const [targetingColumn, setTargetingColumn] = useState<number>(config.waves.spawnColumns[0]);
   const host = useRef<HTMLDivElement>(null);
   const performanceOutput = useRef<HTMLOutputElement>(null);
+  const performanceControls = useRef<{
+    read: () => PerformanceSample | null;
+    reset: () => void;
+  } | null>(null);
   const showPerformance =
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('perf') === '1';
   const view = useRef<View>({ selected, hover, dragOffset });
@@ -196,9 +205,28 @@ export function Battlefield({
         ),
       );
     let renderDensity = samplingDensity();
-    const metrics = showPerformance ? new FrameMetrics() : null;
+    const metrics = showPerformance ? new PerformanceWindow() : null;
     let lastReport = 0;
-    const resetMetrics = () => metrics?.reset();
+    let latestSample: PerformanceSample | null = null;
+    let latestContext: string | null = null;
+    const resetMetrics = () => {
+      if (!import.meta.env.DEV || !metrics) return;
+      metrics.reset();
+      latestSample = null;
+      latestContext = null;
+      lastReport = 0;
+      if (performanceOutput.current) performanceOutput.current.textContent = '等待当前状态采样…';
+    };
+    if (metrics) {
+      performanceControls.current = {
+        read: () => {
+          const current = JSON.stringify(performanceContext(session));
+          if (document.hidden || current !== latestContext) return null;
+          return latestSample;
+        },
+        reset: resetMetrics,
+      };
+    }
     if (metrics) document.addEventListener('visibilitychange', resetMetrics);
     class FieldScene extends Phaser.Scene {
       private drawing!: Phaser.GameObjects.Graphics;
@@ -243,13 +271,42 @@ export function Battlefield({
           return;
         }
         const now = performance.now();
-        metrics.record(now, now - started);
+        const context = performanceContext(session);
+        const contextKey = JSON.stringify(context);
+        if (contextKey !== latestContext) {
+          resetMetrics();
+          latestContext = contextKey;
+        }
+        metrics.record(now, now - started, contextKey);
         if (now - lastReport < 1000) return;
         lastReport = now;
-        const summary = metrics.snapshot();
+        const summary = metrics.snapshot(contextKey);
         if (!summary) return;
         const { active, pooled } = this.art.stats;
         const battle = session.battle;
+        latestSample = {
+          capturedAt: new Date().toISOString(),
+          contentVersion: config.contentVersion,
+          context,
+          gameTimeMs: session.phase === 'prepare' ? null : (battle?.time ?? null),
+          summary,
+          scene: {
+            enemies: battle?.enemies.filter((e) => e.hp > 0).length ?? 0,
+            flashes: battle?.flashes.length ?? 0,
+            imagesActive: active,
+            imagesPooled: pooled,
+            numbersActive: this.numbers.stats.active,
+            numbersPooled: this.numbers.stats.pooled,
+            canvasWidth: game.canvas.width,
+            canvasHeight: game.canvas.height,
+            density: renderDensity,
+          },
+          viewport: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            dpr: window.devicePixelRatio,
+          },
+        };
         performanceOutput.current.textContent = [
           `${summary.fps.toFixed(1)} FPS · P95 ${summary.p95Ms.toFixed(1)} ms`,
           `慢帧(>50ms) ${summary.slowPercent.toFixed(1)}% · ${summary.frames} 帧`,
@@ -808,6 +865,7 @@ export function Battlefield({
       },
     });
     const resizeField = () => {
+      resetMetrics();
       renderDensity = samplingDensity();
       if (game.isBooted) {
         game.scale.getParentBounds();
@@ -819,6 +877,7 @@ export function Battlefield({
     window.addEventListener('resize', resizeField);
     return () => {
       disposed = true;
+      performanceControls.current = null;
       recovery.dispose();
       motionQuery.removeEventListener('change', updateMotion);
       document.removeEventListener('visibilitychange', resetMetrics);
@@ -968,6 +1027,10 @@ export function Battlefield({
         <details className="mobile-performance" open>
           <summary>开发性能 · 最近120帧（当前浏览器）</summary>
           <output ref={performanceOutput}>等待采样…</output>
+          <PerformanceReport
+            readSample={() => performanceControls.current?.read() ?? null}
+            onReset={() => performanceControls.current?.reset()}
+          />
         </details>
       )}
     </>
