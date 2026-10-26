@@ -17,6 +17,11 @@
   background: var(--forest);
   font-size: 11px;
 }
+.unit-handbook-button {
+  min-height: 44px;
+  flex-basis: 100%;
+  text-align: left;
+}
 .handbook-modal {
   max-width: 400px;
   padding: 22px 18px;

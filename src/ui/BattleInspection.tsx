@@ -7,6 +7,7 @@ import { EnemyInspection } from './EnemyInspection';
 import { UpcomingEnemies } from './UpcomingEnemies';
 import { timeLabel } from './CampaignPanels';
 import { battleInspection, type InspectedAlly } from './battle-inspection';
+import type { HandbookTarget } from './SpiritHandbook';
 import './battle-inspection.css';
 
 function unitLabel(unit: InspectedAlly): string {
@@ -72,13 +73,20 @@ function AllyDetails({ unit }: { unit: InspectedAlly }) {
   );
 }
 
-export function BattleInspection({ session, onClose }: { session: Session; onClose: () => void }) {
+type Props = {
+  session: Session;
+  onClose: () => void;
+  onHandbook: (target: HandbookTarget) => void;
+  suspended?: boolean;
+};
+
+export function BattleInspection({ session, onClose, onHandbook, suspended = false }: Props) {
   const view = battleInspection(session.battle, session.preparation.units);
   const [unitId, setUnitId] = useState(view?.initialId);
   const [side, setSide] = useState<'ally' | 'enemy' | 'upcoming'>('ally');
   const unit = view?.allies.find((entry) => entry.id === unitId) ?? view?.allies[0];
   return (
-    <div className="modal-backdrop top-modal">
+    <div className="modal-backdrop top-modal" hidden={suspended}>
       <section
         className="modal inspection-modal"
         role="dialog"
@@ -142,6 +150,13 @@ export function BattleInspection({ session, onClose }: { session: Session; onClo
                       </select>
                     </label>
                     <AllyDetails unit={unit} />
+                    <button
+                      className="secondary inspection-handbook-button"
+                      aria-label={`查看${appearances[unit.kind].name}${unit.rank}阶技能图鉴`}
+                      onClick={() => onHandbook({ kind: unit.kind, rank: unit.rank })}
+                    >
+                      查看技能图鉴 ›
+                    </button>
                   </>
                 ) : (
                   <p role="status">当前没有已上阵灵兽。</p>

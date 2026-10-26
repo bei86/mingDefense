@@ -3,6 +3,14 @@
   text-align: left;
   font-variant-numeric: tabular-nums;
 }
+.modal-backdrop[hidden] {
+  display: none;
+}
+.inspection-handbook-button {
+  width: 100%;
+  margin-top: 12px;
+  min-height: 44px;
+}
 .inspection-heading,
 .inspection-profile,
 .inspection-health,

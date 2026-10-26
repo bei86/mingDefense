@@ -4,9 +4,16 @@ import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { spiritHandbookEntry } from './spirit-handbook';
 
-export function SpiritHandbook({ onClose }: { onClose: () => void }) {
-  const [kind, setKind] = useState<HeroId>('ember_mouse');
-  const [rank, setRank] = useState(1);
+export type HandbookTarget = { kind: HeroId; rank: number };
+type Props = {
+  onClose: () => void;
+  initialEntry?: HandbookTarget;
+  closeLabel?: string;
+};
+
+export function SpiritHandbook({ onClose, initialEntry, closeLabel = '收起图鉴' }: Props) {
+  const [kind, setKind] = useState<HeroId>(initialEntry?.kind ?? 'ember_mouse');
+  const [rank, setRank] = useState(initialEntry?.rank ?? 1);
   const entry = spiritHandbookEntry(kind, rank);
   return (
     <div className="modal-backdrop top-modal">
@@ -94,7 +101,7 @@ export function SpiritHandbook({ onClose }: { onClose: () => void }) {
           ))}
         </ul>
         <button className="secondary" onClick={onClose}>
-          收起图鉴
+          {closeLabel}
         </button>
       </section>
     </div>

@@ -12,6 +12,7 @@ import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { PreparationCheck } from './PreparationCheck';
 import { PreparationStats } from './PreparationStats';
+import type { HandbookTarget } from './SpiritHandbook';
 
 export type Confirmation = { title: string; body: string; action: () => void; label: string };
 type Props = {
@@ -26,6 +27,7 @@ type Props = {
   onSwap: (unitId: number) => void;
   onPresets: () => void;
   onMergePreview: (source: Source) => void;
+  onHandbook: (target: HandbookTarget) => void;
   fieldReady: boolean;
   ignoreClick: () => boolean;
 };
@@ -41,6 +43,7 @@ export function PreparationPanel({
   onSwap,
   onPresets,
   onMergePreview,
+  onHandbook,
   fieldReady,
   ignoreClick,
 }: Props) {
@@ -50,6 +53,7 @@ export function PreparationPanel({
   const offer = selected?.type === 'offer' ? p.offers.find((o) => o.id === selected.id) : null;
   const kind = chosen?.kind ?? (offer?.kind === 'cell' ? null : offer?.kind);
   const rank = chosen?.rank ?? offer?.rank ?? 1;
+  const handbookUnit = selected ? sourceUnit(p, selected) : null;
   const skill = kind
     ? projectileSkillDescription(kind, rank, bonus(p.progression, 'monkey_vulnerability'))
     : null;
@@ -166,6 +170,15 @@ export function PreparationPanel({
           </span>
           <span>仇恨 {tauntValue(kind)} · 同排先低阶，同阶越高越先受击</span>
           {skill && <span>{skill}</span>}
+          {handbookUnit && (
+            <button
+              className="handbook-button unit-handbook-button"
+              aria-label={`查看${appearances[handbookUnit.kind].name}${handbookUnit.rank}阶技能图鉴`}
+              onClick={() => onHandbook({ kind: handbookUnit.kind, rank: handbookUnit.rank })}
+            >
+              查看技能图鉴 ›
+            </button>
+          )}
         </div>
       )}
       {chosen?.position && <PreparationStats key={chosen.id} preparation={p} unitId={chosen.id} />}

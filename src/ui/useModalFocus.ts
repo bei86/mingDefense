@@ -4,10 +4,14 @@ export function useModalFocus(active: boolean, context: string): void {
   useEffect(() => {
     if (!active) return;
     const previous = document.activeElement;
+    const visibleModal = (selector: string) =>
+      [...document.querySelectorAll<HTMLElement>(selector)].find(
+        (element) => element.getClientRects().length > 0,
+      );
     const modal =
-      document.querySelector<HTMLElement>('.renderer-recovery .modal') ??
-      document.querySelector<HTMLElement>('.top-modal .modal') ??
-      document.querySelector<HTMLElement>('.modal');
+      visibleModal('.renderer-recovery .modal') ??
+      visibleModal('.top-modal .modal') ??
+      visibleModal('.modal');
     if (!modal) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';

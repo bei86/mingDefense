@@ -16,7 +16,7 @@ import { CombatControls, CombatHeader, CombatStatus, EnemyIntel, PauseMenu } fro
 import { FirstBattleGuide } from './FirstBattleGuide';
 import { DefeatAdvice } from './DefeatAdvice';
 import { defeatRecap, type DefeatRecap } from './defeat-advice';
-import { SpiritHandbook } from './SpiritHandbook';
+import { SpiritHandbook, type HandbookTarget } from './SpiritHandbook';
 import { CombatFeedback } from '../presentation/combat-feedback';
 import { GameAudio } from '../presentation/game-audio';
 import { GameMusic, musicMood } from '../presentation/game-music';
@@ -86,7 +86,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [dialog, setDialog] = useState<Confirmation | null>(null);
   const [help, setHelp] = useState(false);
   const [journal, setJournal] = useState(false);
-  const [handbook, setHandbook] = useState(false);
+  const [handbook, setHandbook] = useState<HandbookTarget | null>(null);
   const [intel, setIntel] = useState(false);
   const [saves, setSaves] = useState(false);
   const [reports, setReports] = useState(false);
@@ -448,7 +448,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             <button
               className="handbook-button"
               aria-label="灵兽图鉴"
-              onClick={() => setHandbook(true)}
+              onClick={() => setHandbook({ kind: 'ember_mouse', rank: 1 })}
             >
               图鉴
             </button>
@@ -592,6 +592,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             onSwap={setSwapUnitId}
             onPresets={() => setPresets(true)}
             onMergePreview={setMergeSource}
+            onHandbook={setHandbook}
             fieldReady={fieldReady}
             onStart={() => {
               if (!fieldReadyRef.current) return;
@@ -694,7 +695,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
             }
             onHelp={() => setHelp(true)}
             onBuffs={() => setJournal(true)}
-            onHandbook={() => setHandbook(true)}
+            onHandbook={() => setHandbook({ kind: 'ember_mouse', rank: 1 })}
             onIntel={() => setIntel(true)}
             onSaves={() => setSaves(true)}
             onInspect={() => setInspection(true)}
@@ -743,7 +744,12 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         />
       )}
       {inspection && session.phase === 'combat' && session.paused && !session.hasChoices && (
-        <BattleInspection session={session} onClose={() => setInspection(false)} />
+        <BattleInspection
+          session={session}
+          onClose={() => setInspection(false)}
+          onHandbook={setHandbook}
+          suspended={Boolean(handbook)}
+        />
       )}
       {preparing && swapUnitId !== null && (
         <FormationSwap
@@ -786,7 +792,13 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           }}
         />
       )}
-      {handbook && <SpiritHandbook onClose={() => setHandbook(false)} />}
+      {handbook && (
+        <SpiritHandbook
+          initialEntry={handbook}
+          closeLabel={inspection ? '返回战场详情' : '收起图鉴'}
+          onClose={() => setHandbook(null)}
+        />
+      )}
       {intel && <StageIntel currentStageId={p.stageId} onClose={() => setIntel(false)} />}
       {saves && (
         <SaveManager
