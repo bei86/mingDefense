@@ -4,6 +4,7 @@ import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { BattleStats } from './BattleStats';
+import { InspectionFormation } from './InspectionFormation';
 import { EnemyInspection } from './EnemyInspection';
 import { UpcomingEnemies } from './UpcomingEnemies';
 import { timeLabel } from './CampaignPanels';
@@ -134,6 +135,11 @@ export function BattleInspection({ session, onClose, onHandbook, suspended = fal
             {side === 'upcoming' && <UpcomingEnemies battle={session.battle} />}
             {side === 'ally' && (
               <>
+                <InspectionFormation
+                  allies={view.allies}
+                  selectedId={unit?.id}
+                  onSelect={setUnitId}
+                />
                 {unit ? (
                   <>
                     <label className="inspection-select">
