@@ -1,0 +1,23 @@
+.defeat-formation {
+  margin: 10px 0;
+  border-block: 1px solid var(--border);
+  padding: 7px 0;
+}
+.defeat-formation > p:first-child {
+  color: var(--gold);
+}
+.defeat-formation summary {
+  min-height: 44px;
+  padding: 10px 0;
+  line-height: 1.8;
+}
+.defeat-formation li > strong,
+.defeat-formation li > span {
+  display: block;
+}
+.defeat-formation li > span {
+  color: var(--muted);
+}
+.defeat-formation li > strong {
+  color: var(--paper);
+}

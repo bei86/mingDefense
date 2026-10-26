@@ -1,5 +1,6 @@
 import type { Session } from '../game/session';
 import { preparationAdvice, type DefeatRecap } from './defeat-advice';
+import { DefeatFormation } from './DefeatFormation';
 
 export function DefeatAdvice({
   session,
@@ -17,6 +18,7 @@ export function DefeatAdvice({
       <strong>{recap.title}</strong>
       <p>{recap.detail}</p>
       {recap.damageFact && <p className="defeat-fact">{recap.damageFact}</p>}
+      <DefeatFormation preparation={session.preparation} recap={recap} preparing={preparing} />
       <ul>
         {tips.map((tip) => (
           <li key={tip.id}>{tip.text}</li>

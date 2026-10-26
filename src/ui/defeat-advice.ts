@@ -1,6 +1,7 @@
 import { appearances, config, heroes } from '../game/content';
 import type { Combat, UnitBattleStats } from '../game/combat-model';
 import { placementError, type Preparation } from '../game/session';
+import { firstFallSnapshot, type FirstFall } from './defeat-formation';
 
 export type DefeatRecap = {
   stageId: number;
@@ -8,6 +9,7 @@ export type DefeatRecap = {
   title: string;
   detail: string;
   damageFact?: string;
+  firstFall?: FirstFall | null;
 };
 
 export type PreparationTip = { id: string; text: string };
@@ -37,7 +39,14 @@ export function defeatRecap(battle: Combat | null): DefeatRecap | null {
     ally && mostDamage
       ? `${appearances[ally.kind].name}${ally.rank}阶（第${ally.position.x + 1}列第${ally.position.y + 1}行）本次承受生命伤害最多：${Math.floor(mostDamage.damageTaken)}，不含护盾吸收。`
       : undefined;
-  return { stageId: battle.stageId, cause, title, detail, damageFact };
+  return {
+    stageId: battle.stageId,
+    cause,
+    title,
+    detail,
+    damageFact,
+    firstFall: firstFallSnapshot(battle),
+  };
 }
 
 export function preparationAdvice(
