@@ -18,6 +18,18 @@ export type InspectedEnemy = {
   descendants: number;
 };
 
+export type EnemyInspectionView = {
+  enemies: InspectedEnemy[];
+  initialId: number | undefined;
+};
+
+export function enemiesTargeting(
+  view: EnemyInspectionView | null,
+  unitId: number,
+): InspectedEnemy[] {
+  return view?.enemies.filter((enemy) => enemy.target?.id === unitId) ?? [];
+}
+
 export function enemySeconds(ms: number): string {
   return String(Math.ceil(Math.max(0, ms) / 100) / 10);
 }
@@ -27,9 +39,7 @@ function enemyName(kind: EnemyKind, stageId: number): string {
 }
 
 /** Project living instances without advancing the battle or predicting their next action. */
-export function enemyInspection(
-  battle: Combat | null,
-): { enemies: InspectedEnemy[]; initialId: number | undefined } | null {
+export function enemyInspection(battle: Combat | null): EnemyInspectionView | null {
   if (!battle) return null;
   const living = battle.enemies.filter((enemy) => enemy.hp > 0);
   const globalSlow = bonus(battle.progression, 'slow');

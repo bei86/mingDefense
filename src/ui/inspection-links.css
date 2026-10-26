@@ -1,0 +1,58 @@
+.inspection-threats {
+  margin: 12px 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0f2f2877;
+}
+.inspection-threats > summary {
+  min-height: 44px;
+  padding: 12px;
+  cursor: pointer;
+  color: var(--paper);
+  font-size: 12px;
+}
+.inspection-threats > summary:focus-visible,
+.inspection-link:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.inspection-threats-content {
+  padding: 0 10px 10px;
+}
+.inspection-threats ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.inspection-modal .secondary.inspection-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.inspection-link small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.inspection-modal .enemy-state .inspection-link {
+  margin-top: 8px;
+}
+.modal .inspection-threats-content p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}

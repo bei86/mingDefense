@@ -3,12 +3,14 @@ import { appearances } from '../game/content';
 import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
+import { AllyThreats } from './AllyThreats';
 import { BattleStats } from './BattleStats';
 import { InspectionFormation } from './InspectionFormation';
 import { EnemyInspection } from './EnemyInspection';
 import { UpcomingEnemies } from './UpcomingEnemies';
 import { timeLabel } from './CampaignPanels';
 import { battleInspection, type InspectedAlly } from './battle-inspection';
+import { enemiesTargeting, enemyInspection } from './enemy-inspection';
 import type { HandbookTarget } from './SpiritHandbook';
 import './battle-inspection.css';
 
@@ -81,12 +83,32 @@ type Props = {
   onHandbook: (target: HandbookTarget) => void;
   suspended?: boolean;
 };
+type Side = 'ally' | 'enemy' | 'upcoming';
 
 export function BattleInspection({ session, onClose, onHandbook, suspended = false }: Props) {
   const view = battleInspection(session.battle, session.preparation.units);
+  const enemyView = enemyInspection(session.battle);
   const [unitId, setUnitId] = useState(view?.initialId);
-  const [side, setSide] = useState<'ally' | 'enemy' | 'upcoming'>('ally');
+  const [enemyId, setEnemyId] = useState<number>();
+  const [side, setSide] = useState<Side>('ally');
+  const [focusSide, setFocusSide] = useState<Side | null>(null);
   const unit = view?.allies.find((entry) => entry.id === unitId) ?? view?.allies[0];
+  function changeSide(next: Side) {
+    setFocusSide(null);
+    setSide(next);
+  }
+  function showEnemy(id: number) {
+    if (!enemyView?.enemies.some((enemy) => enemy.id === id)) return;
+    setEnemyId(id);
+    setFocusSide('enemy');
+    setSide('enemy');
+  }
+  function showAlly(id: number) {
+    if (!view?.allies.some((ally) => ally.id === id && ally.alive)) return;
+    setUnitId(id);
+    setFocusSide('ally');
+    setSide('ally');
+  }
   return (
     <div className="modal-backdrop top-modal" hidden={suspended}>
       <section
@@ -121,17 +143,26 @@ export function BattleInspection({ session, onClose, onHandbook, suspended = fal
               </span>
             </div>
             <div className="inspection-sides" role="group" aria-label="查看战场信息">
-              <button aria-pressed={side === 'ally'} onClick={() => setSide('ally')}>
+              <button aria-pressed={side === 'ally'} onClick={() => changeSide('ally')}>
                 灵兽
               </button>
-              <button aria-pressed={side === 'enemy'} onClick={() => setSide('enemy')}>
+              <button aria-pressed={side === 'enemy'} onClick={() => changeSide('enemy')}>
                 敌人
               </button>
-              <button aria-pressed={side === 'upcoming'} onClick={() => setSide('upcoming')}>
+              <button aria-pressed={side === 'upcoming'} onClick={() => changeSide('upcoming')}>
                 后续敌袭
               </button>
             </div>
-            {side === 'enemy' && <EnemyInspection battle={session.battle} />}
+            {side === 'enemy' && (
+              <EnemyInspection
+                view={enemyView}
+                stageId={session.battle?.stageId ?? session.preparation.stageId}
+                selectedId={enemyId}
+                onSelect={setEnemyId}
+                onTarget={showAlly}
+                autoFocus={focusSide === 'enemy'}
+              />
+            )}
             {side === 'upcoming' && <UpcomingEnemies battle={session.battle} />}
             {side === 'ally' && (
               <>
@@ -146,6 +177,7 @@ export function BattleInspection({ session, onClose, onHandbook, suspended = fal
                       查看灵兽
                       <select
                         aria-label="查看灵兽"
+                        autoFocus={focusSide === 'ally'}
                         value={unit.id}
                         onChange={(event) => setUnitId(Number(event.target.value))}
                       >
@@ -157,6 +189,11 @@ export function BattleInspection({ session, onClose, onHandbook, suspended = fal
                       </select>
                     </label>
                     <AllyDetails unit={unit} />
+                    <AllyThreats
+                      key={`threats-${unit.id}`}
+                      enemies={enemiesTargeting(enemyView, unit.id)}
+                      onSelect={showEnemy}
+                    />
                     <BattleStats key={unit.id} battle={session.battle} unitId={unit.id} />
                     <button
                       className="secondary inspection-handbook-button"
