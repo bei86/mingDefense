@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { appearances, heroes } from '../game/content';
 import type { Combat } from '../game/combat';
 import { battleStats } from './battle-stats';
+import { BattleAction } from './BattleAction';
 import './battle-stats.css';
 
 type Props = { battle: Combat | null; unitId: number };
@@ -17,7 +18,7 @@ export function BattleStats({ battle, unitId }: Props) {
     >
       <summary>
         <strong>战斗当前属性</strong>
-        <span>含战中天赋 · 存活光环</span>
+        <span>含天赋 · 光环 · 行动状态</span>
       </summary>
       {model && (
         <div className="battle-stats-content">
@@ -43,6 +44,7 @@ export function BattleStats({ battle, unitId }: Props) {
                   ))}
                 </tbody>
               </table>
+              <BattleAction battle={battle} unitId={unitId} />
               {model.kind === 'fortune_peach' && (
                 <p>仅在存活时产钱。产钱间隔不受攻速、聚灵或攻击光环影响。</p>
               )}

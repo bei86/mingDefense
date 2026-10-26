@@ -65,3 +65,37 @@
 .battle-stats ul {
   padding-left: 18px;
 }
+.battle-action {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0f2f28;
+  overflow-wrap: anywhere;
+}
+.battle-action h4 {
+  margin: 0;
+  color: var(--paper);
+  font-size: 12px;
+}
+.battle-stats .battle-action .battle-action-status {
+  color: var(--paper);
+}
+.battle-action strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+.battle-stats .battle-action ul {
+  list-style: none;
+  padding: 0;
+}
+.battle-action li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.battle-action-lost {
+  color: #f5ac97;
+}
