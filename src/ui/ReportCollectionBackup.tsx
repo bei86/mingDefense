@@ -10,6 +10,7 @@ import {
   type ReportImportPlan,
 } from './report-backup';
 import { downloadText } from './text-download';
+import { TextExport } from './TextExport';
 import './report-backup.css';
 
 type Props = {
@@ -26,7 +27,6 @@ function BackupContent({ storage, isolated, onImported }: Props) {
   const [notice, setNotice] = useState('');
   const [exportNotice, setExportNotice] = useState('');
   const [reading, setReading] = useState(false);
-  const [copying, setCopying] = useState(false);
   const request = useRef(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   useEffect(
@@ -53,46 +53,23 @@ function BackupContent({ storage, isolated, onImported }: Props) {
         生成收藏备份
       </button>
       {exportText && (
-        <>
-          <label htmlFor={`${id}-export`}>完整收藏备份（可手动全选复制）</label>
-          <textarea id={`${id}-export`} readOnly value={exportText} spellCheck={false} />
-          <div className="report-export-actions">
-            <button
-              className="secondary"
-              disabled={copying}
-              onClick={async () => {
-                setCopying(true);
-                try {
-                  await navigator.clipboard.writeText(exportText);
-                  setExportNotice('收藏备份已复制。');
-                } catch {
-                  setExportNotice('自动复制不可用，请在文本框中手动全选复制。');
-                } finally {
-                  setCopying(false);
-                }
-              }}
-            >
-              {copying ? '正在复制…' : '复制收藏备份'}
-            </button>
-            <button
-              className="secondary"
-              onClick={() => {
-                try {
-                  downloadText(
-                    exportText,
-                    REPORT_BACKUP_FILE_NAME,
-                    'application/json;charset=utf-8',
-                  );
-                  setExportNotice('已发起JSON备份下载，请检查浏览器下载记录。');
-                } catch {
-                  setExportNotice('下载不可用，请复制上方完整备份文本。');
-                }
-              }}
-            >
-              下载收藏JSON
-            </button>
-          </div>
-        </>
+        <TextExport
+          text={exportText}
+          label="完整收藏备份（可手动全选复制）"
+          copyLabel="复制收藏备份"
+          copiedNotice="收藏备份已复制。"
+          download={{
+            label: '下载收藏JSON',
+            run: () => {
+              try {
+                downloadText(exportText, REPORT_BACKUP_FILE_NAME, 'application/json;charset=utf-8');
+                return '已发起JSON备份下载，请检查浏览器下载记录。';
+              } catch {
+                return '下载不可用，请复制上方完整备份文本。';
+              }
+            },
+          }}
+        />
       )}
       {exportNotice && <p role="status">{exportNotice}</p>}
       <label htmlFor={`${id}-file`}>选择收藏备份文件（JSON，最大1MiB）</label>

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { FormationPreset } from '../game/formation-presets';
 import { createFormationShare, inspectFormationShare } from './formation-share';
 import { PresetBoard } from './PresetBoard';
+import { TextExport } from './TextExport';
 import './formation-share.css';
 
 type Props = {
@@ -41,24 +42,12 @@ function ShareContent({ slot, preset, blocked, isolated, onImport }: Props) {
       </button>
       {!preset && <p>当前槽位未保存，可切换到已有阵型生成，或在下方粘贴导入。</p>}
       {exportText && (
-        <>
-          <label htmlFor="formation-share-export">完整阵型分享码（可手动全选复制）</label>
-          <textarea id="formation-share-export" readOnly value={exportText} spellCheck={false} />
-          <button
-            className="secondary"
-            onClick={async () => {
-              setCopyNotice('正在复制；也可在文本框中手动全选复制。');
-              try {
-                await navigator.clipboard.writeText(exportText);
-                setCopyNotice('已复制完整阵型分享码。');
-              } catch {
-                setCopyNotice('自动复制不可用，请在文本框中手动全选复制。');
-              }
-            }}
-          >
-            复制阵型分享码
-          </button>
-        </>
+        <TextExport
+          text={exportText}
+          label="完整阵型分享码（可手动全选复制）"
+          copyLabel="复制阵型分享码"
+          copiedNotice="已复制完整阵型分享码。"
+        />
       )}
       {copyNotice && <p role="status">{copyNotice}</p>}
       <label htmlFor="formation-share-import">粘贴完整阵型分享码（最大8KiB）</label>

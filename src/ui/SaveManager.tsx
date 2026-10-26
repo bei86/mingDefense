@@ -9,6 +9,7 @@ import {
 } from '../game/save-transfer';
 import { browserStorage } from './useSessionStorage';
 import { readBackupFile } from './backup-file';
+import { TextExport } from './TextExport';
 
 type Props = {
   session: Session;
@@ -19,6 +20,7 @@ type Props = {
 
 export function SaveManager({ session, isolated, onClose, onRestore }: Props) {
   const [exportText, setExportText] = useState('');
+  const [exportVersion, setExportVersion] = useState(0);
   const [importText, setImportText] = useState('');
   const [preview, setPreview] = useState<BackupPreview | null>(null);
   const [notice, setNotice] = useState('');
@@ -36,6 +38,7 @@ export function SaveManager({ session, isolated, onClose, onRestore }: Props) {
     try {
       const text = createBackup(session);
       setExportText(text);
+      setExportVersion((version) => version + 1);
       return text;
     } catch {
       setNotice('当前检查点无法生成有效备份，请保留页面并重试。');
@@ -120,24 +123,13 @@ export function SaveManager({ session, isolated, onClose, onRestore }: Props) {
                 </button>
               </div>
               {exportText && (
-                <>
-                  <label htmlFor="save-export">完整备份文本（可手动全选复制）</label>
-                  <textarea id="save-export" readOnly value={exportText} spellCheck={false} />
-                  <button
-                    className="secondary"
-                    onClick={async () => {
-                      setNotice('正在复制；若浏览器未允许，请在备份文本框中全选复制。');
-                      try {
-                        await navigator.clipboard.writeText(exportText);
-                        setNotice('已复制完整备份文本，请妥善保存。');
-                      } catch {
-                        setNotice('自动复制不可用，请在备份文本框中全选复制。');
-                      }
-                    }}
-                  >
-                    复制完整备份
-                  </button>
-                </>
+                <TextExport
+                  key={exportVersion}
+                  text={exportText}
+                  label="完整备份文本（可手动全选复制）"
+                  copyLabel="复制完整备份"
+                  copiedNotice="已复制完整备份文本，请妥善保存。"
+                />
               )}
             </section>
             <section className="save-manager-section" aria-label="恢复备份">

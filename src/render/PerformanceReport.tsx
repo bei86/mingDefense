@@ -1,4 +1,5 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
+import { TextExport } from '../ui/TextExport';
 import { downloadText } from '../ui/text-download';
 import {
   performanceReport,
@@ -10,19 +11,18 @@ import './performance-report.css';
 type Props = { readSample: () => PerformanceSample | null; onReset: () => void };
 
 export function PerformanceReport({ readSample, onReset }: Props) {
-  const textId = useId();
   const [report, setReport] = useState<PerformanceDocument | null>(null);
   const [notice, setNotice] = useState('');
-  const [copying, setCopying] = useState(false);
+  const [captureVersion, setCaptureVersion] = useState(0);
   return (
     <div className="performance-report">
       <p>在手机前台保持游玩后捕获。只保存最近采样窗口，不代表整局性能。</p>
       <div className="performance-actions">
         <button
           className="secondary"
-          disabled={copying}
           onClick={() => {
             const sample = readSample();
+            setCaptureVersion((version) => version + 1);
             setReport(sample ? performanceReport(sample, navigator.userAgent) : null);
             setNotice(
               sample
@@ -46,40 +46,24 @@ export function PerformanceReport({ readSample, onReset }: Props) {
       {notice && <p role="status">{notice}</p>}
       {report && (
         <div className="performance-captured">
-          <div className="performance-actions">
-            <button
-              className="secondary"
-              disabled={copying}
-              onClick={async () => {
-                setCopying(true);
-                try {
-                  await navigator.clipboard.writeText(report.text);
-                  setNotice('诊断报告已复制。');
-                } catch {
-                  setNotice('自动复制不可用，请在下方文本框中全选复制，或下载报告。');
-                } finally {
-                  setCopying(false);
-                }
-              }}
-            >
-              {copying ? '正在复制…' : '复制诊断报告'}
-            </button>
-            <button
-              className="secondary"
-              onClick={() => {
+          <TextExport
+            key={captureVersion}
+            text={report.text}
+            label="已捕获诊断文本（固定快照，可手动全选复制）"
+            copyLabel="复制诊断报告"
+            copiedNotice="诊断报告已复制。"
+            download={{
+              label: '下载诊断报告',
+              run: () => {
                 try {
                   downloadText(report.text, report.fileName, 'text/markdown;charset=utf-8');
-                  setNotice('已发起诊断报告下载，请检查浏览器下载记录；也可手动复制下方文本。');
+                  return '已发起诊断报告下载，请检查浏览器下载记录；也可手动复制下方文本。';
                 } catch {
-                  setNotice('下载不可用，请手动复制下方诊断文本。');
+                  return '下载不可用，请手动复制下方诊断文本。';
                 }
-              }}
-            >
-              下载诊断报告
-            </button>
-          </div>
-          <label htmlFor={textId}>已捕获诊断文本（固定快照，可手动全选复制）</label>
-          <textarea id={textId} readOnly value={report.text} spellCheck={false} />
+              },
+            }}
+          />
         </div>
       )}
     </div>
