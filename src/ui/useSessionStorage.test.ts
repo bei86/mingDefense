@@ -3,6 +3,32 @@ import { loadBrowserSession } from './useSessionStorage';
 
 afterEach(() => vi.unstubAllGlobals());
 
+test.each(['', '&case=setback&variant=candidate', '&case=invalid&variant=invalid'])(
+  '远程对照试玩%s绕过正式存储',
+  (params) => {
+    const getItem = vi.fn(() => {
+      throw Error('正式读取');
+    });
+    const setItem = vi.fn(() => {
+      throw Error('正式写入');
+    });
+    vi.stubGlobal('window', {
+      location: { search: `?playtest=ranged8${params}` },
+      localStorage: { getItem, setItem },
+    });
+    const loaded = loadBrowserSession();
+    expect(loaded.blocked).toBe(true);
+    expect(loaded.isolated).toBe(true);
+    expect(loaded.session.preparation.stageId).toBe(8);
+    expect(loaded.rangedPlaytest?.caseId).toBe(params.includes('setback') ? 'setback' : 'relief');
+    expect(loaded.rangedPlaytest?.variant).toBe(
+      params.includes('candidate') ? 'candidate' : 'baseline',
+    );
+    expect(getItem).not.toHaveBeenCalled();
+    expect(setItem).not.toHaveBeenCalled();
+  },
+);
+
 test.each([
   ['onboarding', 1, '开发首战试玩'],
   ['calibration20', 20, 'v18三格规则合法经济路线'],

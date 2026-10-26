@@ -9,6 +9,7 @@ import {
   stages,
   type EnemyKind,
 } from '../game/content';
+import type { Spawn } from '../game/combat-model';
 import { waveSpawns } from '../game/combat';
 
 export type EnemyIntelEntry = {
@@ -91,10 +92,10 @@ function enemyEntry(kind: EnemyKind, stageId: number, times: number[] = []): Ene
   };
 }
 
-export function stageIntel(stageId: number): StageIntelSummary {
+export function stageIntel(stageId: number, schedule?: readonly Spawn[]): StageIntelSummary {
   if (!Number.isInteger(stageId) || stageId < 1 || stageId > stages.length)
     throw new RangeError('敌情关卡超出范围');
-  const spawns = waveSpawns(stageId);
+  const spawns = schedule ?? waveSpawns(stageId);
   const timesByKind = new Map<EnemyKind, number[]>();
   for (const spawn of spawns) {
     const kind = spawn.kind ?? 'wolf';

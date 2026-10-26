@@ -1,3 +1,8 @@
+import {
+  createRangedPlaytest,
+  parseRangedPlaytest,
+  type RangedPlaytest,
+} from '../game/fixtures/ranged-playtest';
 import { useEffect, useRef, useState } from 'react';
 import {
   loadSession,
@@ -40,10 +45,22 @@ export const browserStorage: StoragePort = {
   removeItem: (key) => window.localStorage.removeItem(key),
 };
 let initialLoad: ReturnType<typeof loadSession> | null = null;
-export function loadBrowserSession(): LoadResult {
+export type BrowserLoadResult = LoadResult & { rangedPlaytest?: RangedPlaytest };
+export function loadBrowserSession(): BrowserLoadResult {
   const playtest = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get('playtest')
     : null;
+  if (import.meta.env.DEV && playtest === 'ranged8') {
+    const trial = createRangedPlaytest(parseRangedPlaytest(window.location.search));
+    return {
+      session: trial.session,
+      rangedPlaytest: trial,
+      message: '第8关固定开局对照：不读取或写入正式存档。',
+      recovered: false,
+      blocked: true,
+      isolated: true,
+    };
+  }
   if (playtest === 'onboarding')
     return {
       session: new Session(),

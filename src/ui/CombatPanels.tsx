@@ -214,6 +214,7 @@ type PauseProps = {
   onInspect: () => void;
   onReports: () => void;
   onReset: () => void;
+  resetLabel?: string;
 };
 export function PauseMenu({
   session,
@@ -228,6 +229,7 @@ export function PauseMenu({
   onInspect,
   onReports,
   onReset,
+  resetLabel = '重新开始挑战',
 }: PauseProps) {
   return (
     <div className="modal-backdrop">
@@ -272,7 +274,7 @@ export function PauseMenu({
           返回调整阵容
         </button>
         <button className="text-button" onClick={onReset}>
-          重新开始挑战
+          {resetLabel}
         </button>
       </section>
     </div>

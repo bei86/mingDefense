@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { appearances, config, enemyCount, stages, stageNames, type Point } from '../game/content';
 import { unitAt, type Source, type Session } from '../game/session';
-import type { LoadResult } from '../game/persistence';
+import type { BrowserLoadResult } from './useSessionStorage';
+import { RangedPlaytestPanel } from './RangedPlaytest';
 import { GameClock } from '../game/clock';
 import { startGameLoop } from './game-loop';
 import { Battlefield } from '../render/Battlefield';
@@ -54,8 +55,15 @@ export function App() {
     />
   );
 }
-function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: Session) => void }) {
+function GameApp({
+  boot,
+  onRestore,
+}: {
+  boot: BrowserLoadResult;
+  onRestore: (session: Session) => void;
+}) {
   const session = boot.session;
+  const trial = import.meta.env.DEV ? boot.rangedPlaytest : undefined;
   const [clock] = useState(() => new GameClock(session));
   const [feedback] = useState(() => new CombatFeedback());
   const [fieldReady, setFieldReady] = useState(false);
@@ -80,9 +88,11 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const [selected, setSelected] = useState<Source | null>(null);
   const [hover, setHover] = useState<Point | null>(null);
   const [dragOffset, setDragOffset] = useState<Point | null>(null);
-  const [message, setMessage] = useState(
-    boot.recovered ? '进度已恢复，可继续调整阵容。' : '免费招募已备好，先选灵兽，再点亮起的空格。',
-  );
+  const [message, setMessage] = useState(() => {
+    if (trial) return '固定开局已备好，可直接守阵或调整阵容。';
+    if (boot.recovered) return '进度已恢复，可继续调整阵容。';
+    return '免费招募已备好，先选灵兽，再点亮起的空格。';
+  });
   const [dialog, setDialog] = useState<Confirmation | null>(null);
   const [help, setHelp] = useState(false);
   const [journal, setJournal] = useState(false);
@@ -342,15 +352,17 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
   const reset = () => {
     pauseForMenu();
     setDialog({
-      title: '重新开始五十关挑战',
-      body: '清空本轮阵容、修行和灵钱，回到第 1 关。',
+      title: trial ? '重置本方案' : '重新开始五十关挑战',
+      body: trial
+        ? '丢弃本次试玩进度，恢复当前案例的第8关原始开局。'
+        : '清空本轮阵容、修行和灵钱，回到第 1 关。',
       label: '重新开始',
       action: () => {
         session.reset();
         setLastDefeat(null);
         clock.reset();
         setSelected(null);
-        setMessage('新一轮免费招募已备好。');
+        setMessage(trial ? '第8关原始开局已恢复。' : '新一轮免费招募已备好。');
         repaint();
       },
     });
@@ -481,6 +493,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           </button>
         </div>
       )}
+      {import.meta.env.DEV && trial && <RangedPlaytestPanel trial={trial} />}
       {preparing && (
         <section className="stage-strip">
           <div>
@@ -615,7 +628,11 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
       </section>
       {preparing && (
         <footer>
-          <span>五十关原型 · 临时数值待校准 · 自动保存检查点</span>
+          <span>
+            {trial
+              ? '单关隔离试玩 · 刷新恢复原始开局 · 不保存进度'
+              : '五十关原型 · 临时数值待校准 · 自动保存检查点'}
+          </span>
           <div className="preparation-save-tools">
             <button className="text-button" onClick={() => setReports(true)}>
               战报收藏
@@ -643,6 +660,9 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           session={session}
           isolated={boot.isolated ?? false}
           reportStorage={reportStorage}
+          trialActions={
+            import.meta.env.DEV && trial ? <RangedPlaytestPanel trial={trial} /> : undefined
+          }
           onReports={() => setReports(true)}
           onSaves={() => setSaves(true)}
           onNext={() => {
@@ -678,6 +698,7 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
         !audioSettings &&
         !saves && (
           <PauseMenu
+            resetLabel={trial ? '重置本方案' : undefined}
             session={session}
             soundControl={soundControl}
             onResume={resume}
@@ -799,7 +820,13 @@ function GameApp({ boot, onRestore }: { boot: LoadResult; onRestore: (session: S
           onClose={() => setHandbook(null)}
         />
       )}
-      {intel && <StageIntel currentStageId={p.stageId} onClose={() => setIntel(false)} />}
+      {intel && (
+        <StageIntel
+          currentSpawns={trial?.spawns}
+          currentStageId={p.stageId}
+          onClose={() => setIntel(false)}
+        />
+      )}
       {saves && (
         <SaveManager
           session={session}

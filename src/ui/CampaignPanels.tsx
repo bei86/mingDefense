@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { buffDefinitions, buffLabels, threshold } from '../game/progression';
 import { stageNames } from '../game/content';
 import type { BuffId } from '../game/model';
@@ -120,6 +121,7 @@ export function ResultModal({
   onRetry,
   onPrepare,
   onReset,
+  trialActions,
 }: {
   session: Session;
   isolated: boolean;
@@ -130,9 +132,17 @@ export function ResultModal({
   onRetry: () => void;
   onPrepare: () => void;
   onReset: () => void;
+  trialActions?: ReactNode;
 }) {
   const win = session.phase === 'victory';
   const b = session.battle!;
+  let description = '免费重试会恢复开战前的阵容、招募与修行，本关临时收益不保留。';
+  if (win) description = '成长和阵容保留，进入下关时全员恢复，并免费刷新招募。';
+  if (session.complete)
+    description =
+      '五十关挑战已完成，感谢守护这一片灵林。可重新开始挑战；当前数值仍待原作实机校准。';
+  if (trialActions)
+    description = '本次单关试玩已结束。重置或切换方案将恢复该案例的原始开局，不会进入下一关。';
   return (
     <div className="modal-backdrop">
       <section
@@ -146,13 +156,7 @@ export function ResultModal({
           {stageNames[session.preparation.stageId - 1]} · 第 {session.preparation.stageId} 关
         </span>
         <h2 id="result-title">{session.complete ? '五十境皆安' : win ? '灵林无恙' : '阵线失守'}</h2>
-        <p>
-          {session.complete
-            ? '五十关挑战已完成，感谢守护这一片灵林。可重新开始挑战；当前数值仍待原作实机校准。'
-            : win
-              ? '成长和阵容保留，进入下关时全员恢复，并免费刷新招募。'
-              : '免费重试会恢复开战前的阵容、招募与修行，本关临时收益不保留。'}
-        </p>
+        <p>{description}</p>
         <div className="result-stats">
           <span>
             击退<strong>{b.kills}</strong>
@@ -180,12 +184,12 @@ export function ResultModal({
         <BattleReport battle={b} />
         <ReportExport session={session} isolated={isolated} storage={reportStorage} />
         {!win && <DefeatAdvice session={session} recap={defeatRecap(b)} />}
-        {win && !session.complete && (
+        {!trialActions && win && !session.complete && (
           <button className="primary" onClick={onNext}>
             前往第 {session.preparation.stageId + 1} 关整备 →
           </button>
         )}
-        {!win && (
+        {!trialActions && !win && (
           <>
             <button className="primary" onClick={onRetry}>
               免费重试
@@ -195,15 +199,18 @@ export function ResultModal({
             </button>
           </>
         )}
+        {trialActions}
         <button className="secondary" onClick={onReports}>
           战报收藏
         </button>
         <button className="secondary" onClick={onSaves}>
           存档备份与恢复
         </button>
-        <button className={session.complete ? 'primary' : 'text-button'} onClick={onReset}>
-          重新开始五十关挑战
-        </button>
+        {!trialActions && (
+          <button className={session.complete ? 'primary' : 'text-button'} onClick={onReset}>
+            重新开始五十关挑战
+          </button>
+        )}
       </section>
     </div>
   );

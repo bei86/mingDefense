@@ -1,3 +1,4 @@
+import type { Spawn } from '../game/combat-model';
 import { useState } from 'react';
 import { stages, stageNames } from '../game/content';
 import { bossArtKey, enemyArt } from '../render/art';
@@ -53,13 +54,15 @@ function EnemyCard({ entry, stageId }: { entry: EnemyIntelEntry; stageId: number
 
 export function StageIntel({
   currentStageId,
+  currentSpawns,
   onClose,
 }: {
   currentStageId: number;
+  currentSpawns?: readonly Spawn[];
   onClose: () => void;
 }) {
   const [stageId, setStageId] = useState(currentStageId);
-  const intel = stageIntel(stageId);
+  const intel = stageIntel(stageId, stageId === currentStageId ? currentSpawns : undefined);
   return (
     <div className="modal-backdrop top-modal">
       <section

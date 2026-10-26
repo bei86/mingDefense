@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 2,
+  "contentVersion": "prototype-2026-10-22-v24",
+  "seed": 20270112,
+  "mode": "campaign",
+  "phase": "prepare",
+  "preparation": {
+    "currency": 5,
+    "unlocked": [
+      "1,3",
+      "2,3",
+      "3,3",
+      "4,3",
+      "1,4",
+      "2,4",
+      "3,4",
+      "4,4",
+      "1,5",
+      "2,5",
+      "3,5",
+      "4,5",
+      "2,2",
+      "3,2",
+      "2,1",
+      "3,1",
+      "1,2",
+      "4,2",
+      "0,3",
+      "5,3",
+      "0,4",
+      "5,4",
+      "2,0",
+      "3,0",
+      "1,1",
+      "4,1",
+      "0,2",
+      "5,2",
+      "0,5",
+      "5,5"
+    ],
+    "units": [
+      {
+        "id": 5,
+        "kind": "ember_mouse",
+        "rank": 5,
+        "position": {
+          "x": 4,
+          "y": 3
+        }
+      },
+      {
+        "id": 7,
+        "kind": "boar",
+        "rank": 3,
+        "position": {
+          "x": 2,
+          "y": 3
+        }
+      },
+      {
+        "id": 8,
+        "kind": "sword_eagle",
+        "rank": 3,
+        "position": {
+          "x": 3,
+          "y": 4
+        }
+      },
+      {
+        "id": 12,
+        "kind": "fortune_peach",
+        "rank": 4,
+        "position": {
+          "x": 2,
+          "y": 5
+        }
+      },
+      {
+        "id": 17,
+        "kind": "shield_fox",
+        "rank": 3,
+        "position": {
+          "x": 2,
+          "y": 4
+        }
+      },
+      {
+        "id": 23,
+        "kind": "scatter_bear",
+        "rank": 4,
+        "position": {
+          "x": 2,
+          "y": 1
+        }
+      },
+      {
+        "id": 33,
+        "kind": "piercing_monkey",
+        "rank": 3,
+        "position": null
+      },
+      {
+        "id": 64,
+        "kind": "piercing_monkey",
+        "rank": 2,
+        "position": null
+      },
+      {
+        "id": 70,
+        "kind": "shield_fox",
+        "rank": 2,
+        "position": {
+          "x": 0,
+          "y": 3
+        }
+      },
+      {
+        "id": 83,
+        "kind": "ice_fish",
+        "rank": 2,
+        "position": {
+          "x": 1,
+          "y": 3
+        }
+      },
+      {
+        "id": 90,
+        "kind": "ember_mouse",
+        "rank": 2,
+        "position": {
+          "x": 5,
+          "y": 4
+        }
+      },
+      {
+        "id": 91,
+        "kind": "boar",
+        "rank": 2,
+        "position": {
+          "x": 3,
+          "y": 2
+        }
+      },
+      {
+        "id": 105,
+        "kind": "fortune_peach",
+        "rank": 3,
+        "position": {
+          "x": 5,
+          "y": 3
+        }
+      },
+      {
+        "id": 121,
+        "kind": "shield_fox",
+        "rank": 1,
+        "position": {
+          "x": 0,
+          "y": 5
+        }
+      },
+      {
+        "id": 142,
+        "kind": "scatter_bear",
+        "rank": 2,
+        "position": {
+          "x": 3,
+          "y": 0
+        }
+      },
+      {
+        "id": 147,
+        "kind": "fortune_peach",
+        "rank": 2,
+        "position": {
+          "x": 5,
+          "y": 5
+        }
+      },
+      {
+        "id": 151,
+        "kind": "boar",
+        "rank": 1,
+        "position": {
+          "x": 0,
+          "y": 2
+        }
+      }
+    ],
+    "offers": [
+      {
+        "id": 153,
+        "kind": "ice_fish",
+        "claimed": false,
+        "rank": 1
+      },
+      {
+        "id": 154,
+        "kind": "scatter_bear",
+        "claimed": true,
+        "rank": 1
+      },
+      {
+        "id": 155,
+        "kind": "sword_eagle",
+        "claimed": false,
+        "rank": 1
+      }
+    ],
+    "rng": 2308109653,
+    "nextId": 157,
+    "stageId": 8,
+    "progression": {
+      "level": 8,
+      "xp": 80,
+      "buffs": {
+        "attack_speed": 1,
+        "attack": 4,
+        "health": 1,
+        "boar_attack": 1
+      },
+      "rng": 3827402519
+    },
+    "combatRng": 3375657604,
+    "rewardedStages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "battle": null,
+  "settled": false,
+  "lastReward": 50,
+  "lastIncome": 5,
+  "lastBonus": 0,
+  "speed": 1,
+  "recoveredBattle": false
+}

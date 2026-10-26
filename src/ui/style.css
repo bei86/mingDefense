@@ -1162,3 +1162,47 @@ footer {
   line-height: 1.9;
   padding-bottom: max(6px, env(safe-area-inset-bottom));
 }
+.ranged-playtest {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid #8b754c;
+  border-radius: 10px;
+  background: #f6ecd7;
+  color: #463c2b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.ranged-playtest summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.ranged-playtest label,
+.ranged-playtest nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+.ranged-playtest select {
+  min-width: 0;
+  max-width: 100%;
+  padding: 6px;
+}
+.ranged-playtest a {
+  padding: 6px 10px;
+  color: #463c2b;
+  border: 1px solid #8b754c;
+  border-radius: 6px;
+  text-decoration: none;
+}
+.ranged-playtest a[aria-current] {
+  background: #463c2b;
+  color: #fff5df;
+}
+.ranged-playtest p {
+  margin: 8px 0;
+}
+.ranged-playtest small {
+  color: #68583f;
+}
