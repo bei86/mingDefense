@@ -493,7 +493,10 @@ function GameApp({
           </button>
         </div>
       )}
-      {import.meta.env.DEV && trial && <RangedPlaytestPanel trial={trial} />}
+      {import.meta.env.DEV &&
+        trial &&
+        session.phase !== 'victory' &&
+        session.phase !== 'defeat' && <RangedPlaytestPanel trial={trial} />}
       {preparing && (
         <section className="stage-strip">
           <div>

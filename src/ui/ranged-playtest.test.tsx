@@ -7,6 +7,8 @@ import { StageIntel } from './StageIntel';
 import { RangedPlaytestPanel } from './RangedPlaytest';
 import { stageIntel } from './stage-intel';
 import { temporaryReportStorage } from './report-collection';
+import { RangedResultsView } from './RangedResults';
+import { rangedResult } from './ranged-results';
 
 test('候选敌情数量与真实调度一致，普通关卡保持原数量', () => {
   const trial = createRangedPlaytest({ caseId: 'relief', variant: 'candidate' });
@@ -50,3 +52,27 @@ test.each(['baseline', 'candidate'] as const)(
     expect(normal).toContain(variant === 'baseline' ? '免费重试' : '前往第');
   },
 );
+
+test('最近战果显示缺侧和真实差异，报告/清空控件不带下一关操作', () => {
+  const baseline = createRangedPlaytest({ caseId: 'relief', variant: 'baseline' });
+  const candidate = createRangedPlaytest({ caseId: 'relief', variant: 'candidate' });
+  runPreparedBattle(baseline.session, 'assault', false);
+  runPreparedBattle(candidate.session, 'assault', false);
+  const results = [rangedResult(baseline, 1000)!, rangedResult(candidate, 2000)!];
+  const render = (entries: typeof results) =>
+    renderToStaticMarkup(
+      <RangedResultsView results={{ entries, error: null }} caseId="relief" onClear={() => {}} />,
+    );
+  expect(render([])).toContain('尚无完整战果');
+  expect(render([results[0]])).toContain('未试玩');
+  const html = render(results);
+  expect(html).toContain('1695');
+  expect(html).toContain('3619');
+  expect(html).toContain('开战档相同');
+  expect(html).toContain('结束累计天赋不同');
+  expect(html).toContain('复制战报');
+  expect(html).toContain('下载 Markdown');
+  expect(html).toContain('试玩对照报告');
+  expect(html).toContain('清空本标签页试玩记录');
+  expect(html).not.toContain('前往第');
+});

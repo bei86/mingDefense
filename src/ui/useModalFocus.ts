@@ -18,7 +18,7 @@ export function useModalFocus(active: boolean, context: string): void {
     const controls = () =>
       [
         ...modal.querySelectorAll<HTMLElement>(
-          'button:not(:disabled), select:not(:disabled), textarea:not(:disabled), input:not(:disabled):not([type="hidden"])',
+          'summary, a[href], button:not(:disabled), select:not(:disabled), textarea:not(:disabled), input:not(:disabled):not([type="hidden"])',
         ),
       ].filter((element) => element.getClientRects().length > 0);
     controls()[0]?.focus();

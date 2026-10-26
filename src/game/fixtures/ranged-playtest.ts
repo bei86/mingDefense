@@ -35,7 +35,7 @@ export type RangedSelection = {
   caseId: keyof typeof rangedCases;
   variant: 'baseline' | 'candidate';
 };
-export type RangedPlaytest = RangedSelection & { session: Session; spawns: Spawn[] };
+export type RangedPlaytest = RangedSelection & { session: RangedSession; spawns: Spawn[] };
 
 export function parseRangedPlaytest(search: string): RangedSelection {
   const params = new URLSearchParams(search);
@@ -53,6 +53,11 @@ export function rangedPlaytestUrl({ caseId, variant }: RangedSelection): string 
 class RangedSession extends Session {
   private readonly opening: SessionSave;
   private readonly schedule: Spawn[];
+  private startedFrom: SessionSave | null = null;
+
+  get battleOpening(): SessionSave | null {
+    return clone(this.startedFrom);
+  }
 
   constructor(opening: SessionSave, schedule: Spawn[]) {
     super(opening.seed, opening.mode);
@@ -62,13 +67,18 @@ class RangedSession extends Session {
   }
 
   override start(): string | null {
+    const opening = this.exportSave();
     const error = super.start();
-    if (!error) this.battle!.spawns = clone(this.schedule);
+    if (!error) {
+      this.startedFrom = opening;
+      this.battle!.spawns = clone(this.schedule);
+    }
     return error;
   }
 
   override reset(): void {
     super.reset();
+    this.startedFrom = null;
     this.preparation = clone(this.opening.preparation);
     this.lastReward = this.opening.lastReward;
     this.lastIncome = this.opening.lastIncome;

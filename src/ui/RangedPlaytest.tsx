@@ -3,6 +3,7 @@ import {
   rangedPlaytestUrl,
   type RangedPlaytest,
 } from '../game/fixtures/ranged-playtest';
+import { RangedResults } from './RangedResults';
 
 export function RangedPlaytestPanel({ trial }: { trial: RangedPlaytest }) {
   const source = rangedCases[trial.caseId];
@@ -57,6 +58,7 @@ export function RangedPlaytestPanel({ trial }: { trial: RangedPlaytest }) {
         。手动结果可能不同。
         {trial.caseId === 'carryover' && '后续退步来自先前完整路线实验，本入口不运行后续关卡。'}
       </small>
+      <RangedResults trial={trial} />
     </details>
   );
 }

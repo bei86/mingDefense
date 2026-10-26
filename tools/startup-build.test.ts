@@ -42,6 +42,6 @@ describe.runIf(process.env.CHECK_STARTUP_BUILD === '1')('生产包启动依赖�
     const scripts = Object.values(manifest)
       .map((chunk) => readFileSync(resolve('dist', chunk.file), 'utf8'))
       .join('\n');
-    expect(scripts).not.toMatch(/ranged8|减远程后获益|20270105|20270115|20270112/);
+    expect(scripts).not.toMatch(/ranged8|本标签页最近战果|减远程后获益|20270105|20270115|20270112/);
   });
 });

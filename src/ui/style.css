@@ -1176,8 +1176,8 @@ footer {
   cursor: pointer;
   font-weight: 700;
 }
-.ranged-playtest label,
-.ranged-playtest nav {
+.ranged-playtest > label,
+.ranged-playtest > nav {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -1200,9 +1200,11 @@ footer {
   background: #463c2b;
   color: #fff5df;
 }
-.ranged-playtest p {
+.ranged-playtest > p,
+.modal .ranged-playtest > p {
   margin: 8px 0;
+  color: inherit;
 }
-.ranged-playtest small {
+.ranged-playtest > small {
   color: #68583f;
 }

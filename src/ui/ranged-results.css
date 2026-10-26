@@ -1,0 +1,40 @@
+.ranged-results {
+  background: var(--forest);
+  color: var(--paper);
+}
+.ranged-results small {
+  color: var(--muted);
+}
+.ranged-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.ranged-results-table caption {
+  padding: 8px 0;
+  text-align: left;
+  color: var(--gold);
+}
+.ranged-results-table th,
+.ranged-results-table td {
+  padding: 7px 3px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.ranged-record-time {
+  display: block;
+  margin-bottom: 6px;
+  overflow-wrap: anywhere;
+}
+.ranged-results-actions {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ranged-results-actions .secondary {
+  min-height: 44px;
+  margin: 0;
+}
