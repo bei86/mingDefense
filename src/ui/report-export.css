@@ -41,6 +41,9 @@
   padding: 8px 4px;
   font-size: 11px;
 }
+.report-export-actions .select-report-text {
+  grid-column: 1 / -1;
+}
 .report-text .collect-report {
   width: 100%;
   min-height: 44px;
