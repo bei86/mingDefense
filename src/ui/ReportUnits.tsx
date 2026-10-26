@@ -3,6 +3,8 @@ import type { Combat } from '../game/combat-model';
 import { appearances } from '../game/content';
 import { reportMetrics, reportValue, sortReportUnits, type ReportMetric } from './report-unit-sort';
 import { reportKindSummary, type ReportKind } from './report-kinds';
+import { reportContribution } from './report-contribution';
+import { ReportContributionShare, ReportContributionTotal } from './ReportContribution';
 import './report-units.css';
 
 type TableProps = {
@@ -50,11 +52,13 @@ function ReportTableHead({ metric }: { metric: ReportMetric }) {
 }
 
 export function ReportUnitTable({ battle, metric, onMetric }: TableProps) {
-  if (!battle.report) return null;
+  const contribution = reportContribution(battle, metric);
+  if (!battle.report || !contribution) return null;
   const label = reportMetrics.find((entry) => entry.key === metric)!.label;
   return (
     <>
       <ReportMetricSelect metric={metric} onMetric={onMetric} />
+      <ReportContributionTotal model={contribution} metric={metric} />
       <div className="report-table-wrap">
         <table className="report-table">
           <caption>本关上阵灵兽表现 · 按{label}降序</caption>
@@ -81,6 +85,11 @@ export function ReportUnitTable({ battle, metric, onMetric }: TableProps) {
                     >
                       吸收 {reportValue(entry, 'shieldAbsorbed') ?? '未记录'}
                     </small>
+                    <ReportContributionShare
+                      model={contribution}
+                      metric={metric}
+                      value={reportValue(entry, metric)}
+                    />
                   </th>
                   <td>{reportValue(entry, 'damageDone') ?? '未记录'}</td>
                   <td>{reportValue(entry, 'damageTaken') ?? '未记录'}</td>
@@ -131,11 +140,13 @@ function kindValue(group: ReportKind, metric: ReportMetric): number | string {
 
 export function ReportKindTable({ battle, metric, onMetric }: TableProps) {
   const groups = reportKindSummary(battle, metric);
-  if (!groups) return null;
+  const contribution = reportContribution(battle, metric);
+  if (!groups || !contribution) return null;
   const label = reportMetrics.find((entry) => entry.key === metric)!.label;
   return (
     <>
       <ReportMetricSelect metric={metric} onMetric={onMetric} />
+      <ReportContributionTotal model={contribution} metric={metric} />
       <div className="report-table-wrap">
         <table className="report-table report-kind-table">
           <caption>本关同种合计 · 按{label}降序</caption>
@@ -161,6 +172,11 @@ export function ReportKindTable({ battle, metric, onMetric }: TableProps) {
                   >
                     吸收 {kindValue(group, 'shieldAbsorbed')}
                   </small>
+                  <ReportContributionShare
+                    model={contribution}
+                    metric={metric}
+                    value={group.metrics[metric].value}
+                  />
                 </th>
                 <td>{kindValue(group, 'damageDone')}</td>
                 <td>{kindValue(group, 'damageTaken')}</td>

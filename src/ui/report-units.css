@@ -35,3 +35,35 @@
 .report-kind-table td {
   overflow-wrap: anywhere;
 }
+.modal .report-contribution-total {
+  margin: 10px;
+  color: var(--paper);
+  font-size: 12px;
+}
+.report-contribution-total strong {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.report-contribution-total small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+}
+.report-table .report-contribution-share {
+  margin-top: 4px;
+  color: var(--gold);
+  font-size: 10px;
+}
+.report-contribution-track {
+  display: block;
+  height: 3px;
+  margin-top: 3px;
+  border-radius: 2px;
+  background: #8fa37c33;
+  overflow: hidden;
+}
+.report-contribution-track > span {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+}
