@@ -1,7 +1,8 @@
 import { appearances } from '../game/content';
 import { bossArtKey, enemyArt } from '../render/art';
 import { ArtImage } from './ArtImage';
-import { enemySeconds, type InspectedEnemy, type EnemyInspectionView } from './enemy-inspection';
+import { EnemyWarnings } from './EnemyWarnings';
+import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
 import './inspection-links.css';
 
 function targetLabel(enemy: InspectedEnemy): string {
@@ -98,27 +99,7 @@ function EnemyDetails({
           <dd>{enemy.descendants} 只</dd>
         </div>
       </dl>
-      <div className="enemy-warnings">
-        <h4>已出现的横扫预警</h4>
-        {enemy.warnings.length > 0 ? (
-          <ul>
-            {enemy.warnings.map((warning, index) => (
-              <li key={index}>
-                <strong>
-                  第 {warning.row} 行{warning.echo ? ' · 回响' : ''}
-                </strong>
-                <span>
-                  {warning.remainingMs > 0
-                    ? `剩余 ${enemySeconds(warning.remainingMs)} 秒`
-                    : '待释放'}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>当前没有已记录预警。</p>
-        )}
-      </div>
+      <EnemyWarnings key={enemy.id} warnings={enemy.warnings} onSelect={onTarget} />
     </article>
   );
 }

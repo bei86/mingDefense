@@ -3,6 +3,15 @@ import type { Combat } from '../game/combat-model';
 import { bonus } from '../game/progression';
 import type { InspectedAlly } from './battle-inspection';
 
+type InspectedAllyPosition = Pick<InspectedAlly, 'id' | 'kind' | 'rank' | 'position'>;
+
+export type InspectedWarning = {
+  row: number;
+  remainingMs: number;
+  echo: boolean;
+  allies: InspectedAllyPosition[];
+};
+
 export type InspectedEnemy = {
   id: number;
   kind: EnemyKind;
@@ -11,9 +20,9 @@ export type InspectedEnemy = {
   maxHp: number | null;
   phase: string | null;
   targetState: 'none' | 'locked' | 'lost';
-  target: Pick<InspectedAlly, 'id' | 'kind' | 'rank' | 'position'> | null;
+  target: InspectedAllyPosition | null;
   effects: { label: string; value: string }[];
-  warnings: { row: number; remainingMs: number; echo: boolean }[];
+  warnings: InspectedWarning[];
   origin: string | null;
   descendants: number;
 };
@@ -100,6 +109,21 @@ export function enemyInspection(battle: Combat | null): EnemyInspectionView | nu
           row: warning.row + 1,
           remainingMs: Math.max(0, warning.due - battle.time),
           echo: warning.echo ?? false,
+          allies: battle.allies
+            .filter(
+              (ally) =>
+                ally.hp > 0 &&
+                heroes[ally.kind].shape.some(([, dy]) => ally.position.y + dy === warning.row),
+            )
+            .sort(
+              (a, b) => a.position.y - b.position.y || a.position.x - b.position.x || a.id - b.id,
+            )
+            .map((ally) => ({
+              id: ally.id,
+              kind: ally.kind,
+              rank: ally.rank,
+              position: { ...ally.position },
+            })),
         })),
       origin,
       descendants: living.filter((child) => child.owner === enemy.id).length,

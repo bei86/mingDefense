@@ -1,0 +1,44 @@
+.enemy-warnings .inspection-warning-entry {
+  display: block;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #112f28;
+}
+.inspection-warning-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 10px;
+}
+.inspection-warning-allies {
+  margin-top: 8px;
+  color: var(--paper);
+}
+.inspection-warning-allies > summary {
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.inspection-warning-allies > summary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.enemy-warnings .inspection-warning-allies > ul {
+  margin-top: 8px;
+}
+.enemy-warnings .inspection-warning-allies li {
+  display: block;
+}
+.modal .enemy-warnings .inspection-warning-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}

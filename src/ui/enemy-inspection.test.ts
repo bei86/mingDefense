@@ -135,9 +135,10 @@ describe('暂停敌人详情', () => {
       { source: wolf.id, due: 1800, row: 4 },
       { source: boss.id, due: 1000, row: 3 },
     ];
+    const allies = [{ id: 10, kind: 'ember_mouse', rank: 1, position: { x: 1, y: 3 } }];
     expect(enemyInspection(b)!.enemies[0].warnings).toEqual([
-      { row: 4, remainingMs: 0, echo: false },
-      { row: 4, remainingMs: 1500, echo: true },
+      { row: 4, remainingMs: 0, echo: false, allies },
+      { row: 4, remainingMs: 1500, echo: true, allies },
     ]);
     expect(b.warnings[0].due).toBe(2500);
   });
