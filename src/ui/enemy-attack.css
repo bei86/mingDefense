@@ -1,0 +1,31 @@
+.enemy-attack-content {
+  padding: 0 10px 10px;
+  font-size: 11px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.modal .enemy-attack-content p {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: inherit;
+  line-height: inherit;
+}
+.modal .enemy-attack-content .enemy-attack-status {
+  color: var(--paper);
+}
+.enemy-attack-content strong {
+  color: var(--gold);
+}
+.enemy-attack-content li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--forest);
+  color: var(--paper);
+}
+.enemy-attack-lost {
+  color: var(--danger);
+}

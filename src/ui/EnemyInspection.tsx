@@ -2,6 +2,7 @@ import { appearances } from '../game/content';
 import { bossArtKey, enemyArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { EnemyWarnings } from './EnemyWarnings';
+import { EnemyAttack } from './EnemyAttack';
 import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
 import './inspection-links.css';
 
@@ -99,6 +100,7 @@ function EnemyDetails({
           <dd>{enemy.descendants} 只</dd>
         </div>
       </dl>
+      <EnemyAttack key={`attack-${enemy.id}`} model={enemy.attack} onTarget={onTarget} />
       <EnemyWarnings key={enemy.id} warnings={enemy.warnings} onSelect={onTarget} />
     </article>
   );

@@ -2,6 +2,7 @@ import { bossName, enemyAppearances, heroes, type EnemyKind } from '../game/cont
 import type { Combat } from '../game/combat-model';
 import { bonus } from '../game/progression';
 import type { InspectedAlly } from './battle-inspection';
+import { enemyAttack, type EnemyAttackModel } from './enemy-attack';
 
 type InspectedAllyPosition = Pick<InspectedAlly, 'id' | 'kind' | 'rank' | 'position'>;
 
@@ -25,6 +26,7 @@ export type InspectedEnemy = {
   warnings: InspectedWarning[];
   origin: string | null;
   descendants: number;
+  attack: EnemyAttackModel | null;
 };
 
 export type EnemyInspectionView = {
@@ -127,6 +129,7 @@ export function enemyInspection(battle: Combat | null): EnemyInspectionView | nu
         })),
       origin,
       descendants: living.filter((child) => child.owner === enemy.id).length,
+      attack: enemyAttack(battle, enemy.id),
     };
   });
   enemies.sort((a, b) => Number(b.kind === 'boss') - Number(a.kind === 'boss') || a.id - b.id);
