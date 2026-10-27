@@ -40,6 +40,48 @@
   color: var(--paper);
   font: inherit;
 }
+.collection-select select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.collection-filters {
+  min-width: 0;
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.collection-filters legend {
+  color: var(--gold);
+  font-size: 12px;
+}
+.collection-filter-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(90px, 0.6fr);
+  gap: 8px;
+}
+.collection-filter-fields .collection-select {
+  min-width: 0;
+  margin-top: 0;
+}
+.collection-filter-fields select {
+  font-size: 12px;
+}
+.report-collection .collection-filter-count {
+  margin: 12px 0 0;
+  color: var(--gold);
+}
+.collection-filters > .secondary {
+  min-height: 44px;
+}
+.collection-filters .collection-note {
+  margin: 12px 0 0;
+}
+@media (max-width: 310px) {
+  .collection-filter-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .report-collection h3 {
   color: var(--gold);
   font-size: 14px;

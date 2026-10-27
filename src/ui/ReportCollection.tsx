@@ -4,6 +4,7 @@ import type { StoragePort } from '../game/persistence';
 import { readReports, removeReport, REPORT_COLLECTION_LIMIT } from './report-collection';
 import { ReportText } from './ReportText';
 import { ReportCollectionBackup } from './ReportCollectionBackup';
+import { reportCollectionView, type ReportCollectionFilter } from './report-collection-view';
 import './report-collection.css';
 
 export function ReportCollection({
@@ -16,12 +17,23 @@ export function ReportCollection({
   onClose: () => void;
 }) {
   const [library, setLibrary] = useState(() => readReports(storage));
-  const [selectedId, setSelectedId] = useState(library.entries[0]?.id);
+  const [selectedId, setSelectedId] = useState<number | undefined>(library.entries[0]?.id);
   const [removing, setRemoving] = useState<number | null>(null);
   const [notice, setNotice] = useState('');
   const [backupRevision, setBackupRevision] = useState(0);
+  const [filter, setFilter] = useState<ReportCollectionFilter>({ stageId: null, result: 'all' });
   const reloadButton = useRef<HTMLButtonElement>(null);
-  const selected = library.entries.find((entry) => entry.id === selectedId) ?? library.entries[0];
+  const filterStage = useRef<HTMLSelectElement>(null);
+  const { entries, selected } = reportCollectionView(library.entries, filter, selectedId);
+  const emptyMessage = library.entries.length
+    ? '没有符合条件的战报，可更换条件或清除筛选。'
+    : '还没有收藏战报。战斗结算后展开「保存本次战报」，点击「收藏到本地」。';
+  function changeFilter(next: ReportCollectionFilter): void {
+    setFilter(next);
+    setSelectedId(undefined);
+    setRemoving(null);
+    setNotice('');
+  }
   return (
     <div className="modal-backdrop top-modal">
       <section
@@ -63,6 +75,65 @@ export function ReportCollection({
         >
           重新读取收藏
         </button>
+        {!library.error && (
+          <fieldset className="collection-filters">
+            <legend>筛选收藏</legend>
+            <div className="collection-filter-fields">
+              <label className="collection-select">
+                关卡
+                <select
+                  ref={filterStage}
+                  aria-label="筛选收藏关卡"
+                  value={filter.stageId ?? 'all'}
+                  onChange={(event) =>
+                    changeFilter({
+                      ...filter,
+                      stageId: event.target.value === 'all' ? null : Number(event.target.value),
+                    })
+                  }
+                >
+                  <option value="all">全部关卡</option>
+                  {stageNames.map((_, index) => (
+                    <option key={index + 1} value={index + 1}>
+                      第{index + 1}关
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="collection-select">
+                结果
+                <select
+                  aria-label="筛选收藏结果"
+                  value={filter.result}
+                  onChange={(event) =>
+                    changeFilter({
+                      ...filter,
+                      result: event.target.value as ReportCollectionFilter['result'],
+                    })
+                  }
+                >
+                  <option value="all">全部结果</option>
+                  <option value="victory">胜利</option>
+                  <option value="defeat">失败</option>
+                </select>
+              </label>
+            </div>
+            <p className="collection-filter-count" role="status">
+              匹配{entries.length} / 共{library.entries.length}份
+            </p>
+            <button
+              className="secondary"
+              disabled={filter.stageId === null && filter.result === 'all'}
+              onClick={() => {
+                changeFilter({ stageId: null, result: 'all' });
+                filterStage.current?.focus();
+              }}
+            >
+              清除筛选
+            </button>
+            <p className="collection-note">筛选只影响列表，备份仍包含全部收藏。</p>
+          </fieldset>
+        )}
         {!library.error &&
           (selected ? (
             <>
@@ -77,7 +148,7 @@ export function ReportCollection({
                     setNotice('');
                   }}
                 >
-                  {library.entries.map((entry) => (
+                  {entries.map((entry) => (
                     <option key={entry.id} value={entry.id}>
                       第{entry.stageId}关 · {entry.result === 'victory' ? '胜利' : '失败'} ·{' '}
                       {new Date(entry.createdAt).toLocaleString('zh-CN')}
@@ -129,9 +200,7 @@ export function ReportCollection({
               )}
             </>
           ) : (
-            <p role="status">
-              还没有收藏战报。战斗结算后展开「保存本次战报」，点击「收藏到本地」。
-            </p>
+            <p role="status">{emptyMessage}</p>
           ))}
         {notice && <p role="status">{notice}</p>}
         {!library.error && removing === null && (
