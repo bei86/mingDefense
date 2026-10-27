@@ -36,7 +36,46 @@ export type StageIntelSummary = {
   lastSpawnAt: number;
   enemies: EnemyIntelEntry[];
   derived: EnemyIntelEntry[];
+  waves: EnemyWaveIntel[];
 };
+
+export type EnemyWaveIntel = {
+  index: number;
+  startAt: number;
+  firstAt?: number;
+  lastAt?: number;
+  total: number;
+  counts: { kind: EnemyKind; name: string; count: number }[];
+};
+
+function waveIntel(stageId: number, spawns: readonly Spawn[]): EnemyWaveIntel[] {
+  const starts = stages[stageId - 1].waves.map((wave) => wave.atMs);
+  const groups: Spawn[][] = starts.map(() => []);
+  let index = 0;
+  for (const spawn of spawns) {
+    while (index + 1 < starts.length && spawn.at >= starts[index + 1]) index++;
+    groups[index].push(spawn);
+  }
+  return groups.map((group, index) => {
+    const counts = new Map<EnemyKind, number>();
+    for (const spawn of group) {
+      const kind = spawn.kind ?? 'wolf';
+      counts.set(kind, (counts.get(kind) ?? 0) + 1);
+    }
+    return {
+      index: index + 1,
+      startAt: starts[index],
+      firstAt: group[0]?.at,
+      lastAt: group.at(-1)?.at,
+      total: group.length,
+      counts: [...counts].map(([kind, count]) => ({
+        kind,
+        name: kind === 'boss' ? bossName(stageId) : enemyAppearances[kind].name,
+        count,
+      })),
+    };
+  });
+}
 
 function enemySkills(kind: EnemyKind, stageId: number): string[] {
   switch (kind) {
@@ -114,5 +153,6 @@ export function stageIntel(stageId: number, schedule?: readonly Spawn[]): StageI
     lastSpawnAt: spawns.at(-1)?.at ?? 0,
     enemies: [...timesByKind].map(([kind, times]) => enemyEntry(kind, stageId, times)),
     derived: [...derivedKinds].map((kind) => enemyEntry(kind, stageId)),
+    waves: waveIntel(stageId, spawns),
   };
 }

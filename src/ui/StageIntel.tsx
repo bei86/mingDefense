@@ -132,7 +132,34 @@ export function StageIntel({
         <p className="handbook-note">
           固定数量不含召唤与分裂，最后出场时间不代表战斗结束。基础普攻为单次值，未计狂暴及受击方减伤，技能另算。
         </p>
-        <h3 className="intel-section-title">固定出场</h3>
+        <h3 className="intel-section-title">波次时间表</h3>
+        <ol className="intel-waves" aria-label="波次时间表">
+          {intel.waves.map((wave) => (
+            <li key={wave.index}>
+              <div className="intel-wave-heading">
+                <h4>{`第${wave.index}波时段`}</h4>
+                <span>{`固定 ${wave.total} 只`}</span>
+              </div>
+              <p>{`起点 ${timeLabel(wave.startAt)}`}</p>
+              {wave.total > 0 ? (
+                <>
+                  <p>{`首末出场 ${timeLabel(wave.firstAt!)}–${timeLabel(wave.lastAt!)}`}</p>
+                  <ul aria-label={`第${wave.index}波敌人构成`}>
+                    {wave.counts.map((entry) => (
+                      <li key={entry.kind}>{`${entry.name} × ${entry.count}`}</li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p>本时段无固定出场</p>
+              )}
+            </li>
+          ))}
+        </ol>
+        <p className="handbook-note">
+          按各波起点划分时段，时间为开战后的游戏内计划时间；出怪不等待前一波清完，不代表抵达阵线或清场时间。召唤与分裂不计入固定数量。
+        </p>
+        <h3 className="intel-section-title">敌人属性</h3>
         {intel.enemies.map((entry) => (
           <EnemyCard key={entry.kind} entry={entry} stageId={stageId} />
         ))}

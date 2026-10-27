@@ -51,6 +51,52 @@
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
+.intel-waves {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.intel-waves > li {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--forest);
+  overflow-wrap: anywhere;
+}
+.intel-wave-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--gold);
+}
+.intel-wave-heading h4 {
+  margin: 0;
+  font-size: 12px;
+}
+.intel-wave-heading span {
+  font-size: 11px;
+}
+.intel-modal .intel-waves p {
+  margin: 6px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.intel-waves ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  line-height: 1.8;
+}
 .intel-enemy h4 {
   margin: 0 0 6px;
   color: var(--paper);
