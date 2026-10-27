@@ -693,6 +693,7 @@ function GameApp({
           }
           onReports={() => setReports(true)}
           onSaves={() => setSaves(true)}
+          onPlaytests={import.meta.env.DEV ? () => setPlaytests(true) : undefined}
           onNext={() => {
             clock.reset();
             setLastDefeat(null);
@@ -760,7 +761,8 @@ function GameApp({
       {import.meta.env.DEV && playtests && (
         <PlaytestLauncher
           pathname={window.location.pathname}
-          paused={!preparing}
+          phase={session.phase}
+          isolated={boot.isolated ?? false}
           onClose={() => setPlaytests(false)}
           onNavigate={(url) => window.location.assign(url)}
         />

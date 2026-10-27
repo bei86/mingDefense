@@ -1,15 +1,24 @@
 import { useState } from 'react';
+import type { Phase } from '../game/session';
 import { playtestScenes, playtestUrl } from './playtest-scenes';
 import './playtest-launcher.css';
 
 type Props = {
   pathname: string;
-  paused: boolean;
+  phase: Phase;
+  isolated: boolean;
   onClose: () => void;
   onNavigate: (url: string) => void;
 };
 
-export function PlaytestLauncher({ pathname, paused, onClose, onNavigate }: Props) {
+const returnLabels: Record<Phase, string> = {
+  prepare: '返回布阵',
+  combat: '返回暂停菜单',
+  victory: '返回结算',
+  defeat: '返回结算',
+};
+
+export function PlaytestLauncher({ pathname, phase, isolated, onClose, onNavigate }: Props) {
   const [sceneId, setSceneId] = useState<string>(playtestScenes[0].id);
   const [diagnostics, setDiagnostics] = useState(true);
   const scene = playtestScenes.find((entry) => entry.id === sceneId);
@@ -50,7 +59,7 @@ export function PlaytestLauncher({ pathname, paused, onClose, onNavigate }: Prop
         </label>
         <p>显示最近帧窗口并支持主动导出报告，读数不代表真机性能结论。</p>
         <p id="playtest-leave" className="playtest-leave">
-          进入将离开当前页面，放弃未保存操作和临时试玩进度。需要保留进度或报告请先导出。
+          离开当前页面将放弃未保存操作和临时试玩进度。需要保留进度或报告请先导出。
           所选试玩不会覆盖正式战役存档；正式战役仍按既有检查点恢复。
         </p>
         <button
@@ -63,8 +72,22 @@ export function PlaytestLauncher({ pathname, paused, onClose, onNavigate }: Prop
         >
           进入所选试玩
         </button>
+        {isolated && (
+          <>
+            <p id="playtest-return-note">
+              返回时读取正式战役的现有检查点，无存档则按正常流程开始新局。不会把试玩阵容带入正式战役。
+            </p>
+            <button
+              className="secondary"
+              aria-describedby="playtest-return-note playtest-leave"
+              onClick={() => onNavigate(pathname)}
+            >
+              返回正式战役
+            </button>
+          </>
+        )}
         <button className="secondary" onClick={onClose}>
-          {paused ? '返回暂停菜单' : '返回布阵'}
+          {returnLabels[phase]}
         </button>
       </section>
     </div>

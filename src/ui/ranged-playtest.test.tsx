@@ -41,15 +41,21 @@ test.each(['baseline', 'candidate'] as const)(
       onReset: noop,
     };
     const html = renderToStaticMarkup(
-      <ResultModal {...props} trialActions={<RangedPlaytestPanel trial={trial} />} />,
+      <ResultModal
+        {...props}
+        trialActions={<RangedPlaytestPanel trial={trial} />}
+        onPlaytests={noop}
+      />,
     );
     expect(html).toContain('重置本方案');
     expect(html).not.toContain('前往第');
     expect(html).not.toContain('免费重试');
     expect(html).not.toContain('重新开始五十关挑战');
+    expect(html).toContain('开发试玩');
     const normal = renderToStaticMarkup(<ResultModal {...props} />);
     expect(normal).toContain('重新开始五十关挑战');
     expect(normal).toContain(variant === 'baseline' ? '免费重试' : '前往第');
+    expect(normal).not.toContain('开发试玩');
   },
 );
 

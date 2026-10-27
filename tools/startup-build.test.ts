@@ -45,7 +45,7 @@ describe.runIf(process.env.CHECK_STARTUP_BUILD === '1')('生产包启动依赖�
     expect(scripts).not.toMatch(/ranged8|本标签页最近战果|减远程后获益|20270105|20270115|20270112/);
     expect(
       scripts.match(
-        /仅开发版 · 独立场景|选择试玩场景|进入所选试玩|首战 · 从零布阵|八灵 · 技能验收/,
+        /仅开发版 · 独立场景|选择试玩场景|进入所选试玩|首战 · 从零布阵|八灵 · 技能验收|返回正式战役|不会把试玩阵容带入正式战役/,
       )?.[0],
     ).toBeUndefined();
   });
