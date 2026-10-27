@@ -35,6 +35,7 @@ import { MergePreview } from './MergePreview';
 import { ReportCollection } from './ReportCollection';
 import { temporaryReportStorage } from './report-collection';
 import { DisplaySettings } from './DisplaySettings';
+import { PlaytestLauncher } from './PlaytestLauncher';
 import { useSystemReducedMotion } from './useSystemReducedMotion';
 import { readDisplayOptions, saveDisplayOptions } from '../presentation/display-options';
 
@@ -88,6 +89,7 @@ function GameApp({
   const [musicVolume, setMusicVolume] = useState(() => new AudioVolume(MUSIC_VOLUME_KEY).value);
   const [audioSettings, setAudioSettings] = useState(false);
   const [displaySettings, setDisplaySettings] = useState(false);
+  const [playtests, setPlaytests] = useState(false);
   const [displayOptions, setDisplayOptions] = useState(() => readDisplayOptions(boot.isolated));
   const [displaySaved, setDisplaySaved] = useState(true);
   const systemReducedMotion = useSystemReducedMotion();
@@ -133,6 +135,7 @@ function GameApp({
         presets ||
         audioSettings ||
         displaySettings ||
+        playtests ||
         mergeSource ||
         swapUnitId !== null ||
         session.hasChoices ||
@@ -140,7 +143,7 @@ function GameApp({
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${displaySettings}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${displaySettings}:${playtests}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -660,6 +663,11 @@ function GameApp({
             <button className="text-button" onClick={() => setDisplaySettings(true)}>
               画面设置
             </button>
+            {import.meta.env.DEV && (
+              <button className="text-button" onClick={() => setPlaytests(true)}>
+                开发试玩
+              </button>
+            )}
             <button className="text-button" onClick={reset}>
               重新开始
             </button>
@@ -717,6 +725,7 @@ function GameApp({
         !reports &&
         !audioSettings &&
         !displaySettings &&
+        !playtests &&
         !saves && (
           <PauseMenu
             resetLabel={trial ? '重置本方案' : undefined}
@@ -743,10 +752,19 @@ function GameApp({
             onInspect={() => setInspection(true)}
             onReports={() => setReports(true)}
             onDisplay={() => setDisplaySettings(true)}
+            onPlaytests={import.meta.env.DEV ? () => setPlaytests(true) : undefined}
             onReset={reset}
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
+      {import.meta.env.DEV && playtests && (
+        <PlaytestLauncher
+          pathname={window.location.pathname}
+          paused={!preparing}
+          onClose={() => setPlaytests(false)}
+          onNavigate={(url) => window.location.assign(url)}
+        />
+      )}
       {displaySettings && (
         <DisplaySettings
           options={displayOptions}

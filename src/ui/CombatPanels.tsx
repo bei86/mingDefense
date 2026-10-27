@@ -214,6 +214,7 @@ type PauseProps = {
   onInspect: () => void;
   onReports: () => void;
   onDisplay: () => void;
+  onPlaytests?: () => void;
   onReset: () => void;
   resetLabel?: string;
 };
@@ -230,6 +231,7 @@ export function PauseMenu({
   onInspect,
   onReports,
   onDisplay,
+  onPlaytests,
   onReset,
   resetLabel = '重新开始挑战',
 }: PauseProps) {
@@ -270,6 +272,11 @@ export function PauseMenu({
           <button className="secondary" onClick={onDisplay}>
             画面设置
           </button>
+          {import.meta.env.DEV && onPlaytests && (
+            <button className="secondary" onClick={onPlaytests}>
+              开发试玩
+            </button>
+          )}
         </div>
         <EnemyIntel stageId={session.preparation.stageId} onDetails={onIntel} />
         <p className="pause-income">
