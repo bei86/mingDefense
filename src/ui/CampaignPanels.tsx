@@ -53,9 +53,11 @@ export function ExperienceBar({
 export function TalentModal({
   session,
   onChoose,
+  onBuffs,
 }: {
   session: Session;
   onChoose: (id: BuffId) => void;
+  onBuffs?: () => void;
 }) {
   const b = session.battle!;
   return (
@@ -107,6 +109,11 @@ export function TalentModal({
         <p className="talent-preview-hint">
           累计仅表示本天赋贡献，实际效果受技能、上限与战场条件影响。
         </p>
+        {onBuffs && (
+          <button className="secondary" onClick={onBuffs}>
+            查看天赋手札
+          </button>
+        )}
       </section>
     </div>
   );
@@ -123,6 +130,7 @@ export function ResultModal({
   onReset,
   onPlaytests,
   onProgress,
+  onBuffs,
   trialActions,
 }: {
   session: Session;
@@ -136,6 +144,7 @@ export function ResultModal({
   onReset: () => void;
   onPlaytests?: () => void;
   onProgress?: () => void;
+  onBuffs?: () => void;
   trialActions?: ReactNode;
 }) {
   const win = session.phase === 'victory';
@@ -204,6 +213,11 @@ export function ResultModal({
           </>
         )}
         {trialActions}
+        {onBuffs && (
+          <button className="secondary" onClick={onBuffs}>
+            天赋手札
+          </button>
+        )}
         {onProgress && (
           <button className="secondary" onClick={onProgress}>
             战役进度

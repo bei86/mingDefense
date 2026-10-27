@@ -7,7 +7,15 @@ import { talentJournal } from './talent-journal';
 import { TalentCatalogue } from './TalentCatalogue';
 import './talent-journal.css';
 
-export function BuffJournal({ session, onClose }: { session: Session; onClose: () => void }) {
+export function BuffJournal({
+  session,
+  onClose,
+  closeLabel = '收起手札',
+}: {
+  session: Session;
+  onClose: () => void;
+  closeLabel?: string;
+}) {
   const [view, setView] = useState<'acquired' | 'all'>('acquired');
   const entries = talentJournal(session);
   const total = entries.reduce((sum, entry) => sum + entry.level, 0);
@@ -28,6 +36,11 @@ export function BuffJournal({ session, onClose }: { session: Session; onClose: (
             ×
           </button>
         </div>
+        {session.phase === 'defeat' && (
+          <p className="journal-hint">
+            本关失败，以下为本场结束时的修行；重试或返回布阵后，本关成长会回滚。
+          </p>
+        )}
         <div className="journal-views" role="group" aria-label="手札查看方式">
           <button aria-pressed={view === 'acquired'} onClick={() => setView('acquired')}>
             已获得
@@ -86,7 +99,7 @@ export function BuffJournal({ session, onClose }: { session: Session; onClose: (
           </>
         )}
         <button className="primary" onClick={onClose}>
-          收起手札
+          {closeLabel}
         </button>
       </section>
     </div>

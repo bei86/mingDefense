@@ -389,6 +389,10 @@ function GameApp({
   const p = session.preparation;
   const battle = session.battle;
   const preparing = session.phase === 'prepare';
+  let journalCloseLabel: string | undefined;
+  if (session.hasChoices) journalCloseLabel = '返回天赋选择';
+  else if (session.phase === 'victory' || session.phase === 'defeat')
+    journalCloseLabel = '返回本关结算';
   const stage = session.stage;
   const previousView = useRef({ preparing, battle });
   useEffect(() => {
@@ -687,6 +691,7 @@ function GameApp({
       {session.hasChoices && (
         <TalentModal
           session={session}
+          onBuffs={() => setJournal(true)}
           onChoose={(id) => {
             clock.reset();
             run(session.chooseBuff(id), '已领悟新天赋。');
@@ -702,6 +707,7 @@ function GameApp({
             import.meta.env.DEV && trial ? <RangedPlaytestPanel trial={trial} /> : undefined
           }
           onReports={() => setReports(true)}
+          onBuffs={() => setJournal(true)}
           onSaves={() => setSaves(true)}
           onProgress={() => setProgress({ chapter: campaignChapter(p.stageId) })}
           onPlaytests={import.meta.env.DEV ? () => setPlaytests(true) : undefined}
@@ -770,7 +776,13 @@ function GameApp({
             onReset={reset}
           />
         )}
-      {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
+      {journal && (
+        <BuffJournal
+          session={session}
+          onClose={() => setJournal(false)}
+          closeLabel={journalCloseLabel}
+        />
+      )}
       {import.meta.env.DEV && playtests && (
         <PlaytestLauncher
           pathname={window.location.pathname}
