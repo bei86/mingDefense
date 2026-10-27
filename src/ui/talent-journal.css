@@ -16,6 +16,29 @@
   font-size: 11px;
   line-height: 1.7;
 }
+.journal-views {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+}
+.journal-views button {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--forest);
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+}
+.journal-views button[aria-pressed='true'] {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+.journal-views button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
 .talent-journal .journal-entry {
   padding: 14px 0;
   border-top: 1px solid var(--border);
