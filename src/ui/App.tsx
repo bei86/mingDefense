@@ -26,6 +26,7 @@ import { AudioSettings } from './AudioSettings';
 import { SaveManager } from './SaveManager';
 import { StageIntel } from './StageIntel';
 import { CampaignProgress } from './CampaignProgress';
+import { campaignChapter } from './campaign-progress';
 import { FormationSwap } from './FormationSwap';
 import { BattleInspection } from './BattleInspection';
 import { FormationPresets } from './FormationPresets';
@@ -110,7 +111,7 @@ function GameApp({
   const [journal, setJournal] = useState(false);
   const [handbook, setHandbook] = useState<HandbookTarget | null>(null);
   const [intel, setIntel] = useState<number | null>(null);
-  const [progress, setProgress] = useState(false);
+  const [progress, setProgress] = useState<{ chapter: number } | null>(null);
   const [saves, setSaves] = useState(false);
   const [reports, setReports] = useState(false);
   const [reportStorage] = useState(() =>
@@ -146,7 +147,7 @@ function GameApp({
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${progress}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${displaySettings}:${playtests}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${Boolean(progress)}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${displaySettings}:${playtests}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -657,7 +658,10 @@ function GameApp({
               : '五十关原型 · 临时数值待校准 · 自动保存检查点'}
           </span>
           <div className="preparation-save-tools">
-            <button className="text-button" onClick={() => setProgress(true)}>
+            <button
+              className="text-button"
+              onClick={() => setProgress({ chapter: campaignChapter(p.stageId) })}
+            >
               战役进度
             </button>
             <button className="text-button" onClick={() => setReports(true)}>
@@ -699,7 +703,7 @@ function GameApp({
           }
           onReports={() => setReports(true)}
           onSaves={() => setSaves(true)}
-          onProgress={() => setProgress(true)}
+          onProgress={() => setProgress({ chapter: campaignChapter(p.stageId) })}
           onPlaytests={import.meta.env.DEV ? () => setPlaytests(true) : undefined}
           onNext={() => {
             clock.reset();
@@ -757,7 +761,7 @@ function GameApp({
             onBuffs={() => setJournal(true)}
             onHandbook={() => setHandbook({ kind: 'ember_mouse', rank: 1 })}
             onIntel={() => setIntel(p.stageId)}
-            onProgress={() => setProgress(true)}
+            onProgress={() => setProgress({ chapter: campaignChapter(p.stageId) })}
             onSaves={() => setSaves(true)}
             onInspect={() => setInspection(true)}
             onReports={() => setReports(true)}
@@ -889,8 +893,10 @@ function GameApp({
         <CampaignProgress
           session={session}
           isolated={boot.isolated ?? false}
+          chapter={progress.chapter}
+          onChapter={(chapter) => setProgress({ chapter })}
           onIntel={setIntel}
-          onClose={() => setProgress(false)}
+          onClose={() => setProgress(null)}
         />
       )}
       {intel !== null && (

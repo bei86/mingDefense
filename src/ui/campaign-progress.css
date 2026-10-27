@@ -40,6 +40,45 @@
   height: 100%;
   background: var(--mint);
 }
+.campaign-progress-navigation {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.campaign-progress-navigation label {
+  flex: 1 1 150px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.campaign-progress-navigation select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--forest);
+  color: var(--paper);
+  font: inherit;
+  font-size: 12px;
+}
+.campaign-progress-navigation select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.campaign-progress .campaign-progress-navigation > button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px;
+  font-size: 12px;
+}
 .campaign-progress-chapter h3 {
   margin: 16px 0 8px;
   font-size: 12px;

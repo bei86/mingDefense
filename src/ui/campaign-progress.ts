@@ -10,6 +10,10 @@ export type CampaignProgressEntry = {
   status: '已守住' | '当前关' | '未记录' | '未到达';
 };
 
+export function campaignChapter(stageId: number): number {
+  return Math.ceil(stageId / 10);
+}
+
 export function campaignProgress(session: Session) {
   const { stageId, rewardedStages } = session.preparation;
   const rewarded = new Set(rewardedStages);
@@ -44,6 +48,7 @@ export function campaignProgress(session: Session) {
       entries.slice(index * 10, (index + 1) * 10),
     ),
     current: entries[stageId - 1],
+    currentChapter: campaignChapter(stageId),
     currentState,
     cleared: entries.filter((entry) => entry.cleared).length,
     total: entries.length,

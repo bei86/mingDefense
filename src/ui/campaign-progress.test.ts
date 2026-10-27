@@ -4,7 +4,11 @@ import { validSave } from '../game/persistence';
 import { createRangedPlaytest } from '../game/fixtures/ranged-playtest';
 import finalCheckpoint from '../game/fixtures/stage-50-checkpoint.json';
 import { runPreparedBattle } from '../game/testing/campaign-battle';
-import { campaignProgress } from './campaign-progress';
+import { campaignChapter, campaignProgress } from './campaign-progress';
+
+test('十关分段在首尾及整十边界定位实际当前关', () => {
+  expect([1, 10, 11, 40, 41, 50].map(campaignChapter)).toEqual([1, 1, 2, 4, 5, 5]);
+});
 
 test('新局列出50关和10位首领，只有第1关当前，不推算通关', () => {
   const progress = campaignProgress(new Session());
