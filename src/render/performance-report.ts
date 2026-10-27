@@ -1,4 +1,5 @@
 import type { Session, Phase } from '../game/session';
+import { displayEffects, type DisplayOptions } from '../presentation/display-options';
 import { FrameMetrics, type FrameSummary } from './frame-metrics';
 
 export type PerformanceContext = {
@@ -7,15 +8,21 @@ export type PerformanceContext = {
   paused: boolean;
   choosing: boolean;
   speed: 1 | 2;
+  display: DisplayOptions & { systemReduced: boolean; reducedMotion: boolean };
 };
 
-export function performanceContext(session: Session): PerformanceContext {
+export function performanceContext(
+  session: Session,
+  options: Readonly<DisplayOptions>,
+  systemReduced: boolean,
+): PerformanceContext {
   return {
     stage: session.preparation.stageId,
     phase: session.phase,
     paused: session.paused,
     choosing: session.hasChoices,
     speed: session.speed,
+    display: { ...options, systemReduced, ...displayEffects(options, systemReduced) },
   };
 }
 
@@ -107,6 +114,10 @@ export function performanceReport(
       `敌人${scene.enemies} · 攻击特效${scene.flashes}`,
       `图片${scene.imagesActive} / 池${scene.imagesPooled}`,
       `飘字${scene.numbersActive} / 池${scene.numbersPooled}（上限24）`,
+      `伤害飘字：${context.display.numbers ? '开启' : '关闭'}`,
+      `角色动态选项：${context.display.motion === 'system' ? '跟随系统' : '减少动态'}`,
+      `系统减少动态：${context.display.systemReduced ? '开启' : '关闭'}`,
+      `实际角色动态：${context.display.reducedMotion ? '减少动态' : '常规动态'}`,
       `画布：${scene.canvasWidth}×${scene.canvasHeight} · ${scene.density}倍采样`,
       `视口：${viewport.width}×${viewport.height} · DPR ${viewport.dpr}`,
       `浏览器UA：${browser}`,
@@ -115,7 +126,7 @@ export function performanceReport(
       '',
       '- 仅当前浏览器最近采样窗口，不是整个关卡或整局的平均表现。',
       '- 绘制CPU只覆盖场景更新与绘图指令生成，不含GPU、呈现、React和完整模拟开销。',
-      '- 暂停、天赋选择、阶段、倍速、关卡、尺寸变化与切后台后重新采样。',
+      '- 暂停、天赋选择、阶段、倍速、关卡、画面设置、系统减少动态、尺寸变化与切后台后重新采样。',
       '- 低帧率可能受遮挡或浏览器节流影响；尺寸和UA不能据此认定真机，需在手机前台复测。',
       '- 用户主动捕获的本地文本，不含存档或完整访问地址，不会自动上传。',
       '',

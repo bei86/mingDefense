@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { Session } from '../game/session';
 import { createCombat } from '../game/combat';
+import { DEFAULT_DISPLAY_OPTIONS, type DisplayOptions } from '../presentation/display-options';
 import {
   performanceContext,
   performanceReport,
@@ -15,7 +16,14 @@ function sample(): PerformanceSample {
   return {
     capturedAt: '2026-10-26T06:30:00.000Z',
     contentVersion: 'prototype-2026-10-22-v24',
-    context: { stage: 40, phase: 'combat', paused: false, choosing: false, speed: 2 },
+    context: {
+      stage: 40,
+      phase: 'combat',
+      paused: false,
+      choosing: false,
+      speed: 2,
+      display: { numbers: true, motion: 'system', systemReduced: false, reducedMotion: false },
+    },
     gameTimeMs: 12350,
     summary: { frames: 120, fps: 50, p95Ms: 25, slowPercent: 5, drawMeanMs: 1, drawP95Ms: 2 },
     scene: {
@@ -34,6 +42,62 @@ function sample(): PerformanceSample {
 }
 
 describe('手机试玩性能诊断', () => {
+  function context(session: Session) {
+    return performanceContext(session, DEFAULT_DISPLAY_OPTIONS, false);
+  }
+
+  it.each([
+    ['system', false, false],
+    ['reduced', false, true],
+    ['system', true, true],
+    ['reduced', true, true],
+  ] as const)(
+    '报告准确区分用户%s/系统%s和有效动态%s，快照不共享输入',
+    (motion, systemReduced, reducedMotion) => {
+      const session = new Session();
+      const before = session.exportSave();
+      const options: DisplayOptions = { numbers: false, motion };
+      const state = performanceContext(session, options, systemReduced);
+      expect(state.display).toEqual({ numbers: false, motion, systemReduced, reducedMotion });
+      expect(session.exportSave()).toEqual(before);
+      options.numbers = true;
+      expect(state.display.numbers).toBe(false);
+      const input = sample();
+      input.context = state;
+      const report = performanceReport(input, 'Browser');
+      expect(report.text).toContain('伤害飘字：关闭');
+      expect(report.text).toContain(
+        `角色动态选项：${motion === 'system' ? '跟随系统' : '减少动态'}`,
+      );
+      expect(report.text).toContain(`系统减少动态：${systemReduced ? '开启' : '关闭'}`);
+      expect(report.text).toContain(`实际角色动态：${reducedMotion ? '减少动态' : '常规动态'}`);
+      state.display.numbers = true;
+      state.display.reducedMotion = !reducedMotion;
+      expect(report.text).toContain('伤害飘字：关闭');
+      expect(report.text).toContain(`实际角色动态：${reducedMotion ? '减少动态' : '常规动态'}`);
+    },
+  );
+
+  it('飘字、用户选项和系统来源变化分别隔离窗口，不拼入旧设置帧间隔', () => {
+    const session = new Session();
+    const states = [
+      performanceContext(session, { numbers: true, motion: 'system' }, false),
+      performanceContext(session, { numbers: false, motion: 'system' }, false),
+      performanceContext(session, { numbers: false, motion: 'reduced' }, false),
+      performanceContext(session, { numbers: false, motion: 'reduced' }, true),
+      performanceContext(session, { numbers: false, motion: 'system' }, true),
+    ];
+    const keys = states.map((state) => JSON.stringify(state));
+    expect(new Set(keys).size).toBe(5);
+    const window = new PerformanceWindow();
+    keys.forEach((key, i) => {
+      expect(window.snapshot(key)).toBeNull();
+      window.record(i * 1000, 1, key);
+      expect(window.snapshot(key)).toBeNull();
+      window.record(i * 1000 + 20, 2, key);
+      expect(window.snapshot(key)).toMatchObject({ frames: 1, fps: 50 });
+    });
+  });
   it('无帧不伪造报告，状态切换后的首帧不跨窗口计算', () => {
     const window = new PerformanceWindow();
     expect(window.snapshot('prepare')).toBeNull();
@@ -64,24 +128,24 @@ describe('手机试玩性能诊断', () => {
   it('关卡/阶段/暂停/天赋选择/倍速各自改变窗口上下文，读取不改Session', () => {
     const session = new Session();
     const before = session.exportSave();
-    const initial = performanceContext(session);
-    expect(performanceContext(session)).toEqual(initial);
+    const initial = context(session);
+    expect(context(session)).toEqual(initial);
     expect(session.exportSave()).toEqual(before);
     const keys = new Set([JSON.stringify(initial)]);
     session.preparation.stageId++;
-    keys.add(JSON.stringify(performanceContext(session)));
+    keys.add(JSON.stringify(context(session)));
     session.phase = 'combat';
-    keys.add(JSON.stringify(performanceContext(session)));
+    keys.add(JSON.stringify(context(session)));
     session.paused = true;
-    keys.add(JSON.stringify(performanceContext(session)));
+    keys.add(JSON.stringify(context(session)));
     session.speed = 2;
-    keys.add(JSON.stringify(performanceContext(session)));
+    keys.add(JSON.stringify(context(session)));
     session.battle = createCombat([]);
     session.battle.choices = ['attack'];
-    keys.add(JSON.stringify(performanceContext(session)));
+    keys.add(JSON.stringify(context(session)));
     expect(keys.size).toBe(6);
-    expect(performanceContext(session)).toMatchObject({ stage: 2, paused: true, speed: 2 });
-    expect(performanceContext(session).choosing).toBe(true);
+    expect(context(session)).toMatchObject({ stage: 2, paused: true, speed: 2 });
+    expect(context(session).choosing).toBe(true);
     const window = new PerformanceWindow();
     for (const key of keys) {
       window.record(100, 1, key);
@@ -110,6 +174,10 @@ describe('手机试玩性能诊断', () => {
       '敌人16 · 攻击特效8',
       '图片43 / 池61',
       '飘字5 / 池12',
+      '伤害飘字：开启',
+      '角色动态选项：跟随系统',
+      '系统减少动态：关闭',
+      '实际角色动态：常规动态',
       '720×960 · 2倍采样',
       '390×844 · DPR 3',
       'Test Browser Injected UA',

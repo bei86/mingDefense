@@ -36,11 +36,7 @@ import { ReportCollection } from './ReportCollection';
 import { temporaryReportStorage } from './report-collection';
 import { DisplaySettings } from './DisplaySettings';
 import { useSystemReducedMotion } from './useSystemReducedMotion';
-import {
-  displayEffects,
-  readDisplayOptions,
-  saveDisplayOptions,
-} from '../presentation/display-options';
+import { readDisplayOptions, saveDisplayOptions } from '../presentation/display-options';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -596,7 +592,8 @@ function GameApp({
         <Battlefield
           session={session}
           feedback={feedback}
-          effects={displayEffects(displayOptions, systemReducedMotion)}
+          displayOptions={displayOptions}
+          systemReduced={systemReducedMotion}
           selected={selected}
           hover={hover}
           dragOffset={dragOffset}

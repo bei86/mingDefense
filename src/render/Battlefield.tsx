@@ -31,7 +31,7 @@ import { TargetingPanel } from '../ui/TargetingPanel';
 import { TargetingOverlay } from './TargetingOverlay';
 import { CombatNumberLayer } from './CombatNumberLayer';
 import { RendererRecovery, type RendererRecoveryState } from './renderer-recovery';
-import type { DisplayEffects } from '../presentation/display-options';
+import { displayEffects, type DisplayOptions } from '../presentation/display-options';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -51,7 +51,8 @@ type View = { selected: Source | null; hover: Point | null; dragOffset: Point | 
 type BattlefieldProps = View & {
   session: Session;
   feedback: CombatFeedback;
-  effects: DisplayEffects;
+  displayOptions: DisplayOptions;
+  systemReduced: boolean;
   onCell: (p: Point) => void;
   onDragStart: (e: React.PointerEvent, source: Source, grabbedCell?: Point) => void;
   onHover: (p: Point | null) => void;
@@ -158,7 +159,8 @@ function animal(g: Phaser.GameObjects.Graphics, kind: HeroId, x: number, y: numb
 export function Battlefield({
   session,
   feedback,
-  effects,
+  displayOptions,
+  systemReduced,
   selected,
   hover,
   dragOffset,
@@ -182,8 +184,13 @@ export function Battlefield({
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('perf') === '1';
   const view = useRef<View>({ selected, hover, dragOffset });
   view.current = { selected, hover, dragOffset };
-  const display = useRef(effects);
-  display.current = effects;
+  const currentDisplay = {
+    ...displayEffects(displayOptions, systemReduced),
+    options: displayOptions,
+    systemReduced,
+  };
+  const display = useRef(currentDisplay);
+  display.current = currentDisplay;
   useEffect(() => {
     if (!host.current) return;
     let disposed = false;
@@ -220,7 +227,9 @@ export function Battlefield({
     if (metrics) {
       performanceControls.current = {
         read: () => {
-          const current = JSON.stringify(performanceContext(session));
+          const current = JSON.stringify(
+            performanceContext(session, display.current.options, display.current.systemReduced),
+          );
           if (document.hidden || current !== latestContext) return null;
           return latestSample;
         },
@@ -271,7 +280,11 @@ export function Battlefield({
           return;
         }
         const now = performance.now();
-        const context = performanceContext(session);
+        const context = performanceContext(
+          session,
+          display.current.options,
+          display.current.systemReduced,
+        );
         const contextKey = JSON.stringify(context);
         if (contextKey !== latestContext) {
           resetMetrics();
@@ -314,6 +327,7 @@ export function Battlefield({
           `敌人 ${battle?.enemies.filter((e) => e.hp > 0).length ?? 0} · 攻击特效 ${battle?.flashes.length ?? 0}`,
           `图片 ${active} / 池 ${pooled} · 画布 ${game.canvas.width}×${game.canvas.height} (${renderDensity}×)`,
           `飘字 ${this.numbers.stats.active} / 池 ${this.numbers.stats.pooled}（上限24）`,
+          `飘字${context.display.numbers ? '开启' : '关闭'} · ${context.display.reducedMotion ? '减少动态' : '常规动态'}`,
           `状态 ${session.phase}${session.paused ? ' · 暂停' : ''} · ${session.speed}倍`,
         ].join('\n');
       }
