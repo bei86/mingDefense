@@ -11,6 +11,41 @@ function prepared() {
 }
 
 describe('只读战斗反馈', () => {
+  it('飘字开关独立于声音与模拟，清空旧数且重新开启不补播', () => {
+    const session = prepared();
+    session.start();
+    const battle = session.battle!;
+    battle.spawns = [{ at: 100000, x: 1 }];
+    const enemy = spawnEnemy(battle, 'wolf', { x: 1.5, y: 2.8 });
+    enemy.hp = 10000;
+    const shown = new CombatFeedback();
+    const hidden = new CombatFeedback();
+    shown.update(session, 0);
+    hidden.update(session, 0, true, false);
+    let sawNumbers = false;
+    for (let i = 0; i < 25 && session.phase === 'combat'; i++) {
+      session.tick();
+      const before = clone(session);
+      expect(hidden.update(session, 50, true, false)).toEqual(shown.update(session, 50));
+      expect(session).toEqual(before);
+      expect(hidden.numbers.active).toEqual([]);
+      sawNumbers ||= shown.numbers.active.length > 0;
+    }
+    expect(sawNumbers).toBe(true);
+    shown.update(session, 0, true, false);
+    expect(shown.numbers.active).toEqual([]);
+    enemy.hp -= 10;
+    shown.update(session, 0, true, false);
+    enemy.hp -= 10;
+    shown.update(session, 0, true, true);
+    expect(shown.numbers.active).toEqual([]);
+    enemy.hp -= 7;
+    const before = clone(session);
+    shown.update(session, 0, true, true);
+    expect(shown.numbers.active).toEqual([expect.objectContaining({ team: 'enemy', amount: 7 })]);
+    expect(session).toEqual(before);
+  });
+
   it('初始化不补播，真实放置与备战席合成各触发一次，撤销不重播合成', () => {
     const session = prepared();
     const feedback = new CombatFeedback();

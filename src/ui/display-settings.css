@@ -1,0 +1,64 @@
+.display-settings {
+  text-align: left;
+}
+.display-settings > .eyebrow,
+.display-settings > h2 {
+  display: block;
+  text-align: center;
+}
+.display-settings p {
+  margin: 10px 0 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.display-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--forest);
+  color: var(--paper);
+  font-size: 14px;
+  cursor: pointer;
+}
+.display-toggle input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--gold);
+}
+.display-motion {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--paper);
+  font-size: 14px;
+}
+.display-settings select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--forest);
+  color: var(--paper);
+  font-size: 14px;
+}
+.display-settings input:focus-visible,
+.display-settings select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.display-settings button.primary {
+  min-height: 44px;
+}
+.display-settings [role='status'] {
+  color: var(--gold);
+}

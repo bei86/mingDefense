@@ -31,6 +31,7 @@ import { TargetingPanel } from '../ui/TargetingPanel';
 import { TargetingOverlay } from './TargetingOverlay';
 import { CombatNumberLayer } from './CombatNumberLayer';
 import { RendererRecovery, type RendererRecoveryState } from './renderer-recovery';
+import type { DisplayEffects } from '../presentation/display-options';
 
 const SIZE = 52;
 const ORIGIN = { x: 24, y: 74 };
@@ -50,6 +51,7 @@ type View = { selected: Source | null; hover: Point | null; dragOffset: Point | 
 type BattlefieldProps = View & {
   session: Session;
   feedback: CombatFeedback;
+  effects: DisplayEffects;
   onCell: (p: Point) => void;
   onDragStart: (e: React.PointerEvent, source: Source, grabbedCell?: Point) => void;
   onHover: (p: Point | null) => void;
@@ -156,6 +158,7 @@ function animal(g: Phaser.GameObjects.Graphics, kind: HeroId, x: number, y: numb
 export function Battlefield({
   session,
   feedback,
+  effects,
   selected,
   hover,
   dragOffset,
@@ -179,6 +182,8 @@ export function Battlefield({
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('perf') === '1';
   const view = useRef<View>({ selected, hover, dragOffset });
   view.current = { selected, hover, dragOffset };
+  const display = useRef(effects);
+  display.current = effects;
   useEffect(() => {
     if (!host.current) return;
     let disposed = false;
@@ -190,12 +195,7 @@ export function Battlefield({
       else setLoading((previous) => ({ ...previous, ready: false }));
       onReadyChange(ready);
     }, onRecoveryChange);
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let reducedMotion = motionQuery.matches;
-    const updateMotion = () => {
-      reducedMotion = motionQuery.matches;
-    };
-    motionQuery.addEventListener('change', updateMotion);
+    let reducedMotion = display.current.reducedMotion;
     const samplingDensity = () =>
       Math.min(
         3,
@@ -260,7 +260,7 @@ export function Battlefield({
       private finishFrame(started: number) {
         this.art.end();
         this.numbers.draw(
-          session.phase === 'combat' ? feedback.numbers.active : [],
+          session.phase === 'combat' && display.current.numbers ? feedback.numbers.active : [],
           feedback.time,
           renderDensity,
           reducedMotion,
@@ -319,6 +319,7 @@ export function Battlefield({
       }
       update(_time: number, delta: number) {
         if (!this.drawing) return;
+        reducedMotion = display.current.reducedMotion;
         const started = metrics ? performance.now() : 0;
         const g = this.drawing;
         g.clear();
@@ -879,7 +880,6 @@ export function Battlefield({
       disposed = true;
       performanceControls.current = null;
       recovery.dispose();
-      motionQuery.removeEventListener('change', updateMotion);
       document.removeEventListener('visibilitychange', resetMetrics);
       resize.disconnect();
       window.removeEventListener('resize', resizeField);

@@ -213,6 +213,7 @@ type PauseProps = {
   onSaves: () => void;
   onInspect: () => void;
   onReports: () => void;
+  onDisplay: () => void;
   onReset: () => void;
   resetLabel?: string;
 };
@@ -228,6 +229,7 @@ export function PauseMenu({
   onSaves,
   onInspect,
   onReports,
+  onDisplay,
   onReset,
   resetLabel = '重新开始挑战',
 }: PauseProps) {
@@ -264,6 +266,9 @@ export function PauseMenu({
           </button>
           <button className="secondary" onClick={onSaves}>
             存档备份与恢复
+          </button>
+          <button className="secondary" onClick={onDisplay}>
+            画面设置
           </button>
         </div>
         <EnemyIntel stageId={session.preparation.stageId} onDetails={onIntel} />

@@ -54,10 +54,10 @@ export class CombatFeedback {
   private warnings = new WeakSet<Warning>();
   private serial = 0;
 
-  update(session: Session, deltaMs: number, visible = true): SoundCue[] {
+  update(session: Session, deltaMs: number, visible = true, numbersEnabled = true): SoundCue[] {
     if (visible && (session.phase === 'prepare' || session.canAdvance))
       this.time += Math.max(0, Math.min(100, deltaMs)) * session.speed;
-    this.numbers.update(session, this.time, visible);
+    this.numbers.update(session, this.time, visible && numbersEnabled);
     const battle = session.battle;
     const fresh = this.battle !== battle || (battle !== null && battle.time < this.battleTime);
     const starting = fresh && this.phase === 'prepare' && session.phase === 'combat';

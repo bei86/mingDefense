@@ -34,6 +34,13 @@ import { RendererRecoveryDialog } from './RendererRecovery';
 import { MergePreview } from './MergePreview';
 import { ReportCollection } from './ReportCollection';
 import { temporaryReportStorage } from './report-collection';
+import { DisplaySettings } from './DisplaySettings';
+import { useSystemReducedMotion } from './useSystemReducedMotion';
+import {
+  displayEffects,
+  readDisplayOptions,
+  saveDisplayOptions,
+} from '../presentation/display-options';
 
 export function App() {
   const [game, setGame] = useState(() => ({ boot: loadBrowserSession(), generation: 0 }));
@@ -84,6 +91,12 @@ function GameApp({
   const [soundVolume, setSoundVolume] = useState(() => new AudioVolume(SOUND_VOLUME_KEY).value);
   const [musicVolume, setMusicVolume] = useState(() => new AudioVolume(MUSIC_VOLUME_KEY).value);
   const [audioSettings, setAudioSettings] = useState(false);
+  const [displaySettings, setDisplaySettings] = useState(false);
+  const [displayOptions, setDisplayOptions] = useState(() => readDisplayOptions(boot.isolated));
+  const [displaySaved, setDisplaySaved] = useState(true);
+  const systemReducedMotion = useSystemReducedMotion();
+  const displayRef = useRef(displayOptions);
+  displayRef.current = displayOptions;
   const [, render] = useState(0);
   const [selected, setSelected] = useState<Source | null>(null);
   const [hover, setHover] = useState<Point | null>(null);
@@ -123,6 +136,7 @@ function GameApp({
         inspection ||
         presets ||
         audioSettings ||
+        displaySettings ||
         mergeSource ||
         swapUnitId !== null ||
         session.hasChoices ||
@@ -130,7 +144,7 @@ function GameApp({
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${displaySettings}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -193,7 +207,7 @@ function GameApp({
   useEffect(() => {
     const audio = new GameAudio();
     audioRef.current = audio;
-    feedback.update(session, 0, !document.hidden);
+    feedback.update(session, 0, !document.hidden, displayRef.current.numbers);
     let inactive = false;
     let musicActive = true;
     const stopLoop = startGameLoop(
@@ -204,7 +218,9 @@ function GameApp({
         const blocked = !ready || (session.phase === 'combat' && !session.canAdvance);
         if (blocked && !inactive) audio.suspend();
         inactive = blocked;
-        audio.playFeedback(feedback.update(session, elapsed, ready && !document.hidden));
+        audio.playFeedback(
+          feedback.update(session, elapsed, ready && !document.hidden, displayRef.current.numbers),
+        );
         audio.updateMusic(musicActive && ready ? musicMood(session) : null);
       },
       () => fieldReadyRef.current,
@@ -580,6 +596,7 @@ function GameApp({
         <Battlefield
           session={session}
           feedback={feedback}
+          effects={displayEffects(displayOptions, systemReducedMotion)}
           selected={selected}
           hover={hover}
           dragOffset={dragOffset}
@@ -643,6 +660,9 @@ function GameApp({
             <button className="text-button" onClick={() => setSaves(true)}>
               存档
             </button>
+            <button className="text-button" onClick={() => setDisplaySettings(true)}>
+              画面设置
+            </button>
             <button className="text-button" onClick={reset}>
               重新开始
             </button>
@@ -699,6 +719,7 @@ function GameApp({
         !inspection &&
         !reports &&
         !audioSettings &&
+        !displaySettings &&
         !saves && (
           <PauseMenu
             resetLabel={trial ? '重置本方案' : undefined}
@@ -724,10 +745,25 @@ function GameApp({
             onSaves={() => setSaves(true)}
             onInspect={() => setInspection(true)}
             onReports={() => setReports(true)}
+            onDisplay={() => setDisplaySettings(true)}
             onReset={reset}
           />
         )}
       {journal && <BuffJournal session={session} onClose={() => setJournal(false)} />}
+      {displaySettings && (
+        <DisplaySettings
+          options={displayOptions}
+          systemReduced={systemReducedMotion}
+          isolated={boot.isolated ?? false}
+          saved={displaySaved}
+          paused={!preparing}
+          onChange={(options) => {
+            setDisplayOptions(options);
+            setDisplaySaved(saveDisplayOptions(options, boot.isolated));
+          }}
+          onClose={() => setDisplaySettings(false)}
+        />
+      )}
       {reports && (
         <ReportCollection
           storage={reportStorage}
