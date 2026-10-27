@@ -122,6 +122,7 @@ export function ResultModal({
   onPrepare,
   onReset,
   onPlaytests,
+  onProgress,
   trialActions,
 }: {
   session: Session;
@@ -134,6 +135,7 @@ export function ResultModal({
   onPrepare: () => void;
   onReset: () => void;
   onPlaytests?: () => void;
+  onProgress?: () => void;
   trialActions?: ReactNode;
 }) {
   const win = session.phase === 'victory';
@@ -202,6 +204,11 @@ export function ResultModal({
           </>
         )}
         {trialActions}
+        {onProgress && (
+          <button className="secondary" onClick={onProgress}>
+            战役进度
+          </button>
+        )}
         {import.meta.env.DEV && onPlaytests && (
           <button className="secondary" onClick={onPlaytests}>
             开发试玩

@@ -210,6 +210,7 @@ type PauseProps = {
   onBuffs: () => void;
   onHandbook: () => void;
   onIntel: () => void;
+  onProgress: () => void;
   onSaves: () => void;
   onInspect: () => void;
   onReports: () => void;
@@ -227,6 +228,7 @@ export function PauseMenu({
   onBuffs,
   onHandbook,
   onIntel,
+  onProgress,
   onSaves,
   onInspect,
   onReports,
@@ -254,6 +256,9 @@ export function PauseMenu({
           战场详情
         </button>
         <div className="pause-tools">
+          <button className="secondary" onClick={onProgress}>
+            战役进度
+          </button>
           <button className="secondary" onClick={onReports}>
             战报收藏
           </button>

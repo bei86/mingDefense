@@ -45,6 +45,7 @@ test.each(['baseline', 'candidate'] as const)(
         {...props}
         trialActions={<RangedPlaytestPanel trial={trial} />}
         onPlaytests={noop}
+        onProgress={noop}
       />,
     );
     expect(html).toContain('重置本方案');
@@ -52,6 +53,7 @@ test.each(['baseline', 'candidate'] as const)(
     expect(html).not.toContain('免费重试');
     expect(html).not.toContain('重新开始五十关挑战');
     expect(html).toContain('开发试玩');
+    expect(html).toContain('战役进度');
     const normal = renderToStaticMarkup(<ResultModal {...props} />);
     expect(normal).toContain('重新开始五十关挑战');
     expect(normal).toContain(variant === 'baseline' ? '免费重试' : '前往第');

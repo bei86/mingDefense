@@ -25,6 +25,7 @@ import { AudioVolume, MUSIC_VOLUME_KEY, SOUND_VOLUME_KEY } from '../presentation
 import { AudioSettings } from './AudioSettings';
 import { SaveManager } from './SaveManager';
 import { StageIntel } from './StageIntel';
+import { CampaignProgress } from './CampaignProgress';
 import { FormationSwap } from './FormationSwap';
 import { BattleInspection } from './BattleInspection';
 import { FormationPresets } from './FormationPresets';
@@ -108,7 +109,8 @@ function GameApp({
   const [help, setHelp] = useState(false);
   const [journal, setJournal] = useState(false);
   const [handbook, setHandbook] = useState<HandbookTarget | null>(null);
-  const [intel, setIntel] = useState(false);
+  const [intel, setIntel] = useState<number | null>(null);
+  const [progress, setProgress] = useState(false);
   const [saves, setSaves] = useState(false);
   const [reports, setReports] = useState(false);
   const [reportStorage] = useState(() =>
@@ -129,6 +131,7 @@ function GameApp({
         journal ||
         handbook ||
         intel ||
+        progress ||
         saves ||
         reports ||
         inspection ||
@@ -143,7 +146,7 @@ function GameApp({
         session.phase === 'victory' ||
         session.phase === 'defeat',
     ),
-    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${displaySettings}:${playtests}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
+    `${rendererRecovery}:${dialog?.title}:${help}:${journal}:${handbook}:${intel}:${progress}:${saves}:${reports}:${inspection}:${presets}:${audioSettings}:${displaySettings}:${playtests}:${mergeSource?.type}:${mergeSource?.id}:${swapUnitId}:${session.hasChoices}:${session.battle?.pendingChoices}:${session.phase}:${session.paused}`,
   );
   const drag = useRef<{
     pointerId: number;
@@ -586,7 +589,7 @@ function GameApp({
           )}
         </div>
       )}
-      {preparing && <EnemyIntel stageId={p.stageId} onDetails={() => setIntel(true)} />}
+      {preparing && <EnemyIntel stageId={p.stageId} onDetails={() => setIntel(p.stageId)} />}
       {preparing && lastDefeat && <DefeatAdvice session={session} recap={lastDefeat} preparing />}
       {preparing && p.stageId === 1 && !lastDefeat && (
         <FirstBattleGuide session={session} selected={selected} choose={choose} />
@@ -654,6 +657,9 @@ function GameApp({
               : '五十关原型 · 临时数值待校准 · 自动保存检查点'}
           </span>
           <div className="preparation-save-tools">
+            <button className="text-button" onClick={() => setProgress(true)}>
+              战役进度
+            </button>
             <button className="text-button" onClick={() => setReports(true)}>
               战报收藏
             </button>
@@ -693,6 +699,7 @@ function GameApp({
           }
           onReports={() => setReports(true)}
           onSaves={() => setSaves(true)}
+          onProgress={() => setProgress(true)}
           onPlaytests={import.meta.env.DEV ? () => setPlaytests(true) : undefined}
           onNext={() => {
             clock.reset();
@@ -722,6 +729,7 @@ function GameApp({
         !journal &&
         !handbook &&
         !intel &&
+        !progress &&
         !inspection &&
         !reports &&
         !audioSettings &&
@@ -748,7 +756,8 @@ function GameApp({
             onHelp={() => setHelp(true)}
             onBuffs={() => setJournal(true)}
             onHandbook={() => setHandbook({ kind: 'ember_mouse', rank: 1 })}
-            onIntel={() => setIntel(true)}
+            onIntel={() => setIntel(p.stageId)}
+            onProgress={() => setProgress(true)}
             onSaves={() => setSaves(true)}
             onInspect={() => setInspection(true)}
             onReports={() => setReports(true)}
@@ -876,11 +885,21 @@ function GameApp({
           onClose={() => setHandbook(null)}
         />
       )}
-      {intel && (
+      {progress && intel === null && (
+        <CampaignProgress
+          session={session}
+          isolated={boot.isolated ?? false}
+          onIntel={setIntel}
+          onClose={() => setProgress(false)}
+        />
+      )}
+      {intel !== null && (
         <StageIntel
           currentSpawns={trial?.spawns}
           currentStageId={p.stageId}
-          onClose={() => setIntel(false)}
+          initialStageId={intel}
+          closeLabel={progress ? '返回战役进度' : undefined}
+          onClose={() => setIntel(null)}
         />
       )}
       {saves && (

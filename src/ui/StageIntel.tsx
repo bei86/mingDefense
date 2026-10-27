@@ -55,13 +55,17 @@ function EnemyCard({ entry, stageId }: { entry: EnemyIntelEntry; stageId: number
 export function StageIntel({
   currentStageId,
   currentSpawns,
+  initialStageId,
+  closeLabel = '收起敌情手册',
   onClose,
 }: {
   currentStageId: number;
   currentSpawns?: readonly Spawn[];
+  initialStageId?: number;
+  closeLabel?: string;
   onClose: () => void;
 }) {
-  const [stageId, setStageId] = useState(currentStageId);
+  const [stageId, setStageId] = useState(initialStageId ?? currentStageId);
   const intel = stageIntel(stageId, stageId === currentStageId ? currentSpawns : undefined);
   return (
     <div className="modal-backdrop top-modal">
@@ -144,7 +148,7 @@ export function StageIntel({
           敌人先清前排，同排先低阶，再按仇恨选目标；远程敌人也遵守这一规则。间隔为配置基础值，实战受冻结、首领二阶段及固定步长影响。
         </p>
         <button className="secondary" onClick={onClose}>
-          收起敌情手册
+          {closeLabel}
         </button>
       </section>
     </div>

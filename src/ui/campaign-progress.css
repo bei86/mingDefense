@@ -1,0 +1,94 @@
+.campaign-progress {
+  padding: 22px 14px;
+  text-align: left;
+}
+.campaign-progress-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.campaign-progress h2 {
+  font-size: 23px;
+}
+.campaign-progress p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.campaign-progress .campaign-progress-source {
+  color: var(--gold);
+}
+.campaign-progress-summary {
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--forest);
+  font-size: 13px;
+}
+.campaign-progress-track {
+  height: 6px;
+  margin-top: 8px;
+  overflow: hidden;
+  background: #061b15;
+  border-radius: 4px;
+}
+.campaign-progress-track span {
+  display: block;
+  height: 100%;
+  background: var(--mint);
+}
+.campaign-progress-chapter h3 {
+  margin: 16px 0 8px;
+  font-size: 12px;
+  color: var(--gold);
+}
+.campaign-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(44px, 1fr));
+  gap: 4px;
+}
+.campaign-progress-grid button {
+  min-height: 64px;
+  padding: 8px 2px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--forest);
+}
+.campaign-progress-grid strong {
+  display: block;
+  font-size: 16px;
+}
+.campaign-progress-grid strong span {
+  font-size: 9px;
+  margin-left: 3px;
+  color: var(--gold);
+}
+.campaign-progress-grid small {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+}
+.campaign-progress-grid .stage-cleared {
+  background: #294d3c;
+}
+.campaign-progress-grid .stage-cleared small {
+  color: var(--mint);
+}
+.campaign-progress-grid [aria-current='step'] {
+  border: 2px solid var(--gold);
+  color: var(--gold);
+}
+.campaign-progress-grid [aria-current='step'] small {
+  color: var(--gold);
+}
+.campaign-progress > .secondary {
+  min-height: 44px;
+}
+@media (max-width: 310px) {
+  .campaign-progress-grid {
+    grid-template-columns: repeat(4, minmax(44px, 1fr));
+  }
+}
