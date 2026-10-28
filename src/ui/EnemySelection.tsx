@@ -1,6 +1,7 @@
 import type { Ref } from 'react';
 import type { EnemyFilter, EnemySelectionModel } from './enemy-selection';
 import { enemySortLabel, enemySortOptions, type EnemySort } from './enemy-sorting';
+import { InspectionNavigation } from './InspectionNavigation';
 
 type Props = {
   selection: EnemySelectionModel;
@@ -75,6 +76,12 @@ export function EnemySelection({
           ))}
         </select>
       </label>
+      <InspectionNavigation
+        entries={selection.enemies}
+        selectedId={selection.selectedId}
+        subject="敌人"
+        onSelect={onSelect}
+      />
     </>
   );
 }

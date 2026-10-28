@@ -2,6 +2,7 @@ import type { Ref } from 'react';
 import { appearances } from '../game/content';
 import type { AllyKindFilter, AllySelectionModel, AllyStatusFilter } from './ally-selection';
 import { allySortLabel, allySortOptions, type AllySort } from './ally-sorting';
+import { InspectionNavigation } from './InspectionNavigation';
 
 type Props = {
   selection: AllySelectionModel;
@@ -98,6 +99,12 @@ export function AllySelection({
       ) : (
         <p role="status">当前筛选下没有上阵灵兽，请调整种类或状态。</p>
       )}
+      <InspectionNavigation
+        entries={selection.allies}
+        selectedId={selection.selectedId}
+        subject="灵兽"
+        onSelect={onSelect}
+      />
     </>
   );
 }
