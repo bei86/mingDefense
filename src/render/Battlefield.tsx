@@ -16,6 +16,7 @@ import { expansionError, placementError, unitAt, type Session, type Source } fro
 import { boardDrop } from '../ui/board-drop';
 import { artUrl, battlefieldArt, bossArtKey, enemyArt, heroArt } from './art';
 import { ArtLayer } from './ArtLayer';
+import { drawBossPhaseMarker } from './boss-phase-marker';
 import {
   performanceContext,
   PerformanceWindow,
@@ -585,6 +586,7 @@ export function Battlefield({
         for (const e of battle.enemies) {
           const g = overlay;
           const p = pixel(e);
+          drawBossPhaseMarker(this.drawing, overlay, e, p);
           const boss = e.kind === 'boss';
           const pose = feedback.pose('enemy', e.id, reducedMotion);
           const color = enemyColors[e.kind ?? 'wolf'];

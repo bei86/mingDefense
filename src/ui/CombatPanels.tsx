@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import {
+  bossDefinition,
   bossDescription,
   bossName,
   config,
@@ -67,6 +68,7 @@ export function CombatStatus({ session }: { session: Session }) {
   const remaining = Math.max(0, config.runtime.stageLimitMs - b.time);
   const wave = session.stage.waves.filter((w) => b.time >= w.atMs).length;
   const boss = b.enemies.find((e) => e.kind === 'boss' && e.hp > 0);
+  const phaseThreshold = bossDefinition(b.stageId).phase2HpPercent;
   return (
     <section className="combat-status" aria-label="守卫状态">
       <div className="combat-vitals">
@@ -111,17 +113,32 @@ export function CombatStatus({ session }: { session: Session }) {
       {boss && (
         <div className={`combat-boss ${boss.phase2 ? 'enraged' : ''}`}>
           <div>
-            <strong>
-              {bossName(b.stageId)}
-              {boss.phase2 ? ' · 怒意苏醒' : ''}
-            </strong>
+            <strong>{bossName(b.stageId)}</strong>
             <small>
               {Math.ceil(boss.hp)} / {boss.maxHp}
             </small>
           </div>
-          <div className="boss-track">
+          <div
+            className="boss-track"
+            role="progressbar"
+            aria-label={`${bossName(b.stageId)}生命`}
+            aria-valuemin={0}
+            aria-valuemax={boss.maxHp}
+            aria-valuenow={Math.ceil(boss.hp)}
+            aria-valuetext={`${Math.ceil(boss.hp)} / ${boss.maxHp}，${boss.phase2 ? '第二阶段，怒意苏醒' : `第一阶段，生命降至${phaseThreshold}%进入第二阶段`}`}
+          >
             <span style={{ width: `${(boss.hp / boss.maxHp!) * 100}%` }} />
+            {!boss.phase2 && (
+              <i
+                className="boss-phase-threshold"
+                style={{ left: `${phaseThreshold}%` }}
+                aria-hidden="true"
+              />
+            )}
           </div>
+          <p className="boss-phase-note">
+            {boss.phase2 ? '第二阶段 · 怒意苏醒' : `第一阶段 · 生命≤${phaseThreshold}%进入第二阶段`}
+          </p>
         </div>
       )}
     </section>

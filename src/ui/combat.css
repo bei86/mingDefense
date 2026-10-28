@@ -154,6 +154,27 @@
 .combat-boss.enraged .boss-track > span {
   background: #e0a480;
 }
+.combat-boss .boss-track {
+  position: relative;
+}
+.boss-phase-threshold {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-1px);
+  background: var(--paper);
+  box-shadow: 0 0 0 1px #1a2f23;
+}
+.boss-phase-note {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.combat-boss.enraged .boss-phase-note {
+  color: #f1b28c;
+}
 .combat-view .field-panel {
   border-color: #65826355;
 }
