@@ -1,8 +1,10 @@
 import { appearances, config, stageNames } from '../game/content';
+import type { Combat } from '../game/combat-model';
 import type { BuffId } from '../game/model';
 import { buffLabels } from '../game/progression';
 import type { Session } from '../game/session';
-import { battleInspection } from './battle-inspection';
+import { battleAction } from './battle-action';
+import { battleInspection, type InspectedAlly } from './battle-inspection';
 import { enemyInspection, enemySeconds, type InspectedEnemy } from './enemy-inspection';
 import { upcomingEnemies } from './upcoming-enemies';
 
@@ -20,6 +22,68 @@ function positionedAlly(unit: AllyLabel & { position: { x: number; y: number } }
 function targetLabel(enemy: InspectedEnemy): string {
   if (enemy.target) return positionedAlly(enemy.target);
   return enemy.targetState === 'lost' ? '目标已倒下或退场' : '尚未锁定';
+}
+
+function allyActionLines(battle: Combat, units: readonly InspectedAlly[]): string[] {
+  const lines = ['', '## 灵兽当前行动', ''];
+  for (const unit of units) {
+    const action = battleAction(battle, unit.id)!;
+    lines.push(`- ${positionedAlly(unit)}：${action.status}`);
+    if (!action.alive) continue;
+    if (action.incomeMs !== null) {
+      const timing = action.incomeMs > 0 ? `剩余${enemySeconds(action.incomeMs)}秒` : '待产钱';
+      lines.push(`  - 下次产钱：${timing}`);
+      continue;
+    }
+    lines.push(`  - 再次行动最早：${enemySeconds(action.cooldownMs!)}秒后（仅冷却）`);
+    if (!action.pending.length) lines.push('  - 当前没有准备中的动作。');
+    for (const pending of action.pending) {
+      const kind = unit.kind === 'shield_fox' ? '施盾' : '攻击';
+      const side = pending.target.side === 'ally' ? '己方' : '敌方';
+      const timing =
+        pending.remainingMs > 0 ? `准备剩余${enemySeconds(pending.remainingMs)}秒` : '待释放';
+      const invalid = pending.targetAlive ? '' : '；目标已倒下或退场，此动作不会生效';
+      lines.push(
+        `  - 准备${kind} #${pending.ordinal} → ${side} ${pending.targetLabel} · ${timing}${invalid}`,
+      );
+    }
+  }
+  if (!units.length) lines.push('无上阵灵兽行动。');
+  lines.push(
+    '',
+    '冷却只表示最早可再次行动；准备到期不等于命中，释放仍受真实战斗规则约束。桃使用独立产钱计时。',
+  );
+  return lines;
+}
+
+function enemyActionLines(enemies: readonly InspectedEnemy[]): string[] {
+  const lines = ['', '## 敌人当前普攻', ''];
+  for (const enemy of enemies) {
+    const action = enemy.attack!;
+    const frozen = action.frozenMs > 0;
+    lines.push(`- ${enemy.name} #${enemy.id}：${action.status}`);
+    if (frozen) lines.push(`  - 冻结剩余${enemySeconds(action.frozenMs)}秒`);
+    lines.push(
+      `  - ${frozen ? '解冻后再次普攻最早' : '再次普攻最早'}：${enemySeconds(action.cooldownMs)}秒后（仅冷却）`,
+    );
+    if (!action.pending.length) lines.push('  - 当前没有准备中的普攻。');
+    for (const pending of action.pending) {
+      const target = pending.target ? positionedAlly(pending.target) : `#${pending.targetId}`;
+      let timing =
+        pending.remainingMs > 0 ? `准备剩余${enemySeconds(pending.remainingMs)}秒` : '待释放';
+      if (frozen) {
+        timing = `解冻后准备剩余${enemySeconds(pending.remainingMs)}秒${pending.remainingMs === 0 ? '（待解冻）' : ''}`;
+      }
+      const invalid = pending.targetAlive ? '' : '；目标已倒下或未记录，此次普攻不会生效';
+      lines.push(`  - 准备普攻 → 己方 ${target} · ${timing}${invalid}`);
+    }
+  }
+  if (!enemies.length) lines.push('无存活敌人普攻。');
+  lines.push(
+    '',
+    '准备目标独立于缓存锁定；冻结期间冷却与准备暂停，分列解冻后的剩余时间，不预测命中。',
+  );
+  return lines;
 }
 
 /** A deterministic observation document, never a save or a replay. */
@@ -68,6 +132,7 @@ export function battleSnapshotDocument(
   lines.push(
     '',
     '生命和护盾沿详情面板取整；过期、耗尽或倒下者的旧盾不计。位置是完整占格的锚点。',
+    ...allyActionLines(battle, view.allies),
     '',
     '## 存活敌人',
     '',
@@ -80,7 +145,7 @@ export function battleSnapshotDocument(
     );
   }
   if (!enemies.length) lines.push('', '无存活敌人。');
-  lines.push('', '## 横扫与回响预警', '');
+  lines.push(...enemyActionLines(enemies), '', '## 横扫与回响预警', '');
   let warningCount = 0;
   for (const enemy of enemies) {
     for (const warning of enemy.warnings) {
@@ -123,7 +188,7 @@ export function battleSnapshotDocument(
       ? talents.map(([id, level]) => `- ${buffLabels[id as BuffId].name}：${level}层`)
       : ['未选择天赋']),
     '',
-    '这是本次暂停观察文本，不是完整行动记录或存档，不能恢复进度或重演操作。不包含完整准备/已发出攻击与持续效果，不能据此还原全部战斗过程。继续守卫后请重新打开战场详情导出新快照。',
+    '这是本次暂停观察文本，不是完整行动记录或存档，不能恢复进度或重演操作。包含当前准备队列，不包含完整已发出攻击与持续效果，不能据此还原全部战斗过程。继续守卫后请重新打开战场详情导出新快照。',
     '',
   );
   return {
