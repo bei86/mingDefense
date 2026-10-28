@@ -4,6 +4,8 @@ import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { AllyThreats } from './AllyThreats';
+import { AllyIncoming } from './AllyIncoming';
+import { allyIncoming } from './ally-incoming';
 import { AllySelection } from './AllySelection';
 import { selectAllies, type AllyKindFilter, type AllyStatusFilter } from './ally-selection';
 import type { AllySort } from './ally-sorting';
@@ -222,6 +224,11 @@ export function BattleInspection({
                     <AllyThreats
                       key={`threats-${unit.id}`}
                       enemies={enemiesTargeting(enemyView, unit.id)}
+                      onSelect={showEnemy}
+                    />
+                    <AllyIncoming
+                      key={`incoming-${unit.id}`}
+                      actions={allyIncoming(enemyView, unit.id)}
                       onSelect={showEnemy}
                     />
                     <BattleStats
