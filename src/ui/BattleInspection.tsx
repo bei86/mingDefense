@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { appearances, type EnemyKind } from '../game/content';
 import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { AllyThreats } from './AllyThreats';
+import { AllySelection } from './AllySelection';
+import { selectAllies, type AllyKindFilter, type AllyStatusFilter } from './ally-selection';
 import { BattleStats } from './BattleStats';
 import { InspectionFormation } from './InspectionFormation';
 import { EnemyInspection } from './EnemyInspection';
@@ -14,10 +16,6 @@ import { enemiesTargeting, enemyInspection } from './enemy-inspection';
 import type { HandbookTarget } from './SpiritHandbook';
 import type { BossWarningTarget } from './boss-warnings';
 import './battle-inspection.css';
-
-function unitLabel(unit: InspectedAlly): string {
-  return `${appearances[unit.kind].name} · ${unit.rank}阶 · ${unit.position.x + 1}列${unit.position.y + 1}行 · ${unit.alive ? '存活' : '已倒下'}`;
-}
 
 function AllyDetails({ unit }: { unit: InspectedAlly }) {
   const stats = [
@@ -102,10 +100,23 @@ export function BattleInspection({
   const [enemyId, setEnemyId] = useState(initialWarning?.source);
   const [side, setSide] = useState<Side>(initialWarning ? 'enemy' : 'ally');
   const [focusSide, setFocusSide] = useState<Side | null>(null);
-  const unit = view?.allies.find((entry) => entry.id === unitId) ?? view?.allies[0];
+  const [allyKind, setAllyKind] = useState<AllyKindFilter>('all');
+  const [allyStatus, setAllyStatus] = useState<AllyStatusFilter>('all');
+  const allySelect = useRef<HTMLSelectElement>(null);
+  const selection = selectAllies(view?.allies ?? null, allyKind, allyStatus, unitId);
+  const unit = selection.allies.find((entry) => entry.id === selection.selectedId);
   function changeSide(next: Side) {
+    if (next === side) return;
     setFocusSide(null);
+    setAllyKind('all');
+    setAllyStatus('all');
     setSide(next);
+  }
+  function changeAllyFilter(kind: AllyKindFilter, status: AllyStatusFilter): void {
+    const next = selectAllies(view?.allies ?? null, kind, status, selection.selectedId);
+    setAllyKind(next.kind);
+    setAllyStatus(next.status);
+    if (next.selectedId !== undefined) setUnitId(next.selectedId);
   }
   function showEnemy(id: number) {
     if (!enemyView?.enemies.some((enemy) => enemy.id === id)) return;
@@ -113,11 +124,14 @@ export function BattleInspection({
     setFocusSide('enemy');
     setSide('enemy');
   }
-  function showAlly(id: number) {
-    if (!view?.allies.some((ally) => ally.id === id && ally.alive)) return;
+  function showAlly(id: number, allowFallen = false) {
+    if (!view?.allies.some((ally) => ally.id === id && (allowFallen || ally.alive))) return;
+    setAllyKind('all');
+    setAllyStatus('all');
     setUnitId(id);
     setFocusSide('ally');
     setSide('ally');
+    allySelect.current?.focus();
   }
   return (
     <div className="modal-backdrop top-modal" hidden={suspended}>
@@ -181,25 +195,20 @@ export function BattleInspection({
                 <InspectionFormation
                   allies={view.allies}
                   selectedId={unit?.id}
-                  onSelect={setUnitId}
+                  onSelect={(id) => showAlly(id, true)}
                 />
-                {unit ? (
+                {view.allies.length > 0 && (
+                  <AllySelection
+                    selection={selection}
+                    onKind={(kind) => changeAllyFilter(kind, allyStatus)}
+                    onStatus={(status) => changeAllyFilter(allyKind, status)}
+                    onSelect={setUnitId}
+                    selectRef={allySelect}
+                    autoFocus={focusSide === 'ally'}
+                  />
+                )}
+                {unit && (
                   <>
-                    <label className="inspection-select">
-                      查看灵兽
-                      <select
-                        aria-label="查看灵兽"
-                        autoFocus={focusSide === 'ally'}
-                        value={unit.id}
-                        onChange={(event) => setUnitId(Number(event.target.value))}
-                      >
-                        {view.allies.map((entry) => (
-                          <option key={entry.id} value={entry.id}>
-                            {unitLabel(entry)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
                     <AllyDetails unit={unit} />
                     <AllyThreats
                       key={`threats-${unit.id}`}
@@ -215,9 +224,8 @@ export function BattleInspection({
                       查看技能图鉴 ›
                     </button>
                   </>
-                ) : (
-                  <p role="status">当前没有已上阵灵兽。</p>
                 )}
+                {view.allies.length === 0 && <p role="status">当前没有已上阵灵兽。</p>}
                 {view.reserves.length > 0 && (
                   <p className="inspection-note">
                     备战席（不参战）：
