@@ -132,6 +132,7 @@ test('受控控件显示排序、具体编号及旧比例记录，默认保持�
       <EnemySelection
         selection={selectEnemies(view, 'all', second.id, order)}
         onKind={noop}
+        onStatus={noop}
         onOrder={noop}
         onSelect={noop}
       />,

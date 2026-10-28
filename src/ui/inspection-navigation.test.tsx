@@ -173,6 +173,7 @@ test('双方选择控件在实例select后接入，序号来自筛选排序结�
     <EnemySelection
       selection={selectEnemies(enemyInspection(battle), 'wolf', second.id, 'health')}
       onKind={noop}
+      onStatus={noop}
       onOrder={noop}
       onSelect={noop}
     />,
@@ -200,6 +201,7 @@ test('灵兽空交集与单只、敌人单只不显示多余按钮', () => {
     <EnemySelection
       selection={selectEnemies(enemyInspection(battle), 'boss', boss.id)}
       onKind={noop}
+      onStatus={noop}
       onOrder={noop}
       onSelect={noop}
     />,

@@ -11,7 +11,7 @@ import { EnemySummon } from './EnemySummon';
 import { enemyLineage, type EnemyLineageModel } from './enemy-lineage';
 import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
 import type { BossWarningTarget } from './boss-warnings';
-import { selectEnemies, type EnemyFilter } from './enemy-selection';
+import { selectEnemies, type EnemyFilter, type EnemyStatusFilter } from './enemy-selection';
 import type { EnemySort } from './enemy-sorting';
 import { EnemySelection } from './EnemySelection';
 import './inspection-links.css';
@@ -153,15 +153,17 @@ export function EnemyInspection({
   onIntel,
 }: Props) {
   const [kind, setKind] = useState<EnemyFilter>('all');
+  const [status, setStatus] = useState<EnemyStatusFilter>('all');
   const [order, setOrder] = useState<EnemySort>('default');
   const enemySelect = useRef<HTMLSelectElement>(null);
-  const selection = selectEnemies(view, kind, selectedId, order);
+  const selection = selectEnemies(view, kind, selectedId, order, status);
   const enemy = selection.enemies.find((entry) => entry.id === selection.selectedId);
-  if (!enemy) return <p role="status">当前场上没有存活敌人。</p>;
+  if (selection.total === 0) return <p role="status">当前场上没有存活敌人。</p>;
 
-  function changeKind(next: EnemyFilter): void {
-    const nextSelection = selectEnemies(view, next, selection.selectedId, order);
+  function changeFilter(nextKind: EnemyFilter, nextStatus: EnemyStatusFilter): void {
+    const nextSelection = selectEnemies(view, nextKind, selection.selectedId, order, nextStatus);
     setKind(nextSelection.kind);
+    setStatus(nextSelection.status);
     if (nextSelection.selectedId !== undefined) onSelect(nextSelection.selectedId);
   }
   function changeOrder(next: EnemySort): void {
@@ -172,6 +174,7 @@ export function EnemyInspection({
   function showRelatedEnemy(id: number): void {
     if (!view?.enemies.some((entry) => entry.id === id)) return;
     setKind('all');
+    setStatus('all');
     onSelect(id);
     enemySelect.current?.focus();
   }
@@ -179,21 +182,24 @@ export function EnemyInspection({
     <>
       <EnemySelection
         selection={selection}
-        onKind={changeKind}
+        onKind={(next) => changeFilter(next, status)}
+        onStatus={(next) => changeFilter(kind, next)}
         onOrder={changeOrder}
         onSelect={onSelect}
         selectRef={enemySelect}
         autoFocus={autoFocus}
       />
-      <EnemyDetails
-        enemy={enemy}
-        stageId={stageId}
-        onTarget={onTarget}
-        lineage={enemyLineage(view, enemy.id)}
-        onEnemy={showRelatedEnemy}
-        initialWarning={initialWarning?.source === enemy.id ? initialWarning : undefined}
-      />
-      {onIntel && (
+      {enemy && (
+        <EnemyDetails
+          enemy={enemy}
+          stageId={stageId}
+          onTarget={onTarget}
+          lineage={enemyLineage(view, enemy.id)}
+          onEnemy={showRelatedEnemy}
+          initialWarning={initialWarning?.source === enemy.id ? initialWarning : undefined}
+        />
+      )}
+      {enemy && onIntel && (
         <button
           type="button"
           className="secondary inspection-handbook-button"
@@ -206,7 +212,7 @@ export function EnemyInspection({
       <p className="inspection-note">
         锁定是当前缓存，包含正在接近的目标，不代表下一击或横扫目标。冻结可能推迟预警释放；这里只列已出现的预警，不预测下一次技能。
       </p>
-      {enemy.effects.some((effect) => effect.label === '迟滞天赋') && (
+      {enemy?.effects.some((effect) => effect.label === '迟滞天赋') && (
         <p className="inspection-note">
           迟滞为全场天赋，与霜尾缓行分列；实际移速减幅受战斗上限约束。
         </p>

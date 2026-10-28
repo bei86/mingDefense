@@ -76,6 +76,8 @@ test('无战斗或空列表均返回空选择，旧kind由原投影按狼处理'
       kinds: [],
       kind: 'all',
       order: 'default',
+      status: 'all',
+      counts: { all: 0, frozen: 0, slowed: 0, vulnerable: 0, unaffected: 0 },
       enemies: [],
       selectedId: undefined,
       total: 0,

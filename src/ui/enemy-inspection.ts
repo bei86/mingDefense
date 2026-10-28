@@ -17,6 +17,8 @@ export type InspectedWarning = {
   allies: InspectedAllyPosition[];
 };
 
+export type EnemyEffectStatus = 'frozen' | 'slowed' | 'vulnerable';
+
 export type InspectedEnemy = {
   id: number;
   kind: EnemyKind;
@@ -27,6 +29,7 @@ export type InspectedEnemy = {
   targetState: 'none' | 'locked' | 'lost';
   target: InspectedAllyPosition | null;
   effects: { label: string; value: string }[];
+  statuses: EnemyEffectStatus[];
   warnings: InspectedWarning[];
   origin: string | null;
   ownerId?: number;
@@ -66,18 +69,22 @@ export function enemyInspection(battle: Combat | null): EnemyInspectionView | nu
     const kind = enemy.kind ?? 'wolf';
     const target = battle.allies.find((ally) => ally.id === enemy.target && ally.hp > 0);
     const effects: InspectedEnemy['effects'] = [];
+    const statuses: EnemyEffectStatus[] = [];
     const remaining = (until: number | undefined) =>
       `剩余 ${enemySeconds((until ?? 0) - battle.time)} 秒`;
     if ((enemy.frozenUntil ?? 0) > battle.time) {
+      statuses.push('frozen');
       effects.push({ label: '冻结', value: remaining(enemy.frozenUntil) });
     }
     if ((enemy.slowUntil ?? 0) > battle.time) {
+      statuses.push('slowed');
       effects.push({
         label: '霜尾缓行',
         value: `${heroes.ice_fish.skills.slowPercent}% · ${remaining(enemy.slowUntil)}`,
       });
     }
     if ((enemy.vulnerabilityUntil ?? 0) > battle.time) {
+      statuses.push('vulnerable');
       const percent = enemy.vulnerabilityPercent;
       const value = percent === undefined ? '倍率未记录' : `${percent}%`;
       effects.push({ label: '易伤', value: `${value} · ${remaining(enemy.vulnerabilityUntil)}` });
@@ -112,6 +119,7 @@ export function enemyInspection(battle: Combat | null): EnemyInspectionView | nu
         ? { id: target.id, kind: target.kind, rank: target.rank, position: { ...target.position } }
         : null,
       effects,
+      statuses,
       warnings: battle.warnings
         .filter((warning) => warning.source === enemy.id)
         .sort((a, b) => a.due - b.due)
