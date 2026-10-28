@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { appearances } from '../game/content';
+import { appearances, type EnemyKind } from '../game/content';
 import { bossArtKey, enemyArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { EnemyWarnings } from './EnemyWarnings';
@@ -134,6 +134,7 @@ type Props = {
   onTarget: (id: number) => void;
   autoFocus?: boolean;
   initialWarning?: BossWarningTarget;
+  onIntel?: (kind: EnemyKind) => void;
 };
 
 export function EnemyInspection({
@@ -144,6 +145,7 @@ export function EnemyInspection({
   onTarget,
   autoFocus = false,
   initialWarning,
+  onIntel,
 }: Props) {
   const [kind, setKind] = useState<EnemyFilter>('all');
   const selection = selectEnemies(view, kind, selectedId);
@@ -196,6 +198,16 @@ export function EnemyInspection({
         onTarget={onTarget}
         initialWarning={initialWarning?.source === enemy.id ? initialWarning : undefined}
       />
+      {onIntel && (
+        <button
+          type="button"
+          className="secondary inspection-handbook-button"
+          aria-label={`查看${enemy.name}敌情档案`}
+          onClick={() => onIntel(enemy.kind)}
+        >
+          查看敌情档案 ›
+        </button>
+      )}
       <p className="inspection-note">
         锁定是当前缓存，包含正在接近的目标，不代表下一击或横扫目标。冻结可能推迟预警释放；这里只列已出现的预警，不预测下一次技能。
       </p>

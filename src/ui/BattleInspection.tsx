@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { appearances } from '../game/content';
+import { appearances, type EnemyKind } from '../game/content';
 import type { Session } from '../game/session';
 import { heroArt } from '../render/art';
 import { ArtImage } from './ArtImage';
@@ -84,6 +84,7 @@ type Props = {
   onHandbook: (target: HandbookTarget) => void;
   suspended?: boolean;
   initialWarning?: BossWarningTarget;
+  onIntel?: (kind: EnemyKind) => void;
 };
 type Side = 'ally' | 'enemy' | 'upcoming';
 
@@ -93,6 +94,7 @@ export function BattleInspection({
   onHandbook,
   suspended = false,
   initialWarning,
+  onIntel,
 }: Props) {
   const view = battleInspection(session.battle, session.preparation.units);
   const enemyView = enemyInspection(session.battle);
@@ -170,6 +172,7 @@ export function BattleInspection({
                 onTarget={showAlly}
                 autoFocus={focusSide === 'enemy'}
                 initialWarning={initialWarning}
+                onIntel={onIntel}
               />
             )}
             {side === 'upcoming' && <UpcomingEnemies battle={session.battle} />}

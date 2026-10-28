@@ -1,6 +1,6 @@
 import type { Spawn } from '../game/combat-model';
 import { useState } from 'react';
-import { stages, stageNames } from '../game/content';
+import { stages, stageNames, type EnemyKind } from '../game/content';
 import { bossArtKey, enemyArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { timeLabel } from './CampaignPanels';
@@ -56,17 +56,26 @@ export function StageIntel({
   currentStageId,
   currentSpawns,
   initialStageId,
+  initialEnemyKind,
   closeLabel = '收起敌情手册',
   onClose,
 }: {
   currentStageId: number;
   currentSpawns?: readonly Spawn[];
   initialStageId?: number;
+  initialEnemyKind?: EnemyKind;
   closeLabel?: string;
   onClose: () => void;
 }) {
   const [stageId, setStageId] = useState(initialStageId ?? currentStageId);
   const intel = stageIntel(stageId, stageId === currentStageId ? currentSpawns : undefined);
+  const showTarget =
+    initialEnemyKind !== undefined && stageId === (initialStageId ?? currentStageId);
+  const target = showTarget
+    ? [...intel.enemies, ...intel.derived].find((entry) => entry.kind === initialEnemyKind)
+    : undefined;
+  const enemies = intel.enemies.filter((entry) => entry !== target);
+  const derived = intel.derived.filter((entry) => entry !== target);
   return (
     <div className="modal-backdrop top-modal">
       <section
@@ -87,6 +96,21 @@ export function StageIntel({
         <p className="handbook-note">
           当前原型临时数值（P），待原作实机校准。浏览不会跳关或改变存档。
         </p>
+        {showTarget && (
+          <section aria-label="快捷敌情档案">
+            <h3 className="intel-section-title">第{stageId}关 · 所选敌情档案</h3>
+            <p className="handbook-note">
+              本关配置基础值，未计狂暴、二阶段及受击方减伤；当前生命与状态见战场详情。
+            </p>
+            {target ? (
+              <EnemyCard entry={target} stageId={stageId} />
+            ) : (
+              <p className="handbook-note">
+                该种类未列入本关固定队列与衍生档案，请返回战场详情核对。
+              </p>
+            )}
+          </section>
+        )}
         <nav className="intel-navigation" aria-label="浏览关卡">
           <button
             aria-label="上一关敌情"
@@ -159,14 +183,14 @@ export function StageIntel({
         <p className="handbook-note">
           按各波起点划分时段，时间为开战后的游戏内计划时间；出怪不等待前一波清完，不代表抵达阵线或清场时间。召唤与分裂不计入固定数量。
         </p>
-        <h3 className="intel-section-title">敌人属性</h3>
-        {intel.enemies.map((entry) => (
+        {enemies.length > 0 && <h3 className="intel-section-title">敌人属性</h3>}
+        {enemies.map((entry) => (
           <EnemyCard key={entry.kind} entry={entry} stageId={stageId} />
         ))}
-        {intel.derived.length > 0 && (
+        {derived.length > 0 && (
           <>
             <h3 className="intel-section-title">召唤与分裂</h3>
-            {intel.derived.map((entry) => (
+            {derived.map((entry) => (
               <EnemyCard key={entry.kind} entry={entry} stageId={stageId} />
             ))}
           </>

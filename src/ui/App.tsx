@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { appearances, config, enemyCount, stages, stageNames, type Point } from '../game/content';
+import {
+  appearances,
+  config,
+  enemyCount,
+  stages,
+  stageNames,
+  type EnemyKind,
+  type Point,
+} from '../game/content';
 import { unitAt, type Source, type Session } from '../game/session';
 import type { BrowserLoadResult } from './useSessionStorage';
 import { RangedPlaytestPanel } from './RangedPlaytest';
@@ -112,7 +120,7 @@ function GameApp({
   const [help, setHelp] = useState(false);
   const [journal, setJournal] = useState(false);
   const [handbook, setHandbook] = useState<HandbookTarget | null>(null);
-  const [intel, setIntel] = useState<number | null>(null);
+  const [intel, setIntel] = useState<{ stageId: number; enemyKind?: EnemyKind } | null>(null);
   const [progress, setProgress] = useState<{ chapter: number } | null>(null);
   const [saves, setSaves] = useState(false);
   const [reports, setReports] = useState(false);
@@ -391,6 +399,9 @@ function GameApp({
   const p = session.preparation;
   const battle = session.battle;
   const preparing = session.phase === 'prepare';
+  let intelCloseLabel: string | undefined;
+  if (inspection) intelCloseLabel = '返回战场详情';
+  else if (progress) intelCloseLabel = '返回战役进度';
   let journalCloseLabel: string | undefined;
   if (session.hasChoices) journalCloseLabel = '返回天赋选择';
   else if (session.phase === 'victory' || session.phase === 'defeat')
@@ -604,7 +615,9 @@ function GameApp({
           )}
         </div>
       )}
-      {preparing && <EnemyIntel stageId={p.stageId} onDetails={() => setIntel(p.stageId)} />}
+      {preparing && (
+        <EnemyIntel stageId={p.stageId} onDetails={() => setIntel({ stageId: p.stageId })} />
+      )}
       {preparing && lastDefeat && <DefeatAdvice session={session} recap={lastDefeat} preparing />}
       {preparing && p.stageId === 1 && !lastDefeat && (
         <FirstBattleGuide session={session} selected={selected} choose={choose} />
@@ -776,7 +789,7 @@ function GameApp({
             onHelp={() => setHelp(true)}
             onBuffs={() => setJournal(true)}
             onHandbook={() => setHandbook({ kind: 'ember_mouse', rank: 1 })}
-            onIntel={() => setIntel(p.stageId)}
+            onIntel={() => setIntel({ stageId: p.stageId })}
             onProgress={() => setProgress({ chapter: campaignChapter(p.stageId) })}
             onSaves={() => setSaves(true)}
             onInspect={() => setInspection({})}
@@ -861,7 +874,8 @@ function GameApp({
           initialWarning={inspection.warning}
           onClose={() => setInspection(null)}
           onHandbook={setHandbook}
-          suspended={Boolean(handbook)}
+          suspended={Boolean(handbook || intel)}
+          onIntel={(enemyKind) => setIntel({ stageId: session.battle!.stageId, enemyKind })}
         />
       )}
       {preparing && swapUnitId !== null && (
@@ -918,16 +932,17 @@ function GameApp({
           isolated={boot.isolated ?? false}
           chapter={progress.chapter}
           onChapter={(chapter) => setProgress({ chapter })}
-          onIntel={setIntel}
+          onIntel={(stageId) => setIntel({ stageId })}
           onClose={() => setProgress(null)}
         />
       )}
       {intel !== null && (
         <StageIntel
-          currentSpawns={trial?.spawns}
+          currentSpawns={inspection ? session.battle?.spawns : trial?.spawns}
           currentStageId={p.stageId}
-          initialStageId={intel}
-          closeLabel={progress ? '返回战役进度' : undefined}
+          initialStageId={intel.stageId}
+          initialEnemyKind={intel.enemyKind}
+          closeLabel={intelCloseLabel}
           onClose={() => setIntel(null)}
         />
       )}
