@@ -86,6 +86,42 @@ function enemyActionLines(enemies: readonly InspectedEnemy[]): string[] {
   return lines;
 }
 
+function enemySummonLines(enemies: readonly InspectedEnemy[]): string[] {
+  const lines = ['', '## 敌人当前召唤', ''];
+  let sources = 0;
+  for (const enemy of enemies) {
+    const summon = enemy.summon;
+    if (!summon) continue;
+    sources++;
+    let status = '已启用';
+    if (!summon.enabled) {
+      status = summon.phaseRecorded
+        ? `尚未启用 · 进入第二阶段后启用召唤（生命阈值${summon.triggerHpPercent}%）`
+        : '阶段未记录，无法确认是否已启用召唤；不按当前生命推测';
+    }
+    lines.push(`- ${enemy.name} #${enemy.id}：${status}`);
+    if (summon.enabled) {
+      const frozen = summon.frozenMs > 0;
+      let timer = frozen ? '待解冻' : '待判定';
+      if (summon.remainingMs === null) timer = '召唤计时未记录';
+      else if (summon.remainingMs > 0) timer = `剩余${enemySeconds(summon.remainingMs)}秒`;
+      lines.push(`  - ${frozen ? '解冻后召唤计时' : '下次召唤判定'}：${timer}`);
+      if (frozen) lines.push(`  - 冻结剩余${enemySeconds(summon.frozenMs)}秒`);
+      if (!summon.phaseRecorded) lines.push('  - 阶段未记录，单次数量按未强化参数显示。');
+    }
+    lines.push(
+      `  - 直属存活咒影：${summon.living}/${summon.cap}只`,
+      `  - 单次召唤参数：${summon.count}只咒影；后续间隔：${enemySeconds(summon.intervalMs)}秒`,
+    );
+  }
+  if (!sources) lines.push('当前无存活召唤来源。');
+  lines.push(
+    '',
+    '只统计各来源直属存活咒影，不含其他来源、孙代或分裂碎片。到点按空位结算，满额时本次可能不生成，之后仍按周期再判定。计时不是生成保证，未生成召唤物不计入固定队列。',
+  );
+  return lines;
+}
+
 /** A deterministic observation document, never a save or a replay. */
 export function battleSnapshotDocument(
   session: Session,
@@ -163,6 +199,7 @@ export function battleSnapshotDocument(
   lines.push(
     '',
     '锁定包含接近中的目标，与准备普攻不同；预警只列已记录行与当前波及对象，不是伤害预测。冻结剩余与解冻后的准备剩余分别计时。',
+    ...enemySummonLines(enemies),
     '',
     '## 尚未出场的队列',
     '',

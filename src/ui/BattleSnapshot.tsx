@@ -9,7 +9,7 @@ export function BattleSnapshotContent({ document }: { document: BattleSnapshotDo
   return (
     <div className="report-export-content">
       <p>
-        导出全部上阵灵兽、存活敌人、双方当前行动与准备、锁定与已有横扫预警，不受筛选影响。只供复盘，不能恢复进度；继续守卫后重新打开可导出新快照。
+        导出全部上阵灵兽、存活敌人、双方当前行动与准备、召唤计时与容量、锁定与已有横扫预警，不受筛选影响。只供复盘，不能恢复进度；继续守卫后重新打开可导出新快照。
       </p>
       <TextExport
         text={document.text}
