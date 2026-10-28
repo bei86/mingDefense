@@ -6,7 +6,8 @@ import { BattleAction } from './BattleAction';
 import { AuraSources } from './AuraSources';
 import { AuraCoverage } from './AuraCoverage';
 import { ShieldCoverage } from './ShieldCoverage';
-import { shieldCoverage } from './shield-coverage';
+import { ShieldSources } from './ShieldSources';
+import { shieldCoverage, shieldSources } from './shield-coverage';
 import type { BattleActionTarget } from './battle-action';
 import './battle-stats.css';
 
@@ -90,6 +91,7 @@ export function BattleStats({ battle, unitId, onSource, onTarget }: Props) {
           )}
           <AuraCoverage model={model} onSelect={onSource} />
           <ShieldCoverage model={shieldCoverage(battle, unitId)} onSelect={onSource} />
+          <ShieldSources model={shieldSources(battle, unitId)} onSelect={onSource} />
         </div>
       )}
     </details>
