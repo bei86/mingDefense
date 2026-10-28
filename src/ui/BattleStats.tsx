@@ -5,6 +5,8 @@ import { battleStats } from './battle-stats';
 import { BattleAction } from './BattleAction';
 import { AuraSources } from './AuraSources';
 import { AuraCoverage } from './AuraCoverage';
+import { ShieldCoverage } from './ShieldCoverage';
+import { shieldCoverage } from './shield-coverage';
 import type { BattleActionTarget } from './battle-action';
 import './battle-stats.css';
 
@@ -87,6 +89,7 @@ export function BattleStats({ battle, unitId, onSource, onTarget }: Props) {
             <p>此灵兽已倒下，本关不再行动；不显示当前攻击、施盾或产钱参数。</p>
           )}
           <AuraCoverage model={model} onSelect={onSource} />
+          <ShieldCoverage model={shieldCoverage(battle, unitId)} onSelect={onSource} />
         </div>
       )}
     </details>
