@@ -128,6 +128,13 @@
   font-weight: normal;
   color: var(--paper);
 }
+.combat-finish-status {
+  margin: 6px 0 0;
+  color: var(--mint);
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
 .combat-boss {
   margin-top: 8px;
   padding-top: 8px;

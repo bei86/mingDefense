@@ -12,6 +12,7 @@ import type { Session } from '../game/session';
 import { ArtImage } from './ArtImage';
 import { BossWarnings, type InspectWarning } from './BossWarnings';
 import { timeLabel } from './CampaignPanels';
+import { combatFinishStatus } from './combat-finish-status';
 
 export function EnemyIntel({ stageId, onDetails }: { stageId: number; onDetails: () => void }) {
   const stage = stages[stageId - 1];
@@ -76,6 +77,7 @@ export function CombatStatus({
   const wave = session.stage.waves.filter((w) => b.time >= w.atMs).length;
   const boss = b.enemies.find((e) => e.kind === 'boss' && e.hp > 0);
   const phaseThreshold = bossDefinition(b.stageId).phase2HpPercent;
+  const finishStatus = session.phase === 'combat' ? combatFinishStatus(b) : null;
   return (
     <section className="combat-status" aria-label="守卫状态">
       <div className="combat-vitals">
@@ -117,6 +119,7 @@ export function CombatStatus({
           击退 <b>{b.kills}</b>
         </span>
       </div>
+      {finishStatus && <p className="combat-finish-status">{finishStatus}</p>}
       {boss && (
         <div className={`combat-boss ${boss.phase2 ? 'enraged' : ''}`}>
           <div>
