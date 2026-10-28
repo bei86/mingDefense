@@ -10,6 +10,7 @@ import {
 } from '../game/content';
 import type { Session } from '../game/session';
 import { ArtImage } from './ArtImage';
+import { BossWarnings } from './BossWarnings';
 import { timeLabel } from './CampaignPanels';
 
 export function EnemyIntel({ stageId, onDetails }: { stageId: number; onDetails: () => void }) {
@@ -139,6 +140,7 @@ export function CombatStatus({ session }: { session: Session }) {
           <p className="boss-phase-note">
             {boss.phase2 ? '第二阶段 · 怒意苏醒' : `第一阶段 · 生命≤${phaseThreshold}%进入第二阶段`}
           </p>
+          <BossWarnings battle={b} />
         </div>
       )}
     </section>

@@ -175,6 +175,34 @@
 .combat-boss.enraged .boss-phase-note {
   color: #f1b28c;
 }
+.boss-warnings {
+  margin-top: 5px;
+  padding-left: 7px;
+  border-left: 2px solid #e0a480;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.boss-warnings ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.boss-warnings li {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  color: #f1c7a7;
+  font-variant-numeric: tabular-nums;
+}
+.boss-warnings li.echo {
+  color: #d8c9f0;
+}
+.boss-warnings p {
+  margin: 1px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+}
 .combat-view .field-panel {
   border-color: #65826355;
 }
