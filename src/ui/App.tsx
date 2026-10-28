@@ -871,6 +871,7 @@ function GameApp({
       {inspection && session.phase === 'combat' && session.paused && !session.hasChoices && (
         <BattleInspection
           session={session}
+          isolated={boot.isolated ?? false}
           initialWarning={inspection.warning}
           onClose={() => setInspection(null)}
           onHandbook={setHandbook}

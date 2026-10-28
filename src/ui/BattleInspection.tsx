@@ -14,6 +14,7 @@ import { AllySelection } from './AllySelection';
 import { selectAllies, type AllyKindFilter, type AllyStatusFilter } from './ally-selection';
 import type { AllySort } from './ally-sorting';
 import { BattleStats } from './BattleStats';
+import { BattleSnapshot } from './BattleSnapshot';
 import type { BattleActionTarget } from './battle-action';
 import { InspectionFormation } from './InspectionFormation';
 import { EnemyInspection } from './EnemyInspection';
@@ -91,6 +92,7 @@ type Props = {
   suspended?: boolean;
   initialWarning?: BossWarningTarget;
   onIntel?: (kind: EnemyKind) => void;
+  isolated?: boolean;
 };
 type Side = 'ally' | 'enemy' | 'upcoming';
 type EnemyTarget = { id: number | undefined; warning?: BossWarningTarget };
@@ -102,6 +104,7 @@ export function BattleInspection({
   suspended = false,
   initialWarning,
   onIntel,
+  isolated = false,
 }: Props) {
   const view = battleInspection(session.battle, session.preparation.units);
   const enemyView = enemyInspection(session.battle);
@@ -301,6 +304,7 @@ export function BattleInspection({
         ) : (
           <p role="status">暂无战斗数据，开战后可在暂停菜单查看。</p>
         )}
+        {view && <BattleSnapshot session={session} isolated={isolated} />}
         <button className="secondary" onClick={onClose}>
           返回暂停菜单
         </button>
