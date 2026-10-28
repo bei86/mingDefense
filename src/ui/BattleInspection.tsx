@@ -8,6 +8,8 @@ import { AllyIncoming } from './AllyIncoming';
 import { allyIncoming } from './ally-incoming';
 import { AllyWarnings } from './AllyWarnings';
 import { allyWarnings } from './ally-warnings';
+import { IncomingShields } from './IncomingShields';
+import { incomingShields } from './incoming-shields';
 import { AllySelection } from './AllySelection';
 import { selectAllies, type AllyKindFilter, type AllyStatusFilter } from './ally-selection';
 import type { AllySort } from './ally-sorting';
@@ -258,6 +260,11 @@ export function BattleInspection({
                       key={`warnings-${unit.id}`}
                       warnings={allyWarnings(enemyView, unit.id)}
                       onSelect={showWarning}
+                    />
+                    <IncomingShields
+                      key={`shields-${unit.id}`}
+                      actions={incomingShields(session.battle, unit.id)}
+                      onSelect={showAlly}
                     />
                     <BattleStats
                       key={unit.id}
