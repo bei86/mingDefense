@@ -189,7 +189,7 @@ export function BattleInspection({
                 onIntel={onIntel}
               />
             )}
-            {side === 'upcoming' && <UpcomingEnemies battle={session.battle} />}
+            {side === 'upcoming' && <UpcomingEnemies battle={session.battle} onIntel={onIntel} />}
             {side === 'ally' && (
               <>
                 <InspectionFormation

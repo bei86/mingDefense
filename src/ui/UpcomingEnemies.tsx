@@ -1,11 +1,22 @@
+import { useState } from 'react';
+import type { EnemyKind } from '../game/content';
 import type { Combat } from '../game/combat-model';
 import { timeLabel } from './CampaignPanels';
-import { arrivalLabel, upcomingEnemies } from './upcoming-enemies';
+import {
+  arrivalLabel,
+  upcomingEnemies,
+  UPCOMING_PAGE_SIZE,
+  type UpcomingEnemyView,
+} from './upcoming-enemies';
 import './upcoming-enemies.css';
 
-export function UpcomingEnemies({ battle }: { battle: Combat | null }) {
-  const view = upcomingEnemies(battle);
-  if (!view) return <p role="status">暂无战斗出怪队列。</p>;
+type ListProps = {
+  view: UpcomingEnemyView;
+  onPage: (page: number) => void;
+  onIntel?: (kind: EnemyKind) => void;
+};
+
+export function UpcomingEnemyList({ view, onPage, onIntel }: ListProps) {
   return (
     <section className="upcoming-enemies" aria-label="后续固定敌袭">
       <div className="upcoming-total">
@@ -19,14 +30,61 @@ export function UpcomingEnemies({ battle }: { battle: Combat | null }) {
         <>
           <ul className="upcoming-counts" aria-label="剩余固定敌人种类">
             {view.counts.map((entry) => (
-              <li key={entry.kind}>
-                {entry.name} ×{entry.count}
+              <li key={entry.kind} className={onIntel ? 'upcoming-kind-link' : undefined}>
+                {onIntel ? (
+                  <button
+                    type="button"
+                    className="secondary"
+                    aria-label={`查看后续${entry.name}敌情档案，未出场${entry.count}只`}
+                    onClick={() => onIntel(entry.kind)}
+                  >
+                    {entry.name} ×{entry.count} <span aria-hidden="true">›</span>
+                  </button>
+                ) : (
+                  <>
+                    {entry.name} ×{entry.count}
+                  </>
+                )}
               </li>
             ))}
           </ul>
+          {onIntel && (
+            <p className="inspection-note">
+              点种类查看敌情档案。这里统计未出场数量；档案中的固定数量是本关总数，属性为本关配置基础值。
+            </p>
+          )}
           <h3>
-            {view.ended ? '未执行计划' : '接下来'} {view.next.length} 只
+            {view.ended ? '未执行计划' : '本页计划'} {view.next.length} 只
           </h3>
+          <p className="inspection-note" role="status">
+            第 {view.page * UPCOMING_PAGE_SIZE + 1}–
+            {view.page * UPCOMING_PAGE_SIZE + view.next.length} 只 / 共 {view.remaining} 只
+          </p>
+          {view.pageCount > 1 && (
+            <nav className="upcoming-pages" aria-label="固定敌袭翻页">
+              <button
+                type="button"
+                className="secondary"
+                aria-label="上一页固定敌袭"
+                disabled={view.page === 0}
+                onClick={() => onPage(view.page - 1)}
+              >
+                上一页
+              </button>
+              <span>
+                第 {view.page + 1} / {view.pageCount} 页
+              </span>
+              <button
+                type="button"
+                className="secondary"
+                aria-label="下一页固定敌袭"
+                disabled={view.page === view.pageCount - 1}
+                onClick={() => onPage(view.page + 1)}
+              >
+                下一页
+              </button>
+            </nav>
+          )}
           <ol className="upcoming-list" aria-label="接下来固定出场的敌人">
             {view.next.map((enemy) => (
               <li key={enemy.index}>
@@ -42,7 +100,7 @@ export function UpcomingEnemies({ battle }: { battle: Combat | null }) {
           </ol>
           {view.hiddenCount > 0 && (
             <p className="inspection-note">
-              另有 {view.hiddenCount} 只固定敌人排在其后，种类数量已包含在上方统计。
+              另有 {view.hiddenCount} 只固定敌人未在本页显示，种类数量已包含在上方统计。
             </p>
           )}
         </>
@@ -61,4 +119,17 @@ export function UpcomingEnemies({ battle }: { battle: Combat | null }) {
       </p>
     </section>
   );
+}
+
+export function UpcomingEnemies({
+  battle,
+  onIntel,
+}: {
+  battle: Combat | null;
+  onIntel?: (kind: EnemyKind) => void;
+}) {
+  const [page, setPage] = useState(0);
+  const view = upcomingEnemies(battle, page);
+  if (!view) return <p role="status">暂无战斗出怪队列。</p>;
+  return <UpcomingEnemyList view={view} onPage={setPage} onIntel={onIntel} />;
 }

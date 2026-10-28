@@ -17,6 +17,8 @@ describe('暂停后的固定敌袭队列', () => {
       next: [],
       hiddenCount: 0,
       ended: false,
+      page: 0,
+      pageCount: 0,
     });
     expect(battle.result).toBeNull();
     battle.result = 'defeat';

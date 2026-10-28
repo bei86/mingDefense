@@ -37,6 +37,43 @@
   font-size: 11px;
   color: var(--paper);
 }
+.upcoming-counts .upcoming-kind-link {
+  padding: 0;
+  border: 0;
+}
+.upcoming-kind-link button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.upcoming-pages {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.upcoming-pages button {
+  min-height: 44px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.upcoming-pages button:focus-visible,
+.upcoming-kind-link button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
 .upcoming-enemies h3 {
   font-size: 13px;
   margin: 16px 0 8px;

@@ -1,6 +1,8 @@
 import { bossName, enemyAppearances, type EnemyKind } from '../game/content';
 import type { Combat } from '../game/combat-model';
 
+export const UPCOMING_PAGE_SIZE = 8;
+
 export type UpcomingEnemy = {
   index: number;
   kind: EnemyKind;
@@ -15,6 +17,8 @@ export type UpcomingEnemyView = {
   next: UpcomingEnemy[];
   hiddenCount: number;
   ended: boolean;
+  page: number;
+  pageCount: number;
 };
 
 export function arrivalLabel(remainingMs: number): string {
@@ -23,9 +27,18 @@ export function arrivalLabel(remainingMs: number): string {
 }
 
 /** Read the actual unconsumed spawn queue; time alone cannot tell whether an entry has run. */
-export function upcomingEnemies(battle: Combat | null): UpcomingEnemyView | null {
+export function upcomingEnemies(
+  battle: Combat | null,
+  requestedPage = 0,
+): UpcomingEnemyView | null {
   if (!battle) return null;
   const pending = battle.spawns.slice(battle.spawnIndex);
+  const pageCount = Math.ceil(pending.length / UPCOMING_PAGE_SIZE);
+  const page = Math.min(
+    Math.max(0, Math.floor(Number.isFinite(requestedPage) ? requestedPage : 0)),
+    Math.max(0, pageCount - 1),
+  );
+  const offset = page * UPCOMING_PAGE_SIZE;
   const name = (kind: EnemyKind) =>
     kind === 'boss' ? bossName(battle.stageId) : enemyAppearances[kind].name;
   const counts = new Map<EnemyKind, number>();
@@ -33,10 +46,10 @@ export function upcomingEnemies(battle: Combat | null): UpcomingEnemyView | null
     const kind = spawn.kind ?? 'wolf';
     counts.set(kind, (counts.get(kind) ?? 0) + 1);
   }
-  const next = pending.slice(0, 8).map((spawn, index) => {
+  const next = pending.slice(offset, offset + UPCOMING_PAGE_SIZE).map((spawn, index) => {
     const kind = spawn.kind ?? 'wolf';
     return {
-      index: battle.spawnIndex + index,
+      index: battle.spawnIndex + offset + index,
       kind,
       name: name(kind),
       at: spawn.at,
@@ -50,5 +63,7 @@ export function upcomingEnemies(battle: Combat | null): UpcomingEnemyView | null
     next,
     hiddenCount: pending.length - next.length,
     ended: battle.result !== null,
+    page,
+    pageCount,
   };
 }
