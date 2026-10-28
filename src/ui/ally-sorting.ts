@@ -4,6 +4,7 @@ export const allySortOptions = [
   { value: 'position', label: '站位 · 从前到后', metric: '' },
   { value: 'health', label: '生命比例 · 从低到高', metric: '生命' },
   { value: 'targeted', label: '锁定数量 · 从高到低', metric: '锁定' },
+  { value: 'shield', label: '当前护盾 · 从高到低', metric: '当前盾' },
   { value: 'damageDone', label: '本关伤害 · 从高到低', metric: '伤害' },
   { value: 'damageTaken', label: '本关承伤 · 从高到低', metric: '承伤' },
   { value: 'shieldGiven', label: '提供护盾 · 从高到低', metric: '施盾' },
@@ -20,6 +21,7 @@ function value(unit: InspectedAlly, order: AllySort): number | null {
     if (!Number.isFinite(unit.maxHp) || unit.maxHp <= 0) return null;
     result = unit.hp / unit.maxHp;
   } else if (order === 'targeted') result = unit.targetedBy;
+  else if (order === 'shield') result = unit.shield;
   else result = unit.stats?.[order];
   return result !== undefined && Number.isFinite(result) ? result : null;
 }

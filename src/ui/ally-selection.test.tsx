@@ -33,9 +33,9 @@ test('种类计数含倒下者不含备战席，状态计数基于当前种类�
   ]);
   expect(all.allies.map((unit) => unit.id)).toEqual([12, 10, 11]);
   expect(all.selectedId).toBe(11);
-  expect(all.counts).toEqual({ all: 3, alive: 2, fallen: 1 });
+  expect(all.counts).toEqual({ all: 3, alive: 2, fallen: 1, shielded: 0, unshielded: 2 });
   const mice = selectAllies(view.allies, 'ember_mouse', 'alive', 10);
-  expect(mice.counts).toEqual({ all: 2, alive: 1, fallen: 1 });
+  expect(mice.counts).toEqual({ all: 2, alive: 1, fallen: 1, shielded: 0, unshielded: 1 });
   expect(mice.selectedId).toBe(11);
   expect(mice.allies.map((unit) => unit.id)).toEqual([11]);
   expect(mice.total).toBe(3);

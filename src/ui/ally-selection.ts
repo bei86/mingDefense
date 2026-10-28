@@ -3,7 +3,7 @@ import type { InspectedAlly } from './battle-inspection';
 import { sortAllies, type AllySort } from './ally-sorting';
 
 export type AllyKindFilter = InspectedAlly['kind'] | 'all';
-export type AllyStatusFilter = 'all' | 'alive' | 'fallen';
+export type AllyStatusFilter = 'all' | 'alive' | 'fallen' | 'shielded' | 'unshielded';
 export type AllySelectionModel = {
   kinds: { kind: InspectedAlly['kind']; name: string; count: number }[];
   kind: AllyKindFilter;
@@ -14,6 +14,21 @@ export type AllySelectionModel = {
   selectedId: number | undefined;
   total: number;
 };
+
+function matchesStatus(unit: InspectedAlly, status: AllyStatusFilter): boolean {
+  switch (status) {
+    case 'all':
+      return true;
+    case 'alive':
+      return unit.alive;
+    case 'fallen':
+      return !unit.alive;
+    case 'shielded':
+      return unit.alive && unit.shield > 0;
+    case 'unshielded':
+      return unit.alive && unit.shield <= 0;
+  }
+}
 
 /** Filter/sort only the inspection projection; leave battle/formation ordering and state intact. */
 export function selectAllies(
@@ -33,10 +48,9 @@ export function selectAllies(
   const activeKind = kind !== 'all' && groups.has(kind) ? kind : 'all';
   const matchingKind = all.filter((unit) => activeKind === 'all' || unit.kind === activeKind);
   const alive = matchingKind.filter((unit) => unit.alive).length;
+  const shielded = matchingKind.filter((unit) => matchesStatus(unit, 'shielded')).length;
   const matching = sortAllies(
-    matchingKind.filter(
-      (unit) => status === 'all' || (status === 'alive' ? unit.alive : !unit.alive),
-    ),
+    matchingKind.filter((unit) => matchesStatus(unit, status)),
     order,
   );
   return {
@@ -44,7 +58,13 @@ export function selectAllies(
     kind: activeKind,
     status,
     order,
-    counts: { all: matchingKind.length, alive, fallen: matchingKind.length - alive },
+    counts: {
+      all: matchingKind.length,
+      alive,
+      fallen: matchingKind.length - alive,
+      shielded,
+      unshielded: alive - shielded,
+    },
     allies: matching,
     selectedId: matching.find((unit) => unit.id === selectedId)?.id ?? matching[0]?.id,
     total: all.length,
