@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { appearances } from '../game/content';
 import { bossArtKey, enemyArt } from '../render/art';
 import { ArtImage } from './ArtImage';
@@ -5,6 +6,7 @@ import { EnemyWarnings } from './EnemyWarnings';
 import { EnemyAttack } from './EnemyAttack';
 import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
 import type { BossWarningTarget } from './boss-warnings';
+import { selectEnemies, type EnemyFilter } from './enemy-selection';
 import './inspection-links.css';
 
 function targetLabel(enemy: InspectedEnemy): string {
@@ -143,10 +145,36 @@ export function EnemyInspection({
   autoFocus = false,
   initialWarning,
 }: Props) {
-  const enemy = view?.enemies.find((entry) => entry.id === selectedId) ?? view?.enemies[0];
-  if (!enemy || !view) return <p role="status">当前场上没有存活敌人。</p>;
+  const [kind, setKind] = useState<EnemyFilter>('all');
+  const selection = selectEnemies(view, kind, selectedId);
+  const enemy = selection.enemies.find((entry) => entry.id === selection.selectedId);
+  if (!enemy) return <p role="status">当前场上没有存活敌人。</p>;
+
+  function changeKind(next: EnemyFilter): void {
+    const nextSelection = selectEnemies(view, next, selection.selectedId);
+    setKind(nextSelection.kind);
+    if (nextSelection.selectedId !== undefined) onSelect(nextSelection.selectedId);
+  }
   return (
     <>
+      <label className="inspection-select">
+        敌人种类
+        <select
+          aria-label="敌人种类"
+          value={selection.kind}
+          onChange={(event) => changeKind(event.target.value as EnemyFilter)}
+        >
+          <option value="all">全部 · {selection.total}只</option>
+          {selection.kinds.map((entry) => (
+            <option key={entry.kind} value={entry.kind}>
+              {entry.name} · {entry.count}只
+            </option>
+          ))}
+        </select>
+      </label>
+      <p className="inspection-note">
+        当前显示 {selection.enemies.length} / {selection.total} 只存活敌人；未出场队列见“后续敌袭”。
+      </p>
       <label className="inspection-select">
         查看敌人
         <select
@@ -155,7 +183,7 @@ export function EnemyInspection({
           value={enemy.id}
           onChange={(event) => onSelect(Number(event.target.value))}
         >
-          {view.enemies.map((entry) => (
+          {selection.enemies.map((entry) => (
             <option key={entry.id} value={entry.id}>
               {entry.name} · #{entry.id} · 生命 {entry.hp}
             </option>
