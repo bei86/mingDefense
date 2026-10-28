@@ -1,5 +1,5 @@
 import { center, config, distance, heroes, type HeroId, type Point } from '../game/content';
-import type { Combat } from '../game/combat';
+import type { Ally, Combat } from '../game/combat';
 import { attackDamage, heroRange } from '../game/combat-skills';
 import { bonus } from '../game/progression';
 
@@ -10,7 +10,22 @@ export type BattleStatsModel = {
   alive: boolean;
   rows: { label: string; value: string }[];
   auraSources: { id: number; rank: number; position: Point }[];
+  auraTargets: { id: number; kind: HeroId; rank: number; position: Point }[];
 };
+
+function auraCovers(fox: Ally, target: Ally): boolean {
+  const skill = heroes.shield_fox.skills;
+  return (
+    fox.hp > 0 &&
+    fox.kind === 'shield_fox' &&
+    fox.rank >= skill.auraFromRank! &&
+    target.hp > 0 &&
+    target.kind !== 'shield_fox' &&
+    target.kind !== 'fortune_peach' &&
+    distance(center(fox.kind, fox.position), center(target.kind, target.position)) <=
+      skill.auraRadiusCells!
+  );
+}
 
 function number(value: number): string {
   return String(Number(value.toFixed(2)));
@@ -27,6 +42,7 @@ export function battleStats(battle: Combat | null, unitId: number): BattleStatsM
     alive: ally.hp > 0,
     rows: [],
     auraSources: [],
+    auraTargets: [],
   };
   if (!model.alive) return model;
   const hero = heroes[ally.kind];
@@ -42,22 +58,23 @@ export function battleStats(battle: Combat | null, unitId: number): BattleStatsM
     return model;
   }
   if (ally.kind === 'shield_fox') {
+    model.auraTargets = battle.allies
+      .filter((unit) => auraCovers(ally, unit))
+      .sort((a, b) => a.position.y - b.position.y || a.position.x - b.position.x || a.id - b.id)
+      .map((unit) => ({
+        id: unit.id,
+        kind: unit.kind,
+        rank: unit.rank,
+        position: { ...unit.position },
+      }));
     model.rows.push({
       label: '单次施盾比例',
       value: `${number(hero.skills.shieldPercentOfTargetMaxHp! * (1 + bonus(progression, 'fox_shield') / 100))}%`,
     });
   } else {
     model.rows.push({ label: '基础命中值', value: number(attackDamage(battle, ally)) });
-    const point = center(ally.kind, ally.position);
-    const skill = heroes.shield_fox.skills;
     model.auraSources = battle.allies
-      .filter(
-        (unit) =>
-          unit.hp > 0 &&
-          unit.kind === 'shield_fox' &&
-          unit.rank >= skill.auraFromRank! &&
-          distance(center(unit.kind, unit.position), point) <= skill.auraRadiusCells!,
-      )
+      .filter((unit) => auraCovers(unit, ally))
       .map((unit) => ({ id: unit.id, rank: unit.rank, position: { ...unit.position } }));
   }
   function interval(boosted: boolean): string {

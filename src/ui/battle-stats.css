@@ -94,6 +94,13 @@
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
+.battle-aura-coverage {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.battle-aura-coverage > summary {
+  padding-inline: 0;
+}
 .battle-action {
   margin-top: 12px;
   padding: 10px;

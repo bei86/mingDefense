@@ -4,6 +4,7 @@ import type { Combat } from '../game/combat';
 import { battleStats } from './battle-stats';
 import { BattleAction } from './BattleAction';
 import { AuraSources } from './AuraSources';
+import { AuraCoverage } from './AuraCoverage';
 import './battle-stats.css';
 
 type Props = { battle: Combat | null; unitId: number; onSource: (id: number) => void };
@@ -79,6 +80,7 @@ export function BattleStats({ battle, unitId, onSource }: Props) {
           ) : (
             <p>此灵兽已倒下，本关不再行动；不显示当前攻击、施盾或产钱参数。</p>
           )}
+          <AuraCoverage model={model} onSelect={onSource} />
         </div>
       )}
     </details>
