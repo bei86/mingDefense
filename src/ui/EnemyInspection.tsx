@@ -10,6 +10,8 @@ import { enemyLineage, type EnemyLineageModel } from './enemy-lineage';
 import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
 import type { BossWarningTarget } from './boss-warnings';
 import { selectEnemies, type EnemyFilter } from './enemy-selection';
+import type { EnemySort } from './enemy-sorting';
+import { EnemySelection } from './EnemySelection';
 import './inspection-links.css';
 
 function targetLabel(enemy: InspectedEnemy): string {
@@ -147,15 +149,21 @@ export function EnemyInspection({
   onIntel,
 }: Props) {
   const [kind, setKind] = useState<EnemyFilter>('all');
+  const [order, setOrder] = useState<EnemySort>('default');
   const enemySelect = useRef<HTMLSelectElement>(null);
-  const selection = selectEnemies(view, kind, selectedId);
+  const selection = selectEnemies(view, kind, selectedId, order);
   const enemy = selection.enemies.find((entry) => entry.id === selection.selectedId);
   if (!enemy) return <p role="status">当前场上没有存活敌人。</p>;
 
   function changeKind(next: EnemyFilter): void {
-    const nextSelection = selectEnemies(view, next, selection.selectedId);
+    const nextSelection = selectEnemies(view, next, selection.selectedId, order);
     setKind(nextSelection.kind);
     if (nextSelection.selectedId !== undefined) onSelect(nextSelection.selectedId);
+  }
+  function changeOrder(next: EnemySort): void {
+    // The default enemy may be derived before the parent has an explicit instance ID.
+    if (selection.selectedId !== undefined) onSelect(selection.selectedId);
+    setOrder(next);
   }
   function showRelatedEnemy(id: number): void {
     if (!view?.enemies.some((entry) => entry.id === id)) return;
@@ -165,40 +173,14 @@ export function EnemyInspection({
   }
   return (
     <>
-      <label className="inspection-select">
-        敌人种类
-        <select
-          aria-label="敌人种类"
-          value={selection.kind}
-          onChange={(event) => changeKind(event.target.value as EnemyFilter)}
-        >
-          <option value="all">全部 · {selection.total}只</option>
-          {selection.kinds.map((entry) => (
-            <option key={entry.kind} value={entry.kind}>
-              {entry.name} · {entry.count}只
-            </option>
-          ))}
-        </select>
-      </label>
-      <p className="inspection-note">
-        当前显示 {selection.enemies.length} / {selection.total} 只存活敌人；未出场队列见“后续敌袭”。
-      </p>
-      <label className="inspection-select">
-        查看敌人
-        <select
-          aria-label="查看敌人"
-          ref={enemySelect}
-          autoFocus={autoFocus}
-          value={enemy.id}
-          onChange={(event) => onSelect(Number(event.target.value))}
-        >
-          {selection.enemies.map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.name} · #{entry.id} · 生命 {entry.hp}
-            </option>
-          ))}
-        </select>
-      </label>
+      <EnemySelection
+        selection={selection}
+        onKind={changeKind}
+        onOrder={changeOrder}
+        onSelect={onSelect}
+        selectRef={enemySelect}
+        autoFocus={autoFocus}
+      />
       <EnemyDetails
         enemy={enemy}
         stageId={stageId}

@@ -1,11 +1,13 @@
 import type { EnemyKind } from '../game/content';
 import type { EnemyInspectionView, InspectedEnemy } from './enemy-inspection';
+import { sortEnemies, type EnemySort } from './enemy-sorting';
 
 export type EnemyFilter = EnemyKind | 'all';
 type EnemyKindCount = { kind: EnemyKind; name: string; count: number };
-type EnemySelection = {
+export type EnemySelectionModel = {
   kinds: EnemyKindCount[];
   kind: EnemyFilter;
+  order: EnemySort;
   enemies: InspectedEnemy[];
   selectedId: number | undefined;
   total: number;
@@ -16,7 +18,8 @@ export function selectEnemies(
   view: EnemyInspectionView | null,
   kind: EnemyFilter,
   selectedId: number | undefined,
-): EnemySelection {
+  order: EnemySort = 'default',
+): EnemySelectionModel {
   const all = view?.enemies ?? [];
   const groups = new Map<EnemyKind, EnemyKindCount>();
   for (const enemy of all) {
@@ -25,10 +28,14 @@ export function selectEnemies(
     else groups.set(enemy.kind, { kind: enemy.kind, name: enemy.name, count: 1 });
   }
   const activeKind = kind !== 'all' && groups.has(kind) ? kind : 'all';
-  const enemies = all.filter((enemy) => activeKind === 'all' || enemy.kind === activeKind);
+  const enemies = sortEnemies(
+    all.filter((enemy) => activeKind === 'all' || enemy.kind === activeKind),
+    order,
+  );
   return {
     kinds: [...groups.values()],
     kind: activeKind,
+    order,
     enemies,
     selectedId: enemies.find((enemy) => enemy.id === selectedId)?.id ?? enemies[0]?.id,
     total: all.length,

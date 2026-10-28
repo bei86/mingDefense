@@ -75,6 +75,7 @@ test('无战斗或空列表均返回空选择，旧kind由原投影按狼处理'
     expect(selectEnemies(view, 'boss', 1)).toEqual({
       kinds: [],
       kind: 'all',
+      order: 'default',
       enemies: [],
       selectedId: undefined,
       total: 0,
