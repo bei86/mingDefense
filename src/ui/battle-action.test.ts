@@ -158,7 +158,9 @@ describe('暂停灵兽行动状态', () => {
     enemy.hp = 0;
     expect(render()).toContain('目标已倒下或退场，此动作不会生效');
     expect(
-      renderToStaticMarkup(createElement(BattleStats, { battle: b, unitId: 10 })),
+      renderToStaticMarkup(
+        createElement(BattleStats, { battle: b, unitId: 10, onSource: () => {} }),
+      ),
     ).not.toContain('当前行动状态');
     b.allies[0].kind = 'shield_fox';
     expect(render()).toContain('准备施盾');

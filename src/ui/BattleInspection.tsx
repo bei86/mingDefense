@@ -219,7 +219,12 @@ export function BattleInspection({
                       enemies={enemiesTargeting(enemyView, unit.id)}
                       onSelect={showEnemy}
                     />
-                    <BattleStats key={unit.id} battle={session.battle} unitId={unit.id} />
+                    <BattleStats
+                      key={unit.id}
+                      battle={session.battle}
+                      unitId={unit.id}
+                      onSource={showAlly}
+                    />
                     <button
                       className="secondary inspection-handbook-button"
                       aria-label={`查看${appearances[unit.kind].name}${unit.rank}阶技能图鉴`}

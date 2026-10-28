@@ -3,11 +3,12 @@ import { appearances, heroes } from '../game/content';
 import type { Combat } from '../game/combat';
 import { battleStats } from './battle-stats';
 import { BattleAction } from './BattleAction';
+import { AuraSources } from './AuraSources';
 import './battle-stats.css';
 
-type Props = { battle: Combat | null; unitId: number };
+type Props = { battle: Combat | null; unitId: number; onSource: (id: number) => void };
 
-export function BattleStats({ battle, unitId }: Props) {
+export function BattleStats({ battle, unitId, onSource }: Props) {
   const [expanded, setExpanded] = useState(false);
   const model = expanded ? battleStats(battle, unitId) : null;
   return (
@@ -62,16 +63,7 @@ export function BattleStats({ battle, unitId }: Props) {
                       ? `攻击光环 +${heroes.shield_fox.skills.auraAttackPercent}%（多个不叠加）`
                       : '当前未受存活狐的攻击光环覆盖。'}
                   </p>
-                  {model.auraSources.length > 0 && (
-                    <ul aria-label="存活攻击光环来源">
-                      {model.auraSources.map((unit) => (
-                        <li key={unit.id}>
-                          月音狐{unit.rank}阶 · {unit.position.x + 1}列{unit.position.y + 1}行 ·
-                          编号{unit.id}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  <AuraSources sources={model.auraSources} onSelect={onSource} />
                   <p>
                     基础命中值含当前攻击天赋和光环；未计敌方减伤、易伤、残血增伤或技能追加。实际命中再取整，不是每秒伤害。
                   </p>

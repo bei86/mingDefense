@@ -65,6 +65,35 @@
 .battle-stats ul {
   padding-left: 18px;
 }
+.battle-stats .battle-aura-sources {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+}
+.battle-stats .secondary.battle-aura-source {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.battle-aura-source small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.battle-aura-source:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
 .battle-action {
   margin-top: 12px;
   padding: 10px;
