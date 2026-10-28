@@ -1,5 +1,7 @@
 import type { Combat } from '../game/combat';
-import { bossWarnings, type BossWarning } from './boss-warnings';
+import { bossWarnings, type BossWarning, type BossWarningTarget } from './boss-warnings';
+
+export type InspectWarning = (battle: Combat, target: BossWarningTarget) => void;
 
 function warningStatus(warning: BossWarning): string {
   if (warning.frozen) return '冻结中 · 释放延后';
@@ -7,7 +9,13 @@ function warningStatus(warning: BossWarning): string {
   return `约${Math.ceil(warning.remainingMs / 100) / 10}秒后判定`;
 }
 
-export function BossWarnings({ battle }: { battle: Combat | null }) {
+export function BossWarnings({
+  battle,
+  onInspectWarning,
+}: {
+  battle: Combat | null;
+  onInspectWarning?: InspectWarning;
+}) {
   const warnings = bossWarnings(battle);
   if (!warnings.length) return null;
   return (
@@ -15,10 +23,27 @@ export function BossWarnings({ battle }: { battle: Combat | null }) {
       <ul>
         {warnings.slice(0, 2).map((warning, index) => (
           <li className={warning.echo ? 'echo' : ''} key={index}>
-            <span>
-              {warning.echo ? '追击' : '横扫'} · 第{warning.row}行
-            </span>
-            <span>{warningStatus(warning)}</span>
+            {onInspectWarning && battle ? (
+              <button
+                type="button"
+                className="boss-warning-inspect"
+                aria-label={`暂停查看第${warning.row}行${warning.echo ? '追击' : '横扫'}预警`}
+                onClick={() => onInspectWarning(battle, warning)}
+              >
+                <span>
+                  {warning.echo ? '追击' : '横扫'} · 第{warning.row}行
+                  <span className="boss-warning-time">{warningStatus(warning)}</span>
+                </span>
+                <span className="boss-warning-action">暂停查看 ›</span>
+              </button>
+            ) : (
+              <>
+                <span>
+                  {warning.echo ? '追击' : '横扫'} · 第{warning.row}行
+                </span>
+                <span>{warningStatus(warning)}</span>
+              </>
+            )}
           </li>
         ))}
       </ul>

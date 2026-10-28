@@ -10,7 +10,7 @@ import {
 } from '../game/content';
 import type { Session } from '../game/session';
 import { ArtImage } from './ArtImage';
-import { BossWarnings } from './BossWarnings';
+import { BossWarnings, type InspectWarning } from './BossWarnings';
 import { timeLabel } from './CampaignPanels';
 
 export function EnemyIntel({ stageId, onDetails }: { stageId: number; onDetails: () => void }) {
@@ -62,7 +62,13 @@ export function CombatHeader({ session, onPause }: { session: Session; onPause: 
   );
 }
 
-export function CombatStatus({ session }: { session: Session }) {
+export function CombatStatus({
+  session,
+  onInspectWarning,
+}: {
+  session: Session;
+  onInspectWarning?: InspectWarning;
+}) {
   const b = session.battle!;
   const maxHp = b.allies.reduce((n, u) => n + u.maxHp, 0);
   const hp = session.totalHealth();
@@ -140,7 +146,7 @@ export function CombatStatus({ session }: { session: Session }) {
           <p className="boss-phase-note">
             {boss.phase2 ? '第二阶段 · 怒意苏醒' : `第一阶段 · 生命≤${phaseThreshold}%进入第二阶段`}
           </p>
-          <BossWarnings battle={b} />
+          <BossWarnings battle={b} onInspectWarning={onInspectWarning} />
         </div>
       )}
     </section>

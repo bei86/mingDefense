@@ -29,6 +29,8 @@ import { CampaignProgress } from './CampaignProgress';
 import { campaignChapter } from './campaign-progress';
 import { FormationSwap } from './FormationSwap';
 import { BattleInspection } from './BattleInspection';
+import type { BossWarningTarget } from './boss-warnings';
+import { pauseForBossWarning } from './warning-inspection';
 import { FormationPresets } from './FormationPresets';
 import { useFormationPresets } from './useFormationPresets';
 import type { RendererRecoveryState } from '../render/renderer-recovery';
@@ -117,7 +119,7 @@ function GameApp({
   const [reportStorage] = useState(() =>
     boot.isolated ? temporaryReportStorage() : browserStorage,
   );
-  const [inspection, setInspection] = useState(false);
+  const [inspection, setInspection] = useState<{ warning?: BossWarningTarget } | null>(null);
   const [presets, setPresets] = useState(false);
   const formationLibrary = useFormationPresets(boot.isolated ?? false);
   const [swapUnitId, setSwapUnitId] = useState<number | null>(null);
@@ -577,7 +579,15 @@ function GameApp({
           </div>
         </section>
       ) : (
-        <CombatStatus session={session} />
+        <CombatStatus
+          session={session}
+          onInspectWarning={(shownBattle, target) => {
+            const warning = pauseForBossWarning(session, shownBattle, target);
+            if (!warning) return;
+            clock.reset();
+            setInspection({ warning });
+          }}
+        />
       )}
       {!preparing && (
         <div className="battle-notice-slot" role="status">
@@ -769,7 +779,7 @@ function GameApp({
             onIntel={() => setIntel(p.stageId)}
             onProgress={() => setProgress({ chapter: campaignChapter(p.stageId) })}
             onSaves={() => setSaves(true)}
-            onInspect={() => setInspection(true)}
+            onInspect={() => setInspection({})}
             onReports={() => setReports(true)}
             onDisplay={() => setDisplaySettings(true)}
             onPlaytests={import.meta.env.DEV ? () => setPlaytests(true) : undefined}
@@ -848,7 +858,8 @@ function GameApp({
       {inspection && session.phase === 'combat' && session.paused && !session.hasChoices && (
         <BattleInspection
           session={session}
-          onClose={() => setInspection(false)}
+          initialWarning={inspection.warning}
+          onClose={() => setInspection(null)}
           onHandbook={setHandbook}
           suspended={Boolean(handbook)}
         />

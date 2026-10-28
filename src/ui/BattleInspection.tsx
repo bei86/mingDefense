@@ -12,6 +12,7 @@ import { timeLabel } from './CampaignPanels';
 import { battleInspection, type InspectedAlly } from './battle-inspection';
 import { enemiesTargeting, enemyInspection } from './enemy-inspection';
 import type { HandbookTarget } from './SpiritHandbook';
+import type { BossWarningTarget } from './boss-warnings';
 import './battle-inspection.css';
 
 function unitLabel(unit: InspectedAlly): string {
@@ -82,15 +83,22 @@ type Props = {
   onClose: () => void;
   onHandbook: (target: HandbookTarget) => void;
   suspended?: boolean;
+  initialWarning?: BossWarningTarget;
 };
 type Side = 'ally' | 'enemy' | 'upcoming';
 
-export function BattleInspection({ session, onClose, onHandbook, suspended = false }: Props) {
+export function BattleInspection({
+  session,
+  onClose,
+  onHandbook,
+  suspended = false,
+  initialWarning,
+}: Props) {
   const view = battleInspection(session.battle, session.preparation.units);
   const enemyView = enemyInspection(session.battle);
   const [unitId, setUnitId] = useState(view?.initialId);
-  const [enemyId, setEnemyId] = useState<number>();
-  const [side, setSide] = useState<Side>('ally');
+  const [enemyId, setEnemyId] = useState(initialWarning?.source);
+  const [side, setSide] = useState<Side>(initialWarning ? 'enemy' : 'ally');
   const [focusSide, setFocusSide] = useState<Side | null>(null);
   const unit = view?.allies.find((entry) => entry.id === unitId) ?? view?.allies[0];
   function changeSide(next: Side) {
@@ -161,6 +169,7 @@ export function BattleInspection({ session, onClose, onHandbook, suspended = fal
                 onSelect={setEnemyId}
                 onTarget={showAlly}
                 autoFocus={focusSide === 'enemy'}
+                initialWarning={initialWarning}
               />
             )}
             {side === 'upcoming' && <UpcomingEnemies battle={session.battle} />}

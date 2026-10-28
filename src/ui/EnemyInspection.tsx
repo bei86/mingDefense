@@ -4,6 +4,7 @@ import { ArtImage } from './ArtImage';
 import { EnemyWarnings } from './EnemyWarnings';
 import { EnemyAttack } from './EnemyAttack';
 import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
+import type { BossWarningTarget } from './boss-warnings';
 import './inspection-links.css';
 
 function targetLabel(enemy: InspectedEnemy): string {
@@ -18,16 +19,31 @@ function EnemyDetails({
   enemy,
   stageId,
   onTarget,
+  initialWarning,
 }: {
   enemy: InspectedEnemy;
   stageId: number;
   onTarget: (id: number) => void;
+  initialWarning?: BossWarningTarget;
 }) {
   const target = enemy.target;
   const art =
     enemy.kind === 'boss' ? bossArtKey(stageId, enemy.phase === '第二阶段') : enemyArt[enemy.kind];
   return (
     <article className="inspection-unit inspection-enemy">
+      {initialWarning && (
+        <>
+          <p className="inspection-note">
+            预警定位 · 第{initialWarning.row}行 · {initialWarning.echo ? '追击' : '横扫'}
+          </p>
+          <EnemyWarnings
+            key={enemy.id}
+            warnings={enemy.warnings}
+            onSelect={onTarget}
+            initialWarning={initialWarning}
+          />
+        </>
+      )}
       <div className="inspection-profile">
         {art && <ArtImage key={art} asset={art} />}
         <div>
@@ -101,7 +117,9 @@ function EnemyDetails({
         </div>
       </dl>
       <EnemyAttack key={`attack-${enemy.id}`} model={enemy.attack} onTarget={onTarget} />
-      <EnemyWarnings key={enemy.id} warnings={enemy.warnings} onSelect={onTarget} />
+      {!initialWarning && (
+        <EnemyWarnings key={enemy.id} warnings={enemy.warnings} onSelect={onTarget} />
+      )}
     </article>
   );
 }
@@ -113,6 +131,7 @@ type Props = {
   onSelect: (id: number) => void;
   onTarget: (id: number) => void;
   autoFocus?: boolean;
+  initialWarning?: BossWarningTarget;
 };
 
 export function EnemyInspection({
@@ -122,6 +141,7 @@ export function EnemyInspection({
   onSelect,
   onTarget,
   autoFocus = false,
+  initialWarning,
 }: Props) {
   const enemy = view?.enemies.find((entry) => entry.id === selectedId) ?? view?.enemies[0];
   if (!enemy || !view) return <p role="status">当前场上没有存活敌人。</p>;
@@ -142,7 +162,12 @@ export function EnemyInspection({
           ))}
         </select>
       </label>
-      <EnemyDetails enemy={enemy} stageId={stageId} onTarget={onTarget} />
+      <EnemyDetails
+        enemy={enemy}
+        stageId={stageId}
+        onTarget={onTarget}
+        initialWarning={initialWarning?.source === enemy.id ? initialWarning : undefined}
+      />
       <p className="inspection-note">
         锁定是当前缓存，包含正在接近的目标，不代表下一击或横扫目标。冻结可能推迟预警释放；这里只列已出现的预警，不预测下一次技能。
       </p>

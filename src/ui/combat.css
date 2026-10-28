@@ -198,6 +198,38 @@
 .boss-warnings li.echo {
   color: #d8c9f0;
 }
+.boss-warning-inspect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 5px;
+  background: #0f2e2666;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.boss-warnings li + li {
+  margin-top: 3px;
+}
+.boss-warning-inspect:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+.boss-warning-time {
+  display: block;
+  font-size: 10px;
+}
+.boss-warning-action {
+  color: var(--paper);
+  font-size: 10px;
+}
 .boss-warnings p {
   margin: 1px 0 0;
   color: var(--muted);

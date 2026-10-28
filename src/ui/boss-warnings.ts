@@ -8,6 +8,8 @@ export type BossWarning = {
   frozen: boolean;
 };
 
+export type BossWarningTarget = Pick<BossWarning, 'source' | 'row' | 'echo'>;
+
 /** Only project warnings that already exist; never predict the next cleave. */
 export function bossWarnings(battle: Combat | null): BossWarning[] {
   if (!battle) return [];

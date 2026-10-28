@@ -1,11 +1,16 @@
 import { appearances } from '../game/content';
 import { enemySeconds, type InspectedWarning } from './enemy-inspection';
+import type { BossWarningTarget } from './boss-warnings';
 import './inspection-links.css';
 import './enemy-warnings.css';
 
-type Props = { warnings: readonly InspectedWarning[]; onSelect: (id: number) => void };
+type Props = {
+  warnings: readonly InspectedWarning[];
+  onSelect: (id: number) => void;
+  initialWarning?: BossWarningTarget;
+};
 
-export function EnemyWarnings({ warnings, onSelect }: Props) {
+export function EnemyWarnings({ warnings, onSelect, initialWarning }: Props) {
   return (
     <div className="enemy-warnings">
       <h4>已出现的横扫预警</h4>
@@ -25,7 +30,14 @@ export function EnemyWarnings({ warnings, onSelect }: Props) {
                   </span>
                 </div>
                 {warning.allies.length > 0 ? (
-                  <details className="inspection-warning-allies">
+                  <details
+                    className="inspection-warning-allies"
+                    open={
+                      (initialWarning?.row === warning.row &&
+                        initialWarning.echo === warning.echo) ||
+                      undefined
+                    }
+                  >
                     <summary>预警行内 · {warning.allies.length}只灵兽</summary>
                     <ul
                       aria-label={`第${warning.row}行${warning.echo ? '回响' : '横扫'}预警行内灵兽`}
