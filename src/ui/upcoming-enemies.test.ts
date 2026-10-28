@@ -13,6 +13,8 @@ describe('暂停后的固定敌袭队列', () => {
     spawnEnemy(battle, 'wolf', { x: 1, y: 0 });
     expect(upcomingEnemies(battle)).toEqual({
       remaining: 0,
+      kind: 'all',
+      matched: 0,
       counts: [],
       next: [],
       hiddenCount: 0,

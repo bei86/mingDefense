@@ -2,6 +2,7 @@ import { bossName, enemyAppearances, type EnemyKind } from '../game/content';
 import type { Combat } from '../game/combat-model';
 
 export const UPCOMING_PAGE_SIZE = 8;
+export type UpcomingEnemyFilter = EnemyKind | 'all';
 
 export type UpcomingEnemy = {
   index: number;
@@ -13,6 +14,8 @@ export type UpcomingEnemy = {
 };
 export type UpcomingEnemyView = {
   remaining: number;
+  kind: UpcomingEnemyFilter;
+  matched: number;
   counts: { kind: EnemyKind; name: string; count: number }[];
   next: UpcomingEnemy[];
   hiddenCount: number;
@@ -30,10 +33,22 @@ export function arrivalLabel(remainingMs: number): string {
 export function upcomingEnemies(
   battle: Combat | null,
   requestedPage = 0,
+  kind: UpcomingEnemyFilter = 'all',
 ): UpcomingEnemyView | null {
   if (!battle) return null;
-  const pending = battle.spawns.slice(battle.spawnIndex);
-  const pageCount = Math.ceil(pending.length / UPCOMING_PAGE_SIZE);
+  const pending = battle.spawns
+    .slice(battle.spawnIndex)
+    .map((spawn, offset) => ({ spawn, index: battle.spawnIndex + offset }));
+  const counts = new Map<EnemyKind, number>();
+  for (const { spawn } of pending) {
+    const spawnKind = spawn.kind ?? 'wolf';
+    counts.set(spawnKind, (counts.get(spawnKind) ?? 0) + 1);
+  }
+  const activeKind = kind !== 'all' && counts.has(kind) ? kind : 'all';
+  const matching = pending.filter(
+    ({ spawn }) => activeKind === 'all' || (spawn.kind ?? 'wolf') === activeKind,
+  );
+  const pageCount = Math.ceil(matching.length / UPCOMING_PAGE_SIZE);
   const page = Math.min(
     Math.max(0, Math.floor(Number.isFinite(requestedPage) ? requestedPage : 0)),
     Math.max(0, pageCount - 1),
@@ -41,15 +56,10 @@ export function upcomingEnemies(
   const offset = page * UPCOMING_PAGE_SIZE;
   const name = (kind: EnemyKind) =>
     kind === 'boss' ? bossName(battle.stageId) : enemyAppearances[kind].name;
-  const counts = new Map<EnemyKind, number>();
-  for (const spawn of pending) {
-    const kind = spawn.kind ?? 'wolf';
-    counts.set(kind, (counts.get(kind) ?? 0) + 1);
-  }
-  const next = pending.slice(offset, offset + UPCOMING_PAGE_SIZE).map((spawn, index) => {
+  const next = matching.slice(offset, offset + UPCOMING_PAGE_SIZE).map(({ spawn, index }) => {
     const kind = spawn.kind ?? 'wolf';
     return {
-      index: battle.spawnIndex + offset + index,
+      index,
       kind,
       name: name(kind),
       at: spawn.at,
@@ -59,9 +69,11 @@ export function upcomingEnemies(
   });
   return {
     remaining: pending.length,
+    kind: activeKind,
+    matched: matching.length,
     counts: [...counts].map(([kind, count]) => ({ kind, name: name(kind), count })),
     next,
-    hiddenCount: pending.length - next.length,
+    hiddenCount: matching.length - next.length,
     ended: battle.result !== null,
     page,
     pageCount,
