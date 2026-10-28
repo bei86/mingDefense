@@ -6,6 +6,7 @@ import { ArtImage } from './ArtImage';
 import { AllyThreats } from './AllyThreats';
 import { AllySelection } from './AllySelection';
 import { selectAllies, type AllyKindFilter, type AllyStatusFilter } from './ally-selection';
+import type { AllySort } from './ally-sorting';
 import { BattleStats } from './BattleStats';
 import { InspectionFormation } from './InspectionFormation';
 import { EnemyInspection } from './EnemyInspection';
@@ -102,18 +103,20 @@ export function BattleInspection({
   const [focusSide, setFocusSide] = useState<Side | null>(null);
   const [allyKind, setAllyKind] = useState<AllyKindFilter>('all');
   const [allyStatus, setAllyStatus] = useState<AllyStatusFilter>('all');
+  const [allyOrder, setAllyOrder] = useState<AllySort>('position');
   const allySelect = useRef<HTMLSelectElement>(null);
-  const selection = selectAllies(view?.allies ?? null, allyKind, allyStatus, unitId);
+  const selection = selectAllies(view?.allies ?? null, allyKind, allyStatus, unitId, allyOrder);
   const unit = selection.allies.find((entry) => entry.id === selection.selectedId);
   function changeSide(next: Side) {
     if (next === side) return;
     setFocusSide(null);
     setAllyKind('all');
     setAllyStatus('all');
+    setAllyOrder('position');
     setSide(next);
   }
   function changeAllyFilter(kind: AllyKindFilter, status: AllyStatusFilter): void {
-    const next = selectAllies(view?.allies ?? null, kind, status, selection.selectedId);
+    const next = selectAllies(view?.allies ?? null, kind, status, selection.selectedId, allyOrder);
     setAllyKind(next.kind);
     setAllyStatus(next.status);
     if (next.selectedId !== undefined) setUnitId(next.selectedId);
@@ -203,6 +206,7 @@ export function BattleInspection({
                     onKind={(kind) => changeAllyFilter(kind, allyStatus)}
                     onStatus={(status) => changeAllyFilter(allyKind, status)}
                     onSelect={setUnitId}
+                    onOrder={setAllyOrder}
                     selectRef={allySelect}
                     autoFocus={focusSide === 'ally'}
                   />

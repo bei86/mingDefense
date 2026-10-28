@@ -1,12 +1,14 @@
 import type { Ref } from 'react';
 import { appearances } from '../game/content';
 import type { AllyKindFilter, AllySelectionModel, AllyStatusFilter } from './ally-selection';
+import { allySortLabel, allySortOptions, type AllySort } from './ally-sorting';
 
 type Props = {
   selection: AllySelectionModel;
   onKind: (kind: AllyKindFilter) => void;
   onStatus: (status: AllyStatusFilter) => void;
   onSelect: (id: number) => void;
+  onOrder?: (order: AllySort) => void;
   selectRef?: Ref<HTMLSelectElement>;
   autoFocus?: boolean;
 };
@@ -16,6 +18,7 @@ export function AllySelection({
   onKind,
   onStatus,
   onSelect,
+  onOrder,
   selectRef,
   autoFocus,
 }: Props) {
@@ -48,10 +51,31 @@ export function AllySelection({
           <option value="fallen">已倒下 · {selection.counts.fallen}只</option>
         </select>
       </label>
+      {onOrder && (
+        <label className="inspection-select">
+          灵兽排序
+          <select
+            aria-label="灵兽排序"
+            value={selection.order}
+            onChange={(event) => onOrder(event.target.value as AllySort)}
+          >
+            {allySortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <p className="inspection-note">
         当前显示 {selection.allies.length} / {selection.total}{' '}
         只上阵灵兽；状态数量按当前种类统计，备战席不计入。
       </p>
+      {selection.order !== 'position' && (
+        <p className="inspection-note">
+          生命按比例排列，倒下者为0%；锁定只反映当前缓存。贡献为本关累计，不是每秒数值；未记录排最后，同值按站位排列。排序保留当前查看的灵兽。
+        </p>
+      )}
       {selection.allies.length > 0 ? (
         <label className="inspection-select">
           查看灵兽
@@ -66,6 +90,7 @@ export function AllySelection({
               <option key={entry.id} value={entry.id}>
                 {appearances[entry.kind].name} · {entry.rank}阶 · {entry.position.x + 1}列
                 {entry.position.y + 1}行 · {entry.alive ? '存活' : '已倒下'}
+                {selection.order !== 'position' && ` · ${allySortLabel(entry, selection.order)}`}
               </option>
             ))}
           </select>
