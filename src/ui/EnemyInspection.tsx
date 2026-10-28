@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { appearances, type EnemyKind } from '../game/content';
 import { bossArtKey, enemyArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { EnemyWarnings } from './EnemyWarnings';
 import { EnemyAttack } from './EnemyAttack';
 import { EnemyBattleStats } from './EnemyBattleStats';
+import { EnemyLineage } from './EnemyLineage';
+import { enemyLineage, type EnemyLineageModel } from './enemy-lineage';
 import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
 import type { BossWarningTarget } from './boss-warnings';
 import { selectEnemies, type EnemyFilter } from './enemy-selection';
@@ -22,11 +24,15 @@ function EnemyDetails({
   enemy,
   stageId,
   onTarget,
+  lineage,
+  onEnemy,
   initialWarning,
 }: {
   enemy: InspectedEnemy;
   stageId: number;
   onTarget: (id: number) => void;
+  lineage: EnemyLineageModel | null;
+  onEnemy: (id: number) => void;
   initialWarning?: BossWarningTarget;
 }) {
   const target = enemy.target;
@@ -108,17 +114,8 @@ function EnemyDetails({
             )}
           </dd>
         </div>
-        {enemy.origin && (
-          <div>
-            <dt>衍生来源</dt>
-            <dd>{enemy.origin}</dd>
-          </div>
-        )}
-        <div>
-          <dt>直属存活衍生</dt>
-          <dd>{enemy.descendants} 只</dd>
-        </div>
       </dl>
+      <EnemyLineage key={`lineage-${enemy.id}`} model={lineage} onSelect={onEnemy} />
       <EnemyBattleStats key={`stats-${enemy.id}`} model={enemy.stats} />
       <EnemyAttack key={`attack-${enemy.id}`} model={enemy.attack} onTarget={onTarget} />
       {!initialWarning && (
@@ -150,6 +147,7 @@ export function EnemyInspection({
   onIntel,
 }: Props) {
   const [kind, setKind] = useState<EnemyFilter>('all');
+  const enemySelect = useRef<HTMLSelectElement>(null);
   const selection = selectEnemies(view, kind, selectedId);
   const enemy = selection.enemies.find((entry) => entry.id === selection.selectedId);
   if (!enemy) return <p role="status">当前场上没有存活敌人。</p>;
@@ -158,6 +156,12 @@ export function EnemyInspection({
     const nextSelection = selectEnemies(view, next, selection.selectedId);
     setKind(nextSelection.kind);
     if (nextSelection.selectedId !== undefined) onSelect(nextSelection.selectedId);
+  }
+  function showRelatedEnemy(id: number): void {
+    if (!view?.enemies.some((entry) => entry.id === id)) return;
+    setKind('all');
+    onSelect(id);
+    enemySelect.current?.focus();
   }
   return (
     <>
@@ -183,6 +187,7 @@ export function EnemyInspection({
         查看敌人
         <select
           aria-label="查看敌人"
+          ref={enemySelect}
           autoFocus={autoFocus}
           value={enemy.id}
           onChange={(event) => onSelect(Number(event.target.value))}
@@ -198,6 +203,8 @@ export function EnemyInspection({
         enemy={enemy}
         stageId={stageId}
         onTarget={onTarget}
+        lineage={enemyLineage(view, enemy.id)}
+        onEnemy={showRelatedEnemy}
         initialWarning={initialWarning?.source === enemy.id ? initialWarning : undefined}
       />
       {onIntel && (

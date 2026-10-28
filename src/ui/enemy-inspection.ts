@@ -26,6 +26,7 @@ export type InspectedEnemy = {
   effects: { label: string; value: string }[];
   warnings: InspectedWarning[];
   origin: string | null;
+  ownerId?: number;
   descendants: number;
   attack: EnemyAttackModel | null;
   stats: EnemyBattleStatsModel | null;
@@ -130,6 +131,7 @@ export function enemyInspection(battle: Combat | null): EnemyInspectionView | nu
             })),
         })),
       origin,
+      ownerId: enemy.owner,
       descendants: living.filter((child) => child.owner === enemy.id).length,
       attack: enemyAttack(battle, enemy.id),
       stats: enemyBattleStats(battle, enemy.id),
