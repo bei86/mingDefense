@@ -2,6 +2,8 @@ import { appearances, bossName, center, config, distance, enemyAppearances } fro
 import type { Combat } from '../game/combat';
 import { heroRange } from '../game/combat-skills';
 
+export type BattleActionTarget = { side: 'ally' | 'enemy'; id: number };
+
 export type BattleActionModel = {
   alive: boolean;
   status: string;
@@ -11,6 +13,7 @@ export type BattleActionModel = {
     ordinal: number;
     targetLabel: string;
     targetAlive: boolean;
+    target: BattleActionTarget;
     remainingMs: number;
   }[];
 };
@@ -72,6 +75,7 @@ export function battleAction(battle: Combat | null, unitId: number): BattleActio
         ordinal: attack.ordinal,
         targetLabel,
         targetAlive,
+        target: { side: ally.kind === 'shield_fox' ? 'ally' : 'enemy', id: attack.target },
         remainingMs: Math.max(0, attack.due - battle.time),
       };
     });

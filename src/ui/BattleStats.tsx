@@ -5,11 +5,17 @@ import { battleStats } from './battle-stats';
 import { BattleAction } from './BattleAction';
 import { AuraSources } from './AuraSources';
 import { AuraCoverage } from './AuraCoverage';
+import type { BattleActionTarget } from './battle-action';
 import './battle-stats.css';
 
-type Props = { battle: Combat | null; unitId: number; onSource: (id: number) => void };
+type Props = {
+  battle: Combat | null;
+  unitId: number;
+  onSource: (id: number) => void;
+  onTarget: (target: BattleActionTarget) => void;
+};
 
-export function BattleStats({ battle, unitId, onSource }: Props) {
+export function BattleStats({ battle, unitId, onSource, onTarget }: Props) {
   const [expanded, setExpanded] = useState(false);
   const model = expanded ? battleStats(battle, unitId) : null;
   return (
@@ -46,7 +52,7 @@ export function BattleStats({ battle, unitId, onSource }: Props) {
                   ))}
                 </tbody>
               </table>
-              <BattleAction battle={battle} unitId={unitId} />
+              <BattleAction battle={battle} unitId={unitId} onTarget={onTarget} />
               {model.kind === 'fortune_peach' && (
                 <p>仅在存活时产钱。产钱间隔不受攻速、聚灵或攻击光环影响。</p>
               )}

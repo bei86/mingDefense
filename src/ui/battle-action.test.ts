@@ -127,8 +127,20 @@ describe('暂停灵兽行动状态', () => {
     });
     const before = clone(b);
     expect(battleAction(b, 10)!.pending).toEqual([
-      { ordinal: 1, targetLabel: '#999', targetAlive: false, remainingMs: 0 },
-      { ordinal: 2, targetLabel: '奔雷狼 · #11', targetAlive: false, remainingMs: 400 },
+      {
+        ordinal: 1,
+        targetLabel: '#999',
+        targetAlive: false,
+        target: { side: 'enemy', id: 999 },
+        remainingMs: 0,
+      },
+      {
+        ordinal: 2,
+        targetLabel: '奔雷狼 · #11',
+        targetAlive: false,
+        target: { side: 'enemy', id: 11 },
+        remainingMs: 400,
+      },
     ]);
     expect(b).toEqual(before);
     b.allies[0].hp = 0;
@@ -149,7 +161,9 @@ describe('暂停灵兽行动状态', () => {
     const enemy = inRangeEnemy(b);
     b.attacks.push({ team: 'ally', source: 10, target: enemy.id, ordinal: 1, due: 50 });
     const render = () =>
-      renderToStaticMarkup(createElement(BattleAction, { battle: b, unitId: 10 }));
+      renderToStaticMarkup(
+        createElement(BattleAction, { battle: b, unitId: 10, onTarget: () => {} }),
+      );
     expect(render()).toContain('当前行动状态');
     expect(render()).toContain('准备攻击');
     expect(render()).toContain('剩余 0.1 秒');
@@ -159,7 +173,12 @@ describe('暂停灵兽行动状态', () => {
     expect(render()).toContain('目标已倒下或退场，此动作不会生效');
     expect(
       renderToStaticMarkup(
-        createElement(BattleStats, { battle: b, unitId: 10, onSource: () => {} }),
+        createElement(BattleStats, {
+          battle: b,
+          unitId: 10,
+          onSource: () => {},
+          onTarget: () => {},
+        }),
       ),
     ).not.toContain('当前行动状态');
     b.allies[0].kind = 'shield_fox';

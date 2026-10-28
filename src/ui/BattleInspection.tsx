@@ -8,6 +8,7 @@ import { AllySelection } from './AllySelection';
 import { selectAllies, type AllyKindFilter, type AllyStatusFilter } from './ally-selection';
 import type { AllySort } from './ally-sorting';
 import { BattleStats } from './BattleStats';
+import type { BattleActionTarget } from './battle-action';
 import { InspectionFormation } from './InspectionFormation';
 import { EnemyInspection } from './EnemyInspection';
 import { UpcomingEnemies } from './UpcomingEnemies';
@@ -136,6 +137,10 @@ export function BattleInspection({
     setSide('ally');
     allySelect.current?.focus();
   }
+  function showActionTarget(target: BattleActionTarget) {
+    if (target.side === 'ally') showAlly(target.id);
+    else showEnemy(target.id);
+  }
   return (
     <div className="modal-backdrop top-modal" hidden={suspended}>
       <section
@@ -224,6 +229,7 @@ export function BattleInspection({
                       battle={session.battle}
                       unitId={unit.id}
                       onSource={showAlly}
+                      onTarget={showActionTarget}
                     />
                     <button
                       className="secondary inspection-handbook-button"

@@ -1,10 +1,15 @@
 import type { Combat } from '../game/combat';
-import { battleAction } from './battle-action';
+import { battleAction, type BattleActionTarget } from './battle-action';
 import { enemySeconds } from './enemy-inspection';
+import './inspection-links.css';
 
-type Props = { battle: Combat | null; unitId: number };
+type Props = {
+  battle: Combat | null;
+  unitId: number;
+  onTarget: (target: BattleActionTarget) => void;
+};
 
-export function BattleAction({ battle, unitId }: Props) {
+export function BattleAction({ battle, unitId, onTarget }: Props) {
   const model = battleAction(battle, unitId);
   if (!model?.alive) return null;
   const isShield = battle?.allies.find((unit) => unit.id === unitId)?.kind === 'shield_fox';
@@ -33,7 +38,19 @@ export function BattleAction({ battle, unitId }: Props) {
                   <strong>
                     {isShield ? '准备施盾' : '准备攻击'} · 第{action.ordinal}次动作
                   </strong>
-                  <span>目标：{action.targetLabel}</span>
+                  {action.targetAlive ? (
+                    <button
+                      type="button"
+                      className="secondary inspection-link"
+                      aria-label={`查看${isShield ? '施盾' : '攻击'}目标：${action.targetLabel}`}
+                      onClick={() => onTarget(action.target)}
+                    >
+                      <span>目标：{action.targetLabel}</span>
+                      <small>查看目标 ›</small>
+                    </button>
+                  ) : (
+                    <span>目标：{action.targetLabel}</span>
+                  )}
                   <span>
                     {action.remainingMs > 0
                       ? `剩余 ${enemySeconds(action.remainingMs)} 秒`
