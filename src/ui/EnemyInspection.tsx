@@ -6,6 +6,7 @@ import { EnemyWarnings } from './EnemyWarnings';
 import { EnemyAttack } from './EnemyAttack';
 import { EnemyBattleStats } from './EnemyBattleStats';
 import { EnemyLineage } from './EnemyLineage';
+import { EnemyIncoming } from './EnemyIncoming';
 import { enemyLineage, type EnemyLineageModel } from './enemy-lineage';
 import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
 import type { BossWarningTarget } from './boss-warnings';
@@ -120,6 +121,7 @@ function EnemyDetails({
       <EnemyLineage key={`lineage-${enemy.id}`} model={lineage} onSelect={onEnemy} />
       <EnemyBattleStats key={`stats-${enemy.id}`} model={enemy.stats} />
       <EnemyAttack key={`attack-${enemy.id}`} model={enemy.attack} onTarget={onTarget} />
+      <EnemyIncoming key={`incoming-${enemy.id}`} actions={enemy.incoming} onSelect={onTarget} />
       {!initialWarning && (
         <EnemyWarnings key={enemy.id} warnings={enemy.warnings} onSelect={onTarget} />
       )}
