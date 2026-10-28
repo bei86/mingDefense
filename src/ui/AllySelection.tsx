@@ -14,6 +14,14 @@ type Props = {
   autoFocus?: boolean;
 };
 
+function sortNote(order: AllySort): string {
+  if (order === 'shield')
+    return '当前护盾仅计仍有效的盾量，不是本关累计施盾或吸收；同盾量按站位排列。排序保留当前查看的灵兽。';
+  if (order === 'targeted')
+    return '按当前锁定敌人数从多到少排列，同数量按站位排列；排序保留当前查看的灵兽，不改变仇恨。';
+  return '生命按比例排列，倒下者为0%；锁定只反映当前缓存。贡献为本关累计，不是每秒数值；未记录排最后，同值按站位排列。排序保留当前查看的灵兽。';
+}
+
 export function AllySelection({
   selection,
   onKind,
@@ -23,6 +31,7 @@ export function AllySelection({
   selectRef,
   autoFocus,
 }: Props) {
+  const leadingMetric = selection.order === 'shield' || selection.order === 'targeted';
   return (
     <>
       <label className="inspection-select">
@@ -49,6 +58,8 @@ export function AllySelection({
         >
           <option value="all">全部状态 · {selection.counts.all}只</option>
           <option value="alive">存活 · {selection.counts.alive}只</option>
+          <option value="targeted">被锁定（存活） · {selection.counts.targeted}只</option>
+          <option value="untargeted">未被锁定（存活） · {selection.counts.untargeted}只</option>
           <option value="shielded">有护盾（存活） · {selection.counts.shielded}只</option>
           <option value="unshielded">无护盾（存活） · {selection.counts.unshielded}只</option>
           <option value="fallen">已倒下 · {selection.counts.fallen}只</option>
@@ -74,17 +85,18 @@ export function AllySelection({
         当前显示 {selection.allies.length} / {selection.total}{' '}
         只上阵灵兽；状态数量按当前种类统计，备战席不计入。
       </p>
+      {(selection.status === 'targeted' || selection.status === 'untargeted') && (
+        <p className="inspection-note">
+          锁定筛选只计存活敌人的当前缓存，包含接近中或冻结的敌人；不等于准备普攻或横扫目标，未被锁定不代表不会受伤。
+        </p>
+      )}
       {(selection.status === 'shielded' || selection.status === 'unshielded') && (
         <p className="inspection-note">
           护盾筛选只计存活灵兽；到期、耗尽的护盾归入无护盾，倒下者另查“已倒下”。
         </p>
       )}
       {selection.order !== 'position' && (
-        <p className="inspection-note">
-          {selection.order === 'shield'
-            ? '当前护盾仅计仍有效的盾量，不是本关累计施盾或吸收；同盾量按站位排列。排序保留当前查看的灵兽。'
-            : '生命按比例排列，倒下者为0%；锁定只反映当前缓存。贡献为本关累计，不是每秒数值；未记录排最后，同值按站位排列。排序保留当前查看的灵兽。'}
-        </p>
+        <p className="inspection-note">{sortNote(selection.order)}</p>
       )}
       {selection.allies.length > 0 ? (
         <label className="inspection-select">
@@ -98,11 +110,11 @@ export function AllySelection({
           >
             {selection.allies.map((entry) => (
               <option key={entry.id} value={entry.id}>
-                {selection.order === 'shield' && `${allySortLabel(entry, selection.order)} · `}
+                {leadingMetric && `${allySortLabel(entry, selection.order)} · `}
                 {appearances[entry.kind].name} · {entry.rank}阶 · {entry.position.x + 1}列
                 {entry.position.y + 1}行 · {entry.alive ? '存活' : '已倒下'}
                 {selection.order !== 'position' &&
-                  selection.order !== 'shield' &&
+                  !leadingMetric &&
                   ` · ${allySortLabel(entry, selection.order)}`}
               </option>
             ))}

@@ -50,7 +50,15 @@ test('仅按有效盾区分存活者，过期/非正盾/倒下旧盾/备战不�
   const unshielded = selectAllies(view.allies, 'all', 'unshielded', 0);
   expect(shielded.allies.map((unit) => unit.id)).toEqual([0, 5, 1]);
   expect(unshielded.allies.map((unit) => unit.id)).toEqual([2, 7, 4]);
-  expect(shielded.counts).toEqual({ all: 7, alive: 6, fallen: 1, shielded: 3, unshielded: 3 });
+  expect(shielded.counts).toEqual({
+    all: 7,
+    alive: 6,
+    fallen: 1,
+    shielded: 3,
+    unshielded: 3,
+    targeted: 0,
+    untargeted: 6,
+  });
   for (const kind of ['all', 'ember_mouse', 'shield_fox', 'fortune_peach', 'boar'] as const) {
     const selection = selectAllies(view.allies, kind, 'shielded', undefined);
     expect(selection.counts.shielded + selection.counts.unshielded).toBe(selection.counts.alive);
@@ -62,6 +70,8 @@ test('仅按有效盾区分存活者，过期/非正盾/倒下旧盾/备战不�
     fallen: 0,
     shielded: 2,
     unshielded: 2,
+    targeted: 0,
+    untargeted: 4,
   });
   expect(selectAllies(view.allies, 'all', 'fallen', 3).allies.map((unit) => unit.id)).toEqual([3]);
   expect(JSON.stringify(view)).toBe(snapshot);
@@ -104,7 +114,15 @@ test('保持编号0和当前排序，失配选筛选内首只，空交集不回�
     expect(selectAllies(null, 'all', status, 0, 'shield')).toMatchObject({
       allies: [],
       selectedId: undefined,
-      counts: { all: 0, alive: 0, fallen: 0, shielded: 0, unshielded: 0 },
+      counts: {
+        all: 0,
+        alive: 0,
+        fallen: 0,
+        shielded: 0,
+        unshielded: 0,
+        targeted: 0,
+        untargeted: 0,
+      },
     });
   }
 });

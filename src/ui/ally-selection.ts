@@ -3,7 +3,14 @@ import type { InspectedAlly } from './battle-inspection';
 import { sortAllies, type AllySort } from './ally-sorting';
 
 export type AllyKindFilter = InspectedAlly['kind'] | 'all';
-export type AllyStatusFilter = 'all' | 'alive' | 'fallen' | 'shielded' | 'unshielded';
+export type AllyStatusFilter =
+  | 'all'
+  | 'alive'
+  | 'fallen'
+  | 'shielded'
+  | 'unshielded'
+  | 'targeted'
+  | 'untargeted';
 export type AllySelectionModel = {
   kinds: { kind: InspectedAlly['kind']; name: string; count: number }[];
   kind: AllyKindFilter;
@@ -27,6 +34,10 @@ function matchesStatus(unit: InspectedAlly, status: AllyStatusFilter): boolean {
       return unit.alive && unit.shield > 0;
     case 'unshielded':
       return unit.alive && unit.shield <= 0;
+    case 'targeted':
+      return unit.alive && unit.targetedBy > 0;
+    case 'untargeted':
+      return unit.alive && unit.targetedBy === 0;
   }
 }
 
@@ -49,6 +60,7 @@ export function selectAllies(
   const matchingKind = all.filter((unit) => activeKind === 'all' || unit.kind === activeKind);
   const alive = matchingKind.filter((unit) => unit.alive).length;
   const shielded = matchingKind.filter((unit) => matchesStatus(unit, 'shielded')).length;
+  const targeted = matchingKind.filter((unit) => matchesStatus(unit, 'targeted')).length;
   const matching = sortAllies(
     matchingKind.filter((unit) => matchesStatus(unit, status)),
     order,
@@ -64,6 +76,8 @@ export function selectAllies(
       fallen: matchingKind.length - alive,
       shielded,
       unshielded: alive - shielded,
+      targeted,
+      untargeted: alive - targeted,
     },
     allies: matching,
     selectedId: matching.find((unit) => unit.id === selectedId)?.id ?? matching[0]?.id,
