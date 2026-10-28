@@ -4,6 +4,7 @@ import { bossArtKey, enemyArt } from '../render/art';
 import { ArtImage } from './ArtImage';
 import { EnemyWarnings } from './EnemyWarnings';
 import { EnemyAttack } from './EnemyAttack';
+import { EnemyBattleStats } from './EnemyBattleStats';
 import type { InspectedEnemy, EnemyInspectionView } from './enemy-inspection';
 import type { BossWarningTarget } from './boss-warnings';
 import { selectEnemies, type EnemyFilter } from './enemy-selection';
@@ -118,6 +119,7 @@ function EnemyDetails({
           <dd>{enemy.descendants} 只</dd>
         </div>
       </dl>
+      <EnemyBattleStats key={`stats-${enemy.id}`} model={enemy.stats} />
       <EnemyAttack key={`attack-${enemy.id}`} model={enemy.attack} onTarget={onTarget} />
       {!initialWarning && (
         <EnemyWarnings key={enemy.id} warnings={enemy.warnings} onSelect={onTarget} />

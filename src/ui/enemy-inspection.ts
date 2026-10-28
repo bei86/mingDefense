@@ -3,6 +3,7 @@ import type { Combat } from '../game/combat-model';
 import { bonus } from '../game/progression';
 import type { InspectedAlly } from './battle-inspection';
 import { enemyAttack, type EnemyAttackModel } from './enemy-attack';
+import { enemyBattleStats, type EnemyBattleStatsModel } from './enemy-battle-stats';
 
 type InspectedAllyPosition = Pick<InspectedAlly, 'id' | 'kind' | 'rank' | 'position'>;
 
@@ -27,6 +28,7 @@ export type InspectedEnemy = {
   origin: string | null;
   descendants: number;
   attack: EnemyAttackModel | null;
+  stats: EnemyBattleStatsModel | null;
 };
 
 export type EnemyInspectionView = {
@@ -130,6 +132,7 @@ export function enemyInspection(battle: Combat | null): EnemyInspectionView | nu
       origin,
       descendants: living.filter((child) => child.owner === enemy.id).length,
       attack: enemyAttack(battle, enemy.id),
+      stats: enemyBattleStats(battle, enemy.id),
     };
   });
   enemies.sort((a, b) => Number(b.kind === 'boss') - Number(a.kind === 'boss') || a.id - b.id);
