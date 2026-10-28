@@ -6,6 +6,8 @@ import { ArtImage } from './ArtImage';
 import { AllyThreats } from './AllyThreats';
 import { AllyIncoming } from './AllyIncoming';
 import { allyIncoming } from './ally-incoming';
+import { AllyWarnings } from './AllyWarnings';
+import { allyWarnings } from './ally-warnings';
 import { AllySelection } from './AllySelection';
 import { selectAllies, type AllyKindFilter, type AllyStatusFilter } from './ally-selection';
 import type { AllySort } from './ally-sorting';
@@ -89,6 +91,7 @@ type Props = {
   onIntel?: (kind: EnemyKind) => void;
 };
 type Side = 'ally' | 'enemy' | 'upcoming';
+type EnemyTarget = { id: number | undefined; warning?: BossWarningTarget };
 
 export function BattleInspection({
   session,
@@ -101,7 +104,10 @@ export function BattleInspection({
   const view = battleInspection(session.battle, session.preparation.units);
   const enemyView = enemyInspection(session.battle);
   const [unitId, setUnitId] = useState(view?.initialId);
-  const [enemyId, setEnemyId] = useState(initialWarning?.source);
+  const [enemyTarget, setEnemyTarget] = useState<EnemyTarget>({
+    id: initialWarning?.source,
+    warning: initialWarning,
+  });
   const [side, setSide] = useState<Side>(initialWarning ? 'enemy' : 'ally');
   const [focusSide, setFocusSide] = useState<Side | null>(null);
   const [allyKind, setAllyKind] = useState<AllyKindFilter>('all');
@@ -112,6 +118,7 @@ export function BattleInspection({
   const unit = selection.allies.find((entry) => entry.id === selection.selectedId);
   function changeSide(next: Side) {
     if (next === side) return;
+    setEnemyTarget((current) => ({ id: current.id }));
     setFocusSide(null);
     setAllyKind('all');
     setAllyStatus('all');
@@ -126,7 +133,22 @@ export function BattleInspection({
   }
   function showEnemy(id: number) {
     if (!enemyView?.enemies.some((enemy) => enemy.id === id)) return;
-    setEnemyId(id);
+    setEnemyTarget({ id });
+    setFocusSide('enemy');
+    setSide('enemy');
+  }
+  function showWarning(target: BossWarningTarget) {
+    if (
+      !unit ||
+      !allyWarnings(enemyView, unit.id).some(
+        (warning) =>
+          warning.source.id === target.source &&
+          warning.row === target.row &&
+          warning.echo === target.echo,
+      )
+    )
+      return;
+    setEnemyTarget({ id: target.source, warning: target });
     setFocusSide('enemy');
     setSide('enemy');
   }
@@ -135,6 +157,7 @@ export function BattleInspection({
     setAllyKind('all');
     setAllyStatus('all');
     setUnitId(id);
+    setEnemyTarget((current) => ({ id: current.id }));
     setFocusSide('ally');
     setSide('ally');
     allySelect.current?.focus();
@@ -191,11 +214,11 @@ export function BattleInspection({
               <EnemyInspection
                 view={enemyView}
                 stageId={session.battle?.stageId ?? session.preparation.stageId}
-                selectedId={enemyId}
-                onSelect={setEnemyId}
+                selectedId={enemyTarget.id}
+                onSelect={(id) => setEnemyTarget({ id })}
                 onTarget={showAlly}
                 autoFocus={focusSide === 'enemy'}
-                initialWarning={initialWarning}
+                initialWarning={enemyTarget.warning}
                 onIntel={onIntel}
               />
             )}
@@ -230,6 +253,11 @@ export function BattleInspection({
                       key={`incoming-${unit.id}`}
                       actions={allyIncoming(enemyView, unit.id)}
                       onSelect={showEnemy}
+                    />
+                    <AllyWarnings
+                      key={`warnings-${unit.id}`}
+                      warnings={allyWarnings(enemyView, unit.id)}
+                      onSelect={showWarning}
                     />
                     <BattleStats
                       key={unit.id}
