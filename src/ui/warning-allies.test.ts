@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { clone } from '../game/content';
+import { clone, config } from '../game/content';
 import { createCombat, stepCombat } from '../game/combat';
 import { spawnEnemy } from '../game/combat-skills';
 import { enemyInspection } from './enemy-inspection';
@@ -81,7 +81,12 @@ describe('预警行内灵兽', () => {
       before.enemies[0].warnings.map((warning) => warning.allies.map((unit) => unit.id)),
     ).toEqual([[11, 10, 12], [11, 10, 12], []]);
     stepCombat(battle);
-    expect(enemyInspection(battle)!.enemies[0].warnings).toEqual(before.enemies[0].warnings);
+    expect(enemyInspection(battle)!.enemies[0].warnings).toEqual(
+      before.enemies[0].warnings.map((warning) => ({
+        ...warning,
+        frozenMs: warning.frozenMs - config.runtime.tickMs,
+      })),
+    );
     battle.allies.find((unit) => unit.id === 11)!.hp = 0;
     expect(enemyInspection(battle)!.enemies[0].warnings[0].allies.map((unit) => unit.id)).toEqual([
       10, 12,
@@ -119,7 +124,7 @@ describe('预警行内灵兽', () => {
       warnings: NonNullable<ReturnType<typeof enemyInspection>>['enemies'][number]['warnings'],
     ) => renderToStaticMarkup(createElement(EnemyWarnings, { warnings, onSelect: () => {} }));
     expect(render([])).toContain('当前没有已记录预警');
-    const html = render([{ row: 1, remainingMs: 0, echo: false, allies: [] }]);
+    const html = render([{ row: 1, remainingMs: 0, frozenMs: 0, echo: false, allies: [] }]);
     expect(html).toContain('当前该行没有存活灵兽');
     expect(html).not.toContain('<details');
     expect(html).not.toContain('<button');

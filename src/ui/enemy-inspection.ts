@@ -11,6 +11,7 @@ type InspectedAllyPosition = Pick<InspectedAlly, 'id' | 'kind' | 'rank' | 'posit
 export type InspectedWarning = {
   row: number;
   remainingMs: number;
+  frozenMs: number;
   echo: boolean;
   allies: InspectedAllyPosition[];
 };
@@ -115,6 +116,7 @@ export function enemyInspection(battle: Combat | null): EnemyInspectionView | nu
         .map((warning) => ({
           row: warning.row + 1,
           remainingMs: Math.max(0, warning.due - battle.time),
+          frozenMs: kind === 'boss' ? Math.max(0, (enemy.frozenUntil ?? 0) - battle.time) : 0,
           echo: warning.echo ?? false,
           allies: battle.allies
             .filter(

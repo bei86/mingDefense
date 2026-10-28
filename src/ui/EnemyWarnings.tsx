@@ -10,6 +10,12 @@ type Props = {
   initialWarning?: BossWarningTarget;
 };
 
+function preparationTime(warning: InspectedWarning): string {
+  if (warning.remainingMs <= 0) return warning.frozenMs > 0 ? '待解冻' : '待释放';
+  const label = warning.frozenMs > 0 ? '解冻后准备' : '剩余';
+  return `${label} ${enemySeconds(warning.remainingMs)} 秒`;
+}
+
 export function EnemyWarnings({ warnings, onSelect, initialWarning }: Props) {
   return (
     <div className="enemy-warnings">
@@ -23,12 +29,14 @@ export function EnemyWarnings({ warnings, onSelect, initialWarning }: Props) {
                   <strong>
                     第 {warning.row} 行{warning.echo ? ' · 回响' : ''}
                   </strong>
-                  <span>
-                    {warning.remainingMs > 0
-                      ? `剩余 ${enemySeconds(warning.remainingMs)} 秒`
-                      : '待释放'}
-                  </span>
+                  <span>{preparationTime(warning)}</span>
                 </div>
+                {warning.frozenMs > 0 && (
+                  <p className="inspection-warning-note">
+                    冻结剩余 {enemySeconds(warning.frozenMs)} 秒 ·
+                    释放延后。准备时间在解冻后继续计算。
+                  </p>
+                )}
                 {warning.allies.length > 0 ? (
                   <details
                     className="inspection-warning-allies"
