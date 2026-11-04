@@ -7,6 +7,7 @@ import { battleAction } from './battle-action';
 import { battleInspection, type InspectedAlly } from './battle-inspection';
 import { enemyInspection, enemySeconds, type InspectedEnemy } from './enemy-inspection';
 import { upcomingEnemies } from './upcoming-enemies';
+import { snapshotContributionLines } from './snapshot-contributions';
 
 export type BattleSnapshotDocument = { fileName: string; text: string };
 type AllyLabel = { id: number; kind: keyof typeof appearances; rank: number };
@@ -168,6 +169,7 @@ export function battleSnapshotDocument(
   lines.push(
     '',
     '生命和护盾沿详情面板取整；过期、耗尽或倒下者的旧盾不计。位置是完整占格的锚点。',
+    ...snapshotContributionLines(battle, view.allies),
     ...allyActionLines(battle, view.allies),
     '',
     '## 存活敌人',

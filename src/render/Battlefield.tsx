@@ -16,6 +16,7 @@ import { expansionError, placementError, unitAt, type Session, type Source } fro
 import { boardDrop } from '../ui/board-drop';
 import { artUrl, battlefieldArt, bossArtKey, enemyArt, heroArt } from './art';
 import { ArtLayer } from './ArtLayer';
+import { mouseAttackArt, mouseAttackUrl } from './character-art';
 import { drawBossPhaseMarker } from './boss-phase-marker';
 import {
   performanceContext,
@@ -35,6 +36,7 @@ import { RendererRecovery, type RendererRecoveryState } from './renderer-recover
 import { displayEffects, type DisplayOptions } from '../presentation/display-options';
 
 const SIZE = 52;
+const battlefieldImageCount = battlefieldArt.length + 1;
 const ORIGIN = { x: 24, y: 74 };
 const pixel = (p: Point) => ({ x: ORIGIN.x + p.x * SIZE, y: ORIGIN.y + p.y * SIZE });
 const enemyColors: Record<EnemyKind, number> = {
@@ -199,7 +201,7 @@ export function Battlefield({
     onReadyChange(false);
     const recovery = new RendererRecovery((ready) => {
       if (disposed) return;
-      if (ready) setLoading({ ready: true, completed: battlefieldArt.length, failed });
+      if (ready) setLoading({ ready: true, completed: battlefieldImageCount, failed });
       else setLoading((previous) => ({ ...previous, ready: false }));
       onReadyChange(ready);
     }, onRecoveryChange);
@@ -252,19 +254,31 @@ export function Battlefield({
           if (disposed) return;
           setLoading({
             ready: false,
-            completed: Math.round(progress * battlefieldArt.length),
+            completed: Math.round(progress * battlefieldImageCount),
             failed: 0,
           });
         });
         for (const key of battlefieldArt)
           this.load.image(key, artUrl(key), { responseType: 'blob', timeout: 8000 });
+        this.load.spritesheet(
+          mouseAttackArt.key,
+          mouseAttackUrl(),
+          {
+            frameWidth: mouseAttackArt.frameWidth,
+            frameHeight: mouseAttackArt.frameHeight,
+            endFrame: mouseAttackArt.frames - 1,
+          },
+          { responseType: 'blob', timeout: 8000 },
+        );
       }
       create() {
         this.drawing = this.add.graphics();
         this.overlay = this.add.graphics().setDepth(10);
         this.art = new ArtLayer(this);
         this.numbers = new CombatNumberLayer(this);
-        failed = battlefieldArt.filter((key) => !this.textures.exists(key)).length;
+        failed =
+          battlefieldArt.filter((key) => !this.textures.exists(key)).length +
+          (this.textures.exists(mouseAttackArt.key) ? 0 : 1);
         recovery.created();
       }
       private finishFrame(started: number) {
@@ -490,7 +504,22 @@ export function Battlefield({
           const bottom = ORIGIN.y + (Math.max(...shape.map((c) => c.y)) + 1) * SIZE;
           const width = (Math.max(...shape.map((c) => c.x)) - u.position.x + 1) * SIZE;
           const height = bottom - top;
+          const animated =
+            u.kind === 'ember_mouse' &&
+            this.art.draw(
+              mouseAttackArt.key,
+              p.x,
+              p.y,
+              width - 10,
+              height - 16,
+              2,
+              preparing && u.hp <= 0 ? 0.28 : pose.alpha,
+              pose.tint,
+              0,
+              feedback.mouseFrame(u.id, reducedMotion),
+            );
           if (
+            !animated &&
             !this.art.draw(
               heroArt[u.kind],
               p.x + pose.dx,
@@ -978,16 +1007,16 @@ export function Battlefield({
           <div className="field-loading">
             <div className="field-loading-card">
               <strong role="status">
-                {loading.completed === battlefieldArt.length ? '正在绘制战场' : '正在准备战场'}
+                {loading.completed === battlefieldImageCount ? '正在绘制战场' : '正在准备战场'}
               </strong>
               <p>画面准备好后即可布阵与守卫</p>
               <progress
                 aria-label="战场素材处理进度"
                 value={loading.completed}
-                max={battlefieldArt.length}
+                max={battlefieldImageCount}
               />
               <small>
-                已处理 {loading.completed} / {battlefieldArt.length} 张
+                已处理 {loading.completed} / {battlefieldImageCount} 张
               </small>
             </div>
           </div>

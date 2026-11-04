@@ -2,6 +2,7 @@ import { bossDefinition, bossName, center, type EnemyKind, type Point } from '..
 import type { Combat, Flash, Warning } from '../game/combat-model';
 import type { Session } from '../game/session';
 import { CombatNumbers } from './combat-numbers';
+import { MouseAttackFrames } from './mouse-attack-frames';
 import { combatSound, type SoundCue } from './sound-cues';
 
 export type { SoundCue } from './sound-cues';
@@ -39,6 +40,7 @@ export type CombatNotice = {
 export class CombatFeedback {
   time = 0;
   readonly numbers = new CombatNumbers();
+  private readonly mouseFrames = new MouseAttackFrames();
   notice: CombatNotice | null = null;
   ghosts: Ghost[] = [];
   private battle: Combat | null | undefined;
@@ -59,6 +61,7 @@ export class CombatFeedback {
       this.time += Math.max(0, Math.min(100, deltaMs)) * session.speed;
     this.numbers.update(session, this.time, visible && numbersEnabled);
     const battle = session.battle;
+    this.mouseFrames.update(session.phase === 'prepare' ? null : battle);
     const fresh = this.battle !== battle || (battle !== null && battle.time < this.battleTime);
     const starting = fresh && this.phase === 'prepare' && session.phase === 'combat';
     const cues = new Set<SoundCue>();
@@ -192,6 +195,10 @@ export class CombatFeedback {
     this.ghosts = this.ghosts.filter((g) => this.time - g.born < 300);
     if (this.notice && this.time - this.notice.born >= this.notice.duration) this.notice = null;
     return visible ? [...cues] : [];
+  }
+
+  mouseFrame(id: number, reducedMotion = false): number {
+    return this.mouseFrames.frame(id, reducedMotion);
   }
 
   pose(team: Team, id: number, reducedMotion = false) {

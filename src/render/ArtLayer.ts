@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { artManifest, type ArtKey } from './art';
+import { mouseAttackArt } from './character-art';
 
 /** View-only image pool. Simulation state never stores renderer objects. */
 export class ArtLayer {
@@ -17,7 +18,7 @@ export class ArtLayer {
   }
 
   draw(
-    key: ArtKey | undefined,
+    key: ArtKey | typeof mouseAttackArt.key | undefined,
     x: number,
     y: number,
     width: number,
@@ -26,14 +27,17 @@ export class ArtLayer {
     alpha = 1,
     tint = 0xffffff,
     rotation = 0,
+    frame = 0,
   ): boolean {
     if (!key || !this.scene.textures.exists(key)) return false;
     const image = this.images[this.used] ?? this.scene.add.image(0, 0, key);
     this.images[this.used++] = image;
-    const source = artManifest[key];
+    const animated = key === mouseAttackArt.key;
+    const source = animated ? mouseAttackArt : artManifest[key];
     const scale = Math.min(width / source.width, height / source.height);
     image
-      .setTexture(key)
+      .setTexture(key, animated ? frame : undefined)
+      .setOrigin(animated ? mouseAttackArt.originX : 0.5, animated ? mouseAttackArt.originY : 0.5)
       .setPosition(x, y)
       .setScale(scale)
       .setRotation(rotation)

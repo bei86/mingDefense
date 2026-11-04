@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import type Phaser from 'phaser';
 import { ArtLayer } from './ArtLayer';
+import { mouseAttackArt } from './character-art';
 
 describe('图片池回收与方向隔离', () => {
   it('下一帧复用图片时重置角度、透明度和色调；缺纹理不创建对象，多余对象隐藏', () => {
     const image = {
       setTexture: vi.fn().mockReturnThis(),
+      setOrigin: vi.fn().mockReturnThis(),
       setPosition: vi.fn().mockReturnThis(),
       setScale: vi.fn().mockReturnThis(),
       setRotation: vi.fn().mockReturnThis(),
@@ -25,15 +27,24 @@ describe('图片池回收与方向隔离', () => {
     expect(layer.stats).toEqual({ active: 1, pooled: 1 });
     expect(image.setRotation).toHaveBeenLastCalledWith(1.5);
     layer.begin();
+    layer.draw(mouseAttackArt.key, 10, 20, 42, 36, 2, 0.8, 0xffaabb, 0, 4);
+    layer.end();
+    expect(image.setTexture).toHaveBeenLastCalledWith(mouseAttackArt.key, 4);
+    expect(image.setOrigin).toHaveBeenLastCalledWith(0.5, 131 / 256);
+    expect(image.setScale).toHaveBeenLastCalledWith(36 / 216);
+    layer.begin();
     layer.draw('boss_35_idle', 1, 2, 80, 88, 4);
     layer.end();
     expect(scene.add.image).toHaveBeenCalledTimes(1);
     expect(image.setRotation).toHaveBeenLastCalledWith(0);
     expect(image.setAlpha).toHaveBeenLastCalledWith(1);
     expect(image.setTint).toHaveBeenLastCalledWith(0xffffff);
+    expect(image.setTexture).toHaveBeenLastCalledWith('boss_35_idle', undefined);
+    expect(image.setOrigin).toHaveBeenLastCalledWith(0.5, 0.5);
     layer.begin();
     scene.textures.exists.mockReturnValue(false);
     expect(layer.draw('fx_fist', 0, 0, 20, 20, 8)).toBe(false);
+    expect(layer.draw(mouseAttackArt.key, 0, 0, 42, 36, 2)).toBe(false);
     layer.end();
     expect(image.setVisible).toHaveBeenLastCalledWith(false);
     expect(layer.stats).toEqual({ active: 0, pooled: 1 });
