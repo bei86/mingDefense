@@ -55,6 +55,14 @@ export class MouseAttackFrames {
     }
   }
 
+  active(id: number): boolean {
+    if (this.battle?.result) return false;
+    const motion = this.motions.get(id);
+    if (!motion) return false;
+    const age = this.time - motion.released;
+    return motion.ordinal >= 0 || (age >= 0 && age < 210);
+  }
+
   frame(id: number, reducedMotion = false): number {
     if (reducedMotion || this.battle?.result) return 0;
     const motion = this.motions.get(id);

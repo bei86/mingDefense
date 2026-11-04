@@ -3,6 +3,7 @@ import type { Combat, Flash, Warning } from '../game/combat-model';
 import type { Session } from '../game/session';
 import { CombatNumbers } from './combat-numbers';
 import { MouseAttackFrames } from './mouse-attack-frames';
+import { selectMouseMotion, type MouseMotion } from './mouse-motion';
 import { combatSound, type SoundCue } from './sound-cues';
 
 export type { SoundCue } from './sound-cues';
@@ -199,6 +200,20 @@ export class CombatFeedback {
 
   mouseFrame(id: number, reducedMotion = false): number {
     return this.mouseFrames.frame(id, reducedMotion);
+  }
+
+  mouseMotion(id: number, reducedMotion = false): MouseMotion {
+    const actor = this.actors.get(`ally:${id}`);
+    return selectMouseMotion({
+      time: this.time,
+      dead: actor !== undefined && actor.hp <= 0,
+      hitAt: actor?.hitAt ?? -Infinity,
+      // Settled battles freeze the clock. Show the stable fallen pose immediately.
+      deadAt: this.battle?.result ? -Infinity : (actor?.deadAt ?? -Infinity),
+      attacking: this.mouseFrames.active(id),
+      attackFrame: this.mouseFrames.frame(id),
+      reducedMotion,
+    });
   }
 
   pose(team: Team, id: number, reducedMotion = false) {

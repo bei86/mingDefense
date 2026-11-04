@@ -2,6 +2,8 @@
 
 本文件保留首张攻击动作的生成提示词。六帧样板已收到、处理并接入游戏，无须重复生成；当前实现与验收边界见[攻击动作接入记录](../reviews/2026-11-04-mouse-attack-integration.md)。下文上传路径是首次生成时使用的原始立绘。
 
+后续请使用[待机、受击、重伤可复制提示词](2026-11-04-mouse-remaining-animation-prompts-copy-ready.md)，上传其中提供的攻击首帧参考图。
+
 上传参考图：`D:\workSpace\ming\mingDefense\docs\img\ember_mouse_idle.png`
 
 建议保存：`D:\workSpace\ming\mingDefense\docs\img\animations\ember_mouse\attack-sheet-raw.png`

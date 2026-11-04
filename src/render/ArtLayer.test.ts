@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type Phaser from 'phaser';
 import { ArtLayer } from './ArtLayer';
-import { mouseAttackArt } from './character-art';
+import { mouseAttackArt, mouseMotionArt } from './character-art';
 
 describe('图片池回收与方向隔离', () => {
   it('下一帧复用图片时重置角度、透明度和色调；缺纹理不创建对象，多余对象隐藏', () => {
@@ -31,6 +31,12 @@ describe('图片池回收与方向隔离', () => {
     layer.end();
     expect(image.setTexture).toHaveBeenLastCalledWith(mouseAttackArt.key, 4);
     expect(image.setOrigin).toHaveBeenLastCalledWith(0.5, 131 / 256);
+    expect(image.setScale).toHaveBeenLastCalledWith(36 / 216);
+    layer.begin();
+    layer.draw(mouseMotionArt.fallen.key, 10, 20, 42, 36, 2, 0.28, 0xffffff, 0, 4);
+    layer.end();
+    expect(image.setTexture).toHaveBeenLastCalledWith(mouseMotionArt.fallen.key, 4);
+    expect(image.setOrigin).toHaveBeenLastCalledWith(168 / 256, 131 / 256);
     expect(image.setScale).toHaveBeenLastCalledWith(36 / 216);
     layer.begin();
     layer.draw('boss_35_idle', 1, 2, 80, 88, 4);
