@@ -31,6 +31,7 @@ test('入口默认首战和诊断开启，提供场景来源与离开提示，�
   expect(html).toContain('先导出');
   expect(html).toContain('不会覆盖正式战役存档');
   expect(html).toContain('进入所选试玩');
+  expect(html).toContain('角色动作预览');
   expect(html).toContain('返回布阵');
   expect(html).not.toContain('返回正式战役');
 });

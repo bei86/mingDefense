@@ -1,6 +1,10 @@
 import { Component, lazy, Suspense, type PropsWithChildren } from 'react';
+import { motionPreviewRequested } from './motion-preview-route';
 
 const GameApp = lazy(() => import('./App').then((module) => ({ default: module.App })));
+const MotionPreview = import.meta.env.DEV
+  ? lazy(() => import('./MotionPreview').then((module) => ({ default: module.MotionPreview })))
+  : null;
 
 function StartupScreen({ failed = false }: { failed?: boolean }) {
   return (
@@ -42,10 +46,18 @@ class StartupBoundary extends Component<PropsWithChildren, { failed: boolean }> 
 }
 
 export function Startup() {
+  const preview =
+    MotionPreview &&
+    typeof window !== 'undefined' &&
+    motionPreviewRequested(window.location.search, import.meta.env.DEV);
   return (
     <StartupBoundary>
       <Suspense fallback={<StartupScreen />}>
-        <GameApp />
+        {preview && MotionPreview ? (
+          <MotionPreview pathname={window.location.pathname} />
+        ) : (
+          <GameApp />
+        )}
       </Suspense>
     </StartupBoundary>
   );

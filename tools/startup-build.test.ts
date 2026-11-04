@@ -20,6 +20,11 @@ describe.runIf(process.env.CHECK_STARTUP_BUILD === '1')('生产包启动依赖�
     const game = manifest['src/ui/App.tsx'];
     expect(entry.isEntry).toBe(true);
     expect(game.isDynamicEntry).toBe(true);
+    expect(
+      Object.keys(manifest).some((key) =>
+        /MotionPreview|mouse-preview-clock|motion-preview/.test(key),
+      ),
+    ).toBe(false);
     expect(entry.dynamicImports).toContain('src/ui/App.tsx');
 
     function staticDependencies(key: string, visited = new Set<string>()): Set<string> {
@@ -43,6 +48,7 @@ describe.runIf(process.env.CHECK_STARTUP_BUILD === '1')('生产包启动依赖�
       .map((chunk) => readFileSync(resolve('dist', chunk.file), 'utf8'))
       .join('\n');
     expect(scripts).not.toMatch(/ranged8|本标签页最近战果|减远程后获益|20270105|20270115|20270112/);
+    expect(scripts).not.toMatch(/mouse-motion|角色动作预览|烬灵鼠动作预览|动作画布初始化失败/);
     expect(
       scripts.match(
         /仅开发版 · 独立场景|选择试玩场景|进入所选试玩|首战 · 从零布阵|八灵 · 技能验收|返回正式战役|不会把试玩阵容带入正式战役/,

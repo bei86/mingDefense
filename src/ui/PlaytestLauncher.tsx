@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Phase } from '../game/session';
 import { playtestScenes, playtestUrl } from './playtest-scenes';
+import { motionPreviewUrl } from './motion-preview-route';
 import './playtest-launcher.css';
 
 type Props = {
@@ -71,6 +72,13 @@ export function PlaytestLauncher({ pathname, phase, isolated, onClose, onNavigat
           }}
         >
           进入所选试玩
+        </button>
+        <button
+          className="secondary"
+          aria-describedby="playtest-leave"
+          onClick={() => onNavigate(motionPreviewUrl(pathname))}
+        >
+          角色动作预览
         </button>
         {isolated && (
           <>
