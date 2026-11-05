@@ -11,6 +11,7 @@ import {
 import { unitAt, type Source, type Session } from '../game/session';
 import type { BrowserLoadResult } from './useSessionStorage';
 import { RangedPlaytestPanel } from './RangedPlaytest';
+import { MouseCombatPlaytest } from './MouseCombatPlaytest';
 import { GameClock } from '../game/clock';
 import { startGameLoop } from './game-loop';
 import { Battlefield } from '../render/Battlefield';
@@ -80,6 +81,10 @@ function GameApp({
 }) {
   const session = boot.session;
   const trial = import.meta.env.DEV ? boot.rangedPlaytest : undefined;
+  const mouseTrial = import.meta.env.DEV && boot.mouseCombatPlaytest === true;
+  let trialResetLabel: string | undefined;
+  if (trial) trialResetLabel = '重置本方案';
+  if (mouseTrial) trialResetLabel = '重置动作样板';
   const [clock] = useState(() => new GameClock(session));
   const [feedback] = useState(() => new CombatFeedback());
   const [fieldReady, setFieldReady] = useState(false);
@@ -112,6 +117,7 @@ function GameApp({
   const [hover, setHover] = useState<Point | null>(null);
   const [dragOffset, setDragOffset] = useState<Point | null>(null);
   const [message, setMessage] = useState(() => {
+    if (mouseTrial) return '双鼠样板已备好，点击开始守卫查看真实动作衔接。';
     if (trial) return '固定开局已备好，可直接守阵或调整阵容。';
     if (boot.recovered) return '进度已恢复，可继续调整阵容。';
     return '免费招募已备好，先选灵兽，再点亮起的空格。';
@@ -380,18 +386,22 @@ function GameApp({
   };
   const reset = () => {
     pauseForMenu();
+    let body = '清空本轮阵容、修行和灵钱，回到第 1 关。';
+    if (trial) body = '丢弃本次试玩进度，恢复当前案例的第8关原始开局。';
+    if (mouseTrial) body = '丢弃本次试玩进度，恢复第1关的固定双鼠阵容。';
     setDialog({
-      title: trial ? '重置本方案' : '重新开始五十关挑战',
-      body: trial
-        ? '丢弃本次试玩进度，恢复当前案例的第8关原始开局。'
-        : '清空本轮阵容、修行和灵钱，回到第 1 关。',
+      title: trialResetLabel ?? '重新开始五十关挑战',
+      body,
       label: '重新开始',
       action: () => {
         session.reset();
         setLastDefeat(null);
         clock.reset();
         setSelected(null);
-        setMessage(trial ? '第8关原始开局已恢复。' : '新一轮免费招募已备好。');
+        let resetMessage = '新一轮免费招募已备好。';
+        if (trial) resetMessage = '第8关原始开局已恢复。';
+        if (mouseTrial) resetMessage = '双鼠动作样板已恢复。';
+        setMessage(resetMessage);
         repaint();
       },
     });
@@ -533,6 +543,10 @@ function GameApp({
         trial &&
         session.phase !== 'victory' &&
         session.phase !== 'defeat' && <RangedPlaytestPanel trial={trial} />}
+      {import.meta.env.DEV &&
+        mouseTrial &&
+        session.phase !== 'victory' &&
+        session.phase !== 'defeat' && <MouseCombatPlaytest pathname={window.location.pathname} />}
       {preparing && (
         <section className="stage-strip">
           <div>
@@ -727,7 +741,12 @@ function GameApp({
           isolated={boot.isolated ?? false}
           reportStorage={reportStorage}
           trialActions={
-            import.meta.env.DEV && trial ? <RangedPlaytestPanel trial={trial} /> : undefined
+            import.meta.env.DEV && (trial || mouseTrial) ? (
+              <>
+                {trial && <RangedPlaytestPanel trial={trial} />}
+                {mouseTrial && <MouseCombatPlaytest pathname={window.location.pathname} result />}
+              </>
+            ) : undefined
           }
           onReports={() => setReports(true)}
           onBuffs={() => setJournal(true)}
@@ -770,7 +789,7 @@ function GameApp({
         !playtests &&
         !saves && (
           <PauseMenu
-            resetLabel={trial ? '重置本方案' : undefined}
+            resetLabel={trialResetLabel}
             session={session}
             soundControl={soundControl}
             onResume={resume}

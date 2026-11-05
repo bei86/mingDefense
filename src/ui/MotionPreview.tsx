@@ -167,6 +167,7 @@ export function MotionPreview({ pathname }: { pathname: string }) {
         </p>
       </section>
       <nav aria-label="离开动作预览">
+        <a href={playtestUrl('mouse-combat', false, pathname)!}>进入烬灵鼠实战对照</a>
         <a href={playtestUrl('roster', false, pathname)!}>进入八灵实战对照</a>
         <a href={pathname}>返回正式战役</a>
       </nav>

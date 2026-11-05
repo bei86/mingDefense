@@ -12,6 +12,12 @@ export const playtestScenes = [
     description: '人工固定八灵阵容，用于查看技能与占格；不代表正常经济路线。',
   },
   {
+    id: 'mouse-combat',
+    label: '烬灵鼠 · 实战动作',
+    stage: 1,
+    description: '人工双鼠阵容，对照真实攻击、受击和倒下；仅试玩第1关，不代表经济路线。',
+  },
+  {
     id: 'ranged8',
     label: '第8关 · 远程对照',
     stage: 8,

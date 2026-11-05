@@ -1,0 +1,34 @@
+.mouse-combat-playtest {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.mouse-combat-playtest summary {
+  min-height: 32px;
+  color: var(--gold);
+  cursor: pointer;
+}
+.mouse-combat-playtest p {
+  margin: 8px 0;
+}
+.mouse-combat-playtest nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.mouse-combat-playtest a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--gold);
+}
+.mouse-combat-playtest a:focus-visible,
+.mouse-combat-playtest summary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}

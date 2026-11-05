@@ -31,5 +31,6 @@ test('控件标注完整，默认待机加载中，返回链接保留部署路�
   expect(html).toContain('min="0" max="3"');
   expect(html).toContain('aria-valuetext="第1帧，共4帧"');
   expect(html).toContain('href="/game/?playtest=roster"');
+  expect(html).toContain('href="/game/?playtest=mouse-combat"');
   expect(html).toContain('href="/game/"');
 });

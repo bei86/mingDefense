@@ -24,7 +24,8 @@ test('入口默认首战和诊断开启，提供场景来源与离开提示，�
   expect(html).toContain('role="dialog"');
   expect(html).toContain('aria-modal="true"');
   expect(html).toContain('<option value="onboarding" selected="">');
-  expect(html.match(/<option /g)).toHaveLength(5);
+  expect(html.match(/<option /g)).toHaveLength(6);
+  expect(html).toContain('烬灵鼠 · 实战动作');
   expect(html).toContain('checked=""');
   expect(html).toContain('开启性能诊断');
   expect(html).toContain('独立新局');

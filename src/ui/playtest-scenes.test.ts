@@ -6,7 +6,7 @@ import { Session } from '../game/session';
 
 afterEach(() => vi.unstubAllGlobals());
 
-test.each(['onboarding', 'roster', 'ranged8', 'calibration40', 'stage50'])(
+test.each(['onboarding', 'roster', 'mouse-combat', 'ranged8', 'calibration40', 'stage50'])(
   '%s目录目标实际加载隔离开局，不触及正式存储',
   (id) => {
     const entry = playtestScenes.find((scene) => scene.id === id)!;
@@ -24,11 +24,15 @@ test.each(['onboarding', 'roster', 'ranged8', 'calibration40', 'stage50'])(
     if (id === 'ranged8')
       expect(loaded.rangedPlaytest).toMatchObject({ caseId: 'relief', variant: 'baseline' });
     if (id === 'roster') expect(loaded.session.preparation.units).toHaveLength(8);
+    if (id === 'mouse-combat') {
+      expect(loaded.mouseCombatPlaytest).toBe(true);
+      expect(loaded.session.preparation.units).toHaveLength(2);
+    }
   },
 );
 
 test('白名单拒绝未知目标或查询注入，不导航到正式档', () => {
-  expect(new Set(playtestScenes.map((scene) => scene.id)).size).toBe(5);
+  expect(new Set(playtestScenes.map((scene) => scene.id)).size).toBe(6);
   for (const id of ['', 'stage999', 'ranged8&case=setback', '../', 'toString'])
     expect(playtestUrl(id, true, '/')).toBeNull();
 });

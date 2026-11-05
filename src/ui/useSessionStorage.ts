@@ -14,6 +14,7 @@ import {
 import { Session } from '../game/session';
 import bossCheckpoint from '../game/fixtures/boss-checkpoint.json';
 import { approachPlaytest, rosterPlaytest } from '../game/fixtures/roster-playtest';
+import { mouseCombatPlaytest } from '../game/fixtures/mouse-combat-playtest';
 import stage6Checkpoint from '../game/fixtures/stage-6-checkpoint.json';
 import stage10Checkpoint from '../game/fixtures/stage-10-checkpoint.json';
 import stage8Checkpoint from '../game/fixtures/stage-8-checkpoint.json';
@@ -45,7 +46,10 @@ export const browserStorage: StoragePort = {
   removeItem: (key) => window.localStorage.removeItem(key),
 };
 let initialLoad: ReturnType<typeof loadSession> | null = null;
-export type BrowserLoadResult = LoadResult & { rangedPlaytest?: RangedPlaytest };
+export type BrowserLoadResult = LoadResult & {
+  rangedPlaytest?: RangedPlaytest;
+  mouseCombatPlaytest?: boolean;
+};
 export function loadBrowserSession(): BrowserLoadResult {
   const playtest = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get('playtest')
@@ -61,6 +65,15 @@ export function loadBrowserSession(): BrowserLoadResult {
       isolated: true,
     };
   }
+  if (import.meta.env.DEV && playtest === 'mouse-combat')
+    return {
+      session: mouseCombatPlaytest(),
+      mouseCombatPlaytest: true,
+      message: '烬灵鼠动作实战：人工双鼠阵容，不读取或写入正式存档，刷新恢复样板。',
+      recovered: false,
+      blocked: true,
+      isolated: true,
+    };
   if (playtest === 'onboarding')
     return {
       session: new Session(),
