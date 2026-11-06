@@ -55,4 +55,4 @@ D:\workSpace\ming\mingDefense\docs\img\animations\boar\attack-sheet-raw.png
 
 ## 本轮状态
 
-参考图与离线切帧工具已备好。岩甲豚攻击帧图**尚未生成、尚未接入**，游戏中暂时继续使用原有岩甲豚立绘。
+2026-11-06已收到六帧攻击原图并接入，提交为382a073。本文保留原攻击提示词，不用重复生成。后续待机、受击与重伤请使用[三组新提示词](2026-11-06-boar-remaining-animation-prompts-copy-ready.md)与当前攻击首帧导出的`motion-reference-canvas.png`，不要继续混用旧静态参考。

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type Phaser from 'phaser';
 import { ArtLayer } from './ArtLayer';
-import { boarAttackArt, mouseAttackArt, mouseMotionArt } from './character-art';
+import { boarAttackArt, boarMotionArt, mouseAttackArt, mouseMotionArt } from './character-art';
 
 describe('图片池回收与方向隔离', () => {
   it('下一帧复用图片时重置角度、透明度和色调；缺纹理不创建对象，多余对象隐藏', () => {
@@ -42,6 +42,12 @@ describe('图片池回收与方向隔离', () => {
     layer.draw(boarAttackArt.key, 10, 20, 94, 36, 2, 1, 0xffffff, 0, 3);
     layer.end();
     expect(image.setTexture).toHaveBeenLastCalledWith(boarAttackArt.key, 3);
+    expect(image.setOrigin).toHaveBeenLastCalledWith(193 / 384, 147 / 288);
+    expect(image.setScale).toHaveBeenLastCalledWith(36 / 218);
+    layer.begin();
+    layer.draw(boarMotionArt.fallen.key, 10, 20, 94, 36, 2, 0.28, 0xffffff, 0, 4);
+    layer.end();
+    expect(image.setTexture).toHaveBeenLastCalledWith(boarMotionArt.fallen.key, 4);
     expect(image.setOrigin).toHaveBeenLastCalledWith(193 / 384, 147 / 288);
     expect(image.setScale).toHaveBeenLastCalledWith(36 / 218);
     layer.begin();

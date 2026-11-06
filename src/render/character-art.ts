@@ -1,4 +1,4 @@
-import type { MouseMotion } from '../presentation/mouse-motion';
+import type { CharacterMotion } from '../presentation/character-motion';
 
 /** Separate from the static-art converter: every frame keeps its shared canvas and anchor. */
 export const mouseAttackArt = {
@@ -54,7 +54,30 @@ export const boarAttackArt = {
   originY: 147 / 288,
 } as const;
 
-export const characterAnimations = [...mouseAnimations, boarAttackArt];
+export const boarMotionArt = {
+  attack: boarAttackArt,
+  idle: {
+    ...boarAttackArt,
+    key: 'boar_idle_motion',
+    file: 'assets/animations/boar/idle.webp',
+    frames: 4,
+  },
+  hurt: {
+    ...boarAttackArt,
+    key: 'boar_hurt',
+    file: 'assets/animations/boar/hurt.webp',
+    frames: 3,
+  },
+  fallen: {
+    ...boarAttackArt,
+    key: 'boar_fallen',
+    file: 'assets/animations/boar/fallen.webp',
+    frames: 5,
+  },
+} as const;
+
+export const boarAnimations = Object.values(boarMotionArt);
+export const characterAnimations = [...mouseAnimations, ...boarAnimations];
 export type CharacterArtKey = (typeof characterAnimations)[number]['key'];
 
 export function characterAnimationUrl(file: string): string {
@@ -65,16 +88,23 @@ export function mouseAnimationUrl(file: string): string {
   return characterAnimationUrl(file);
 }
 
-/** First pose remains the resting image, so attacks never jump between different drawings. */
-export function resolveBoarArt(frame: number, exists: (key: string) => boolean) {
-  return exists(boarAttackArt.key) ? { key: boarAttackArt.key, frame } : null;
+export function resolveBoarArt(motion: CharacterMotion, exists: (key: string) => boolean) {
+  return resolveMotionArt(motion, boarMotionArt, exists);
 }
 
 /** Missing one strip must not hide the unit or disable the other available motions. */
-export function resolveMouseArt(motion: MouseMotion, exists: (key: string) => boolean) {
-  const desired = mouseMotionArt[motion.action];
+export function resolveMouseArt(motion: CharacterMotion, exists: (key: string) => boolean) {
+  return resolveMotionArt(motion, mouseMotionArt, exists);
+}
+
+function resolveMotionArt<K extends string>(
+  motion: CharacterMotion,
+  art: Record<CharacterMotion['action'], { key: K }>,
+  exists: (key: string) => boolean,
+) {
+  const desired = art[motion.action];
   if (exists(desired.key)) return { key: desired.key, frame: motion.frame };
-  for (const fallback of [mouseAttackArt, mouseMotionArt.idle])
+  for (const fallback of [art.attack, art.idle])
     if (exists(fallback.key)) return { key: fallback.key, frame: 0 };
   return null;
 }

@@ -4,7 +4,7 @@ import type { Session } from '../game/session';
 import { CombatNumbers } from './combat-numbers';
 import { AttackFrames } from './attack-frames';
 import { MouseAttackFrames } from './mouse-attack-frames';
-import { selectMouseMotion, type MouseMotion } from './mouse-motion';
+import { selectCharacterMotion, type CharacterMotion } from './character-motion';
 import { combatSound, type SoundCue } from './sound-cues';
 
 export type { SoundCue } from './sound-cues';
@@ -209,16 +209,28 @@ export class CombatFeedback {
     return this.boarFrames.frame(id, reducedMotion);
   }
 
-  mouseMotion(id: number, reducedMotion = false): MouseMotion {
+  mouseMotion(id: number, reducedMotion = false): CharacterMotion {
+    return this.characterMotion(this.mouseFrames, id, reducedMotion);
+  }
+
+  boarMotion(id: number, reducedMotion = false): CharacterMotion {
+    return this.characterMotion(this.boarFrames, id, reducedMotion);
+  }
+
+  private characterMotion(
+    frames: AttackFrames,
+    id: number,
+    reducedMotion: boolean,
+  ): CharacterMotion {
     const actor = this.actors.get(`ally:${id}`);
-    return selectMouseMotion({
+    return selectCharacterMotion({
       time: this.time,
       dead: actor !== undefined && actor.hp <= 0,
       hitAt: actor?.hitAt ?? -Infinity,
       // Settled battles freeze the clock. Show the stable fallen pose immediately.
       deadAt: this.battle?.result ? -Infinity : (actor?.deadAt ?? -Infinity),
-      attacking: this.mouseFrames.active(id),
-      attackFrame: this.mouseFrames.frame(id),
+      attacking: frames.active(id),
+      attackFrame: frames.frame(id),
       reducedMotion,
     });
   }

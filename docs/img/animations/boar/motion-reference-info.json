@@ -1,0 +1,28 @@
+{
+  "source": "public/assets/animations/boar/attack.webp",
+  "sourceSha256": "bf234ab2ca67c91d8c195ce91b5382638476e1fae222ccd2ff06c844a740d28c",
+  "sourceFrame": 0,
+  "sourceRegion": [
+    0,
+    0,
+    384,
+    288
+  ],
+  "referenceSize": [
+    384,
+    288
+  ],
+  "referenceSha256": "e9f1c7394ac9624e70696dcb1c59f31c9ede5bd1a9eaf6392ad2cabdc87ce5b9",
+  "canvasSize": [
+    512,
+    512
+  ],
+  "canvasOffset": [
+    64,
+    112
+  ],
+  "canvasSha256": "dcdee4f781882a16c5512e7754a8208059f2b6328dab9036820aa6a5e5c547cc",
+  "canvasFootY": 368,
+  "derivedFromExistingAnimation": true,
+  "newAnimationGenerated": false
+}

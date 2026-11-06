@@ -515,7 +515,7 @@ export function Battlefield({
           if (u.kind === 'ember_mouse')
             motionArt = resolveMouseArt(feedback.mouseMotion(u.id, reducedMotion), hasTexture);
           else if (u.kind === 'boar')
-            motionArt = resolveBoarArt(feedback.boarFrame(u.id, reducedMotion), hasTexture);
+            motionArt = resolveBoarArt(feedback.boarMotion(u.id, reducedMotion), hasTexture);
           const animated =
             motionArt !== null &&
             this.art.draw(
