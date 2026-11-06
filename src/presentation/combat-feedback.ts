@@ -2,6 +2,7 @@ import { bossDefinition, bossName, center, type EnemyKind, type Point } from '..
 import type { Combat, Flash, Warning } from '../game/combat-model';
 import type { Session } from '../game/session';
 import { CombatNumbers } from './combat-numbers';
+import { AttackFrames } from './attack-frames';
 import { MouseAttackFrames } from './mouse-attack-frames';
 import { selectMouseMotion, type MouseMotion } from './mouse-motion';
 import { combatSound, type SoundCue } from './sound-cues';
@@ -42,6 +43,7 @@ export class CombatFeedback {
   time = 0;
   readonly numbers = new CombatNumbers();
   private readonly mouseFrames = new MouseAttackFrames();
+  private readonly boarFrames = new AttackFrames('boar');
   notice: CombatNotice | null = null;
   ghosts: Ghost[] = [];
   private battle: Combat | null | undefined;
@@ -63,6 +65,7 @@ export class CombatFeedback {
     this.numbers.update(session, this.time, visible && numbersEnabled);
     const battle = session.battle;
     this.mouseFrames.update(session.phase === 'prepare' ? null : battle);
+    this.boarFrames.update(session.phase === 'prepare' ? null : battle);
     const fresh = this.battle !== battle || (battle !== null && battle.time < this.battleTime);
     const starting = fresh && this.phase === 'prepare' && session.phase === 'combat';
     const cues = new Set<SoundCue>();
@@ -200,6 +203,10 @@ export class CombatFeedback {
 
   mouseFrame(id: number, reducedMotion = false): number {
     return this.mouseFrames.frame(id, reducedMotion);
+  }
+
+  boarFrame(id: number, reducedMotion = false): number {
+    return this.boarFrames.frame(id, reducedMotion);
   }
 
   mouseMotion(id: number, reducedMotion = false): MouseMotion {

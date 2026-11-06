@@ -1,6 +1,6 @@
 import type Phaser from 'phaser';
 import { artManifest, type ArtKey } from './art';
-import { mouseAnimations, type MouseArtKey } from './character-art';
+import { characterAnimations, type CharacterArtKey } from './character-art';
 
 /** View-only image pool. Simulation state never stores renderer objects. */
 export class ArtLayer {
@@ -18,7 +18,7 @@ export class ArtLayer {
   }
 
   draw(
-    key: ArtKey | MouseArtKey | undefined,
+    key: ArtKey | CharacterArtKey | undefined,
     x: number,
     y: number,
     width: number,
@@ -32,7 +32,7 @@ export class ArtLayer {
     if (!key || !this.scene.textures.exists(key)) return false;
     const image = this.images[this.used] ?? this.scene.add.image(0, 0, key);
     this.images[this.used++] = image;
-    const animated = mouseAnimations.find((art) => art.key === key);
+    const animated = characterAnimations.find((art) => art.key === key);
     const source = animated ?? artManifest[key as ArtKey];
     const scale = Math.min(width / source.width, height / source.height);
     image

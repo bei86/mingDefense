@@ -3,5 +3,6 @@ dist/
 .npm-cache/
 artifacts/
 *.tsbuildinfo
+__pycache__/
 .idea
 scripts

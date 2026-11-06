@@ -41,8 +41,33 @@ export const mouseMotionArt = {
 export const mouseAnimations = Object.values(mouseMotionArt);
 export type MouseArtKey = (typeof mouseAnimations)[number]['key'];
 
-export function mouseAnimationUrl(file: string): string {
+export const boarAttackArt = {
+  key: 'boar_attack',
+  file: 'assets/animations/boar/attack.webp',
+  frameWidth: 384,
+  frameHeight: 288,
+  frames: 6,
+  // Fixed first-pose body size and center; every foot stays at canvas y=256.
+  width: 308,
+  height: 218,
+  originX: 193 / 384,
+  originY: 147 / 288,
+} as const;
+
+export const characterAnimations = [...mouseAnimations, boarAttackArt];
+export type CharacterArtKey = (typeof characterAnimations)[number]['key'];
+
+export function characterAnimationUrl(file: string): string {
   return `${import.meta.env.BASE_URL}${file}`;
+}
+
+export function mouseAnimationUrl(file: string): string {
+  return characterAnimationUrl(file);
+}
+
+/** First pose remains the resting image, so attacks never jump between different drawings. */
+export function resolveBoarArt(frame: number, exists: (key: string) => boolean) {
+  return exists(boarAttackArt.key) ? { key: boarAttackArt.key, frame } : null;
 }
 
 /** Missing one strip must not hide the unit or disable the other available motions. */

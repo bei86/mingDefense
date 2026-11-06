@@ -1,0 +1,195 @@
+{
+  "sourceSha256": "b27fc0ec5945a89f9524f82b2d25ea8717e4050c254788a7a91be54548c8960e",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "grid": [
+    3,
+    2
+  ],
+  "frameCount": 6,
+  "frameSize": [
+    384,
+    288
+  ],
+  "sharedScale": 0.625,
+  "sharedOffsetX": 32,
+  "targetFootY": 256,
+  "referenceBodySize": [
+    308,
+    218
+  ],
+  "originPixels": [
+    193.0,
+    147.0
+  ],
+  "visibleAlphaThreshold": 8,
+  "footAlphaThreshold": 96,
+  "frames": [
+    {
+      "frame": 1,
+      "sourceRegion": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "sourceBounds": [
+        12,
+        75,
+        504,
+        424
+      ],
+      "sourceFootY": 423,
+      "offset": [
+        32,
+        -9
+      ],
+      "outputBounds": [
+        39,
+        38,
+        347,
+        256
+      ],
+      "outputFootY": 256
+    },
+    {
+      "frame": 2,
+      "sourceRegion": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "sourceBounds": [
+        21,
+        86,
+        496,
+        422
+      ],
+      "sourceFootY": 422,
+      "offset": [
+        32,
+        -7
+      ],
+      "outputBounds": [
+        45,
+        47,
+        342,
+        257
+      ],
+      "outputFootY": 256
+    },
+    {
+      "frame": 3,
+      "sourceRegion": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "sourceBounds": [
+        25,
+        96,
+        503,
+        423
+      ],
+      "sourceFootY": 422,
+      "offset": [
+        32,
+        -8
+      ],
+      "outputBounds": [
+        47,
+        52,
+        346,
+        257
+      ],
+      "outputFootY": 256
+    },
+    {
+      "frame": 4,
+      "sourceRegion": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "sourceBounds": [
+        8,
+        85,
+        499,
+        407
+      ],
+      "sourceFootY": 406,
+      "offset": [
+        32,
+        2
+      ],
+      "outputBounds": [
+        37,
+        55,
+        344,
+        256
+      ],
+      "outputFootY": 256
+    },
+    {
+      "frame": 5,
+      "sourceRegion": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "sourceBounds": [
+        29,
+        83,
+        499,
+        413
+      ],
+      "sourceFootY": 412,
+      "offset": [
+        32,
+        -1
+      ],
+      "outputBounds": [
+        50,
+        51,
+        344,
+        257
+      ],
+      "outputFootY": 256
+    },
+    {
+      "frame": 6,
+      "sourceRegion": [
+        1024,
+        512,
+        1536,
+        1024
+      ],
+      "sourceBounds": [
+        25,
+        93,
+        503,
+        416
+      ],
+      "sourceFootY": 416,
+      "offset": [
+        32,
+        -4
+      ],
+      "outputBounds": [
+        47,
+        54,
+        346,
+        256
+      ],
+      "outputFootY": 256
+    }
+  ],
+  "outputSha256": "bf234ab2ca67c91d8c195ce91b5382638476e1fae222ccd2ff06c844a740d28c",
+  "published": true
+}

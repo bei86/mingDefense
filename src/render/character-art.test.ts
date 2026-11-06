@@ -1,5 +1,12 @@
 import { expect, test } from 'vitest';
-import { mouseAnimations, mouseMotionArt, resolveMouseArt } from './character-art';
+import {
+  boarAttackArt,
+  characterAnimations,
+  mouseAnimations,
+  mouseMotionArt,
+  resolveBoarArt,
+  resolveMouseArt,
+} from './character-art';
 
 test('动作纹理独立降级，缺某张仍显示其他可用动作，全部缺失交回旧静态图', () => {
   for (const [action, art] of Object.entries(mouseMotionArt)) {
@@ -15,4 +22,15 @@ test('动作纹理独立降级，缺某张仍显示其他可用动作，全部�
   ).toEqual({ key: mouseMotionArt.idle.key, frame: 0 });
   expect(resolveMouseArt({ action: 'hurt', frame: 2 }, () => false)).toBeNull();
   expect(new Set(mouseAnimations.map((art) => art.key)).size).toBe(4);
+});
+
+test('岩甲豚使用独立动作纹理，缺失时交回原静态图；公共清单无重名', () => {
+  for (let frame = 0; frame < 6; frame++)
+    expect(resolveBoarArt(frame, (key) => key === boarAttackArt.key)).toEqual({
+      key: boarAttackArt.key,
+      frame,
+    });
+  expect(resolveBoarArt(3, () => false)).toBeNull();
+  expect(characterAnimations).toHaveLength(5);
+  expect(new Set(characterAnimations.map((art) => art.key)).size).toBe(characterAnimations.length);
 });

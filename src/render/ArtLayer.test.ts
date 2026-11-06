@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type Phaser from 'phaser';
 import { ArtLayer } from './ArtLayer';
-import { mouseAttackArt, mouseMotionArt } from './character-art';
+import { boarAttackArt, mouseAttackArt, mouseMotionArt } from './character-art';
 
 describe('图片池回收与方向隔离', () => {
   it('下一帧复用图片时重置角度、透明度和色调；缺纹理不创建对象，多余对象隐藏', () => {
@@ -39,6 +39,12 @@ describe('图片池回收与方向隔离', () => {
     expect(image.setOrigin).toHaveBeenLastCalledWith(168 / 256, 131 / 256);
     expect(image.setScale).toHaveBeenLastCalledWith(36 / 216);
     layer.begin();
+    layer.draw(boarAttackArt.key, 10, 20, 94, 36, 2, 1, 0xffffff, 0, 3);
+    layer.end();
+    expect(image.setTexture).toHaveBeenLastCalledWith(boarAttackArt.key, 3);
+    expect(image.setOrigin).toHaveBeenLastCalledWith(193 / 384, 147 / 288);
+    expect(image.setScale).toHaveBeenLastCalledWith(36 / 218);
+    layer.begin();
     layer.draw('boss_35_idle', 1, 2, 80, 88, 4);
     layer.end();
     expect(scene.add.image).toHaveBeenCalledTimes(1);
@@ -51,6 +57,7 @@ describe('图片池回收与方向隔离', () => {
     scene.textures.exists.mockReturnValue(false);
     expect(layer.draw('fx_fist', 0, 0, 20, 20, 8)).toBe(false);
     expect(layer.draw(mouseAttackArt.key, 0, 0, 42, 36, 2)).toBe(false);
+    expect(layer.draw(boarAttackArt.key, 0, 0, 94, 36, 2)).toBe(false);
     layer.end();
     expect(image.setVisible).toHaveBeenLastCalledWith(false);
     expect(layer.stats).toEqual({ active: 0, pooled: 1 });

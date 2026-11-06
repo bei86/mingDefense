@@ -1,0 +1,17 @@
+{
+  "source": "public/assets/art/boar_idle.webp",
+  "sourceSha256": "baebe0d23333984fe29c41cb4a9a5c3c63e3c0bb6adc6ad4c458c4f0d34dd1a5",
+  "referenceSize": [
+    384,
+    273
+  ],
+  "canvasSize": [
+    768,
+    512
+  ],
+  "canvasOffset": [
+    192,
+    119
+  ],
+  "generatedAnimation": false
+}

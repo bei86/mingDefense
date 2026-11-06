@@ -16,7 +16,12 @@ import { expansionError, placementError, unitAt, type Session, type Source } fro
 import { boardDrop } from '../ui/board-drop';
 import { artUrl, battlefieldArt, bossArtKey, enemyArt, heroArt } from './art';
 import { ArtLayer } from './ArtLayer';
-import { mouseAnimations, mouseAnimationUrl, resolveMouseArt } from './character-art';
+import {
+  characterAnimations,
+  characterAnimationUrl,
+  resolveBoarArt,
+  resolveMouseArt,
+} from './character-art';
 import { drawBossPhaseMarker } from './boss-phase-marker';
 import {
   performanceContext,
@@ -36,7 +41,7 @@ import { RendererRecovery, type RendererRecoveryState } from './renderer-recover
 import { displayEffects, type DisplayOptions } from '../presentation/display-options';
 
 const SIZE = 52;
-const battlefieldImageCount = battlefieldArt.length + mouseAnimations.length;
+const battlefieldImageCount = battlefieldArt.length + characterAnimations.length;
 const ORIGIN = { x: 24, y: 74 };
 const pixel = (p: Point) => ({ x: ORIGIN.x + p.x * SIZE, y: ORIGIN.y + p.y * SIZE });
 const enemyColors: Record<EnemyKind, number> = {
@@ -260,10 +265,10 @@ export function Battlefield({
         });
         for (const key of battlefieldArt)
           this.load.image(key, artUrl(key), { responseType: 'blob', timeout: 8000 });
-        for (const art of mouseAnimations)
+        for (const art of characterAnimations)
           this.load.spritesheet(
             art.key,
-            mouseAnimationUrl(art.file),
+            characterAnimationUrl(art.file),
             {
               frameWidth: art.frameWidth,
               frameHeight: art.frameHeight,
@@ -279,7 +284,7 @@ export function Battlefield({
         this.numbers = new CombatNumberLayer(this);
         failed =
           battlefieldArt.filter((key) => !this.textures.exists(key)).length +
-          mouseAnimations.filter((art) => !this.textures.exists(art.key)).length;
+          characterAnimations.filter((art) => !this.textures.exists(art.key)).length;
         recovery.created();
       }
       private finishFrame(started: number) {
@@ -505,12 +510,12 @@ export function Battlefield({
           const bottom = ORIGIN.y + (Math.max(...shape.map((c) => c.y)) + 1) * SIZE;
           const width = (Math.max(...shape.map((c) => c.x)) - u.position.x + 1) * SIZE;
           const height = bottom - top;
-          const motionArt =
-            u.kind === 'ember_mouse'
-              ? resolveMouseArt(feedback.mouseMotion(u.id, reducedMotion), (key) =>
-                  this.textures.exists(key),
-                )
-              : null;
+          const hasTexture = (key: string) => this.textures.exists(key);
+          let motionArt = null;
+          if (u.kind === 'ember_mouse')
+            motionArt = resolveMouseArt(feedback.mouseMotion(u.id, reducedMotion), hasTexture);
+          else if (u.kind === 'boar')
+            motionArt = resolveBoarArt(feedback.boarFrame(u.id, reducedMotion), hasTexture);
           const animated =
             motionArt !== null &&
             this.art.draw(
