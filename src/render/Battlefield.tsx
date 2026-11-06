@@ -21,6 +21,7 @@ import {
   characterAnimationUrl,
   resolveBoarArt,
   resolveMouseArt,
+  resolveSwordEagleArt,
 } from './character-art';
 import { drawBossPhaseMarker } from './boss-phase-marker';
 import {
@@ -516,6 +517,11 @@ export function Battlefield({
             motionArt = resolveMouseArt(feedback.mouseMotion(u.id, reducedMotion), hasTexture);
           else if (u.kind === 'boar')
             motionArt = resolveBoarArt(feedback.boarMotion(u.id, reducedMotion), hasTexture);
+          else if (u.kind === 'sword_eagle')
+            motionArt = resolveSwordEagleArt(
+              feedback.swordEagleMotion(u.id, reducedMotion),
+              hasTexture,
+            );
           const animated =
             motionArt !== null &&
             this.art.draw(

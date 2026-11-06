@@ -1,0 +1,35 @@
+{
+  "source": "public/assets/animations/sword_eagle/attack.webp",
+  "sourceSha256": "01c36818072c9df2e84096c0d7036b7e0403cc9246408f35c846f352bfbd631f",
+  "sourceFrame": 0,
+  "sourceRegion": [
+    0,
+    0,
+    448,
+    352
+  ],
+  "referenceSize": [
+    448,
+    352
+  ],
+  "referenceSha256": "3dfd157fc7ca61e37ee623982dc9d9e16807cd56dcbaaf14fcc906b1b36d51c4",
+  "canvasSize": [
+    512,
+    512
+  ],
+  "canvasOffset": [
+    32,
+    80
+  ],
+  "canvasSha256": "1f52b27e307205759db58109d2081cba250cc1ecccaa27f0e252a0403ac3ce94",
+  "canvasBodyAnchor": [
+    272,
+    304
+  ],
+  "canvasRenderOrigin": [
+    272,
+    260
+  ],
+  "derivedFromExistingAnimation": true,
+  "newAnimationGenerated": false
+}

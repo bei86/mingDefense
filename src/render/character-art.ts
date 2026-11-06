@@ -77,7 +77,43 @@ export const boarMotionArt = {
 } as const;
 
 export const boarAnimations = Object.values(boarMotionArt);
-export const characterAnimations = [...mouseAnimations, ...boarAnimations];
+export const swordEagleAttackArt = {
+  key: 'sword_eagle_attack',
+  file: 'assets/animations/sword_eagle/attack.webp',
+  frameWidth: 448,
+  frameHeight: 352,
+  frames: 6,
+  // Shared envelope contains the widest wingbeat; breast anchor stays fixed at (240,224).
+  width: 348,
+  height: 258,
+  originX: 240 / 448,
+  originY: 180 / 352,
+} as const;
+
+export const swordEagleMotionArt = {
+  attack: swordEagleAttackArt,
+  idle: {
+    ...swordEagleAttackArt,
+    key: 'sword_eagle_idle_motion',
+    file: 'assets/animations/sword_eagle/idle.webp',
+    frames: 4,
+  },
+  hurt: {
+    ...swordEagleAttackArt,
+    key: 'sword_eagle_hurt',
+    file: 'assets/animations/sword_eagle/hurt.webp',
+    frames: 3,
+  },
+  fallen: {
+    ...swordEagleAttackArt,
+    key: 'sword_eagle_fallen',
+    file: 'assets/animations/sword_eagle/fallen.webp',
+    frames: 5,
+  },
+} as const;
+
+export const swordEagleAnimations = Object.values(swordEagleMotionArt);
+export const characterAnimations = [...mouseAnimations, ...boarAnimations, ...swordEagleAnimations];
 export type CharacterArtKey = (typeof characterAnimations)[number]['key'];
 
 export function characterAnimationUrl(file: string): string {
@@ -90,6 +126,10 @@ export function mouseAnimationUrl(file: string): string {
 
 export function resolveBoarArt(motion: CharacterMotion, exists: (key: string) => boolean) {
   return resolveMotionArt(motion, boarMotionArt, exists);
+}
+
+export function resolveSwordEagleArt(motion: CharacterMotion, exists: (key: string) => boolean) {
+  return resolveMotionArt(motion, swordEagleMotionArt, exists);
 }
 
 /** Missing one strip must not hide the unit or disable the other available motions. */

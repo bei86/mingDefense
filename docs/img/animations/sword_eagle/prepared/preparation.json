@@ -1,0 +1,239 @@
+{
+  "sourceSha256": "97d94e51145d9a62ad0f738a0e4dba9e4d7d448e92dbe2b26ef269413bb29cb2",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "frameCount": 6,
+  "frameSize": [
+    448,
+    352
+  ],
+  "sharedScale": 0.625,
+  "virtualSlotSize": [
+    640,
+    512
+  ],
+  "clearedAlphaMaximum": 8,
+  "referenceBodySize": [
+    348,
+    258
+  ],
+  "originPixels": [
+    240,
+    180
+  ],
+  "bodyAnchorPixels": [
+    240,
+    224
+  ],
+  "motionBounds": [
+    75,
+    51,
+    414,
+    309
+  ],
+  "anchorKind": "reviewed-breast-center",
+  "frames": [
+    {
+      "frame": 1,
+      "sourceRegion": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "sourceBounds": [
+        39,
+        36,
+        501,
+        447
+      ],
+      "bodyPointInNominalSlot": [
+        300,
+        312
+      ],
+      "offset": [
+        12,
+        29
+      ],
+      "alignedBodyPoint": [
+        239.5,
+        224.0
+      ],
+      "outputBounds": [
+        76,
+        52,
+        365,
+        308
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceRegion": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "sourceBounds": [
+        89,
+        36,
+        460,
+        447
+      ],
+      "bodyPointInNominalSlot": [
+        304,
+        313
+      ],
+      "offset": [
+        10,
+        28
+      ],
+      "alignedBodyPoint": [
+        240.0,
+        223.625
+      ],
+      "outputBounds": [
+        105,
+        51,
+        338,
+        307
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceRegion": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "sourceBounds": [
+        87,
+        37,
+        418,
+        447
+      ],
+      "bodyPointInNominalSlot": [
+        306,
+        313
+      ],
+      "offset": [
+        9,
+        28
+      ],
+      "alignedBodyPoint": [
+        240.25,
+        223.625
+      ],
+      "outputBounds": [
+        103,
+        51,
+        310,
+        308
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceRegion": [
+        0,
+        512,
+        567,
+        1024
+      ],
+      "sourceBounds": [
+        27,
+        33,
+        565,
+        445
+      ],
+      "bodyPointInNominalSlot": [
+        286,
+        309
+      ],
+      "offset": [
+        21,
+        31
+      ],
+      "alignedBodyPoint": [
+        239.75,
+        224.125
+      ],
+      "outputBounds": [
+        78,
+        51,
+        414,
+        309
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceRegion": [
+        567,
+        512,
+        1024,
+        1024
+      ],
+      "sourceBounds": [
+        1,
+        33,
+        424,
+        444
+      ],
+      "bodyPointInNominalSlot": [
+        303,
+        309
+      ],
+      "offset": [
+        11,
+        31
+      ],
+      "alignedBodyPoint": [
+        240.375,
+        224.125
+      ],
+      "outputBounds": [
+        86,
+        52,
+        350,
+        308
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceRegion": [
+        1024,
+        512,
+        1536,
+        1024
+      ],
+      "sourceBounds": [
+        44,
+        33,
+        485,
+        444
+      ],
+      "bodyPointInNominalSlot": [
+        307,
+        309
+      ],
+      "offset": [
+        8,
+        31
+      ],
+      "alignedBodyPoint": [
+        239.875,
+        224.125
+      ],
+      "outputBounds": [
+        75,
+        52,
+        351,
+        308
+      ]
+    }
+  ],
+  "outputSha256": "01c36818072c9df2e84096c0d7036b7e0403cc9246408f35c846f352bfbd631f",
+  "published": true
+}

@@ -44,6 +44,7 @@ export class CombatFeedback {
   readonly numbers = new CombatNumbers();
   private readonly mouseFrames = new MouseAttackFrames();
   private readonly boarFrames = new AttackFrames('boar');
+  private readonly swordEagleFrames = new AttackFrames('sword_eagle');
   notice: CombatNotice | null = null;
   ghosts: Ghost[] = [];
   private battle: Combat | null | undefined;
@@ -66,6 +67,7 @@ export class CombatFeedback {
     const battle = session.battle;
     this.mouseFrames.update(session.phase === 'prepare' ? null : battle);
     this.boarFrames.update(session.phase === 'prepare' ? null : battle);
+    this.swordEagleFrames.update(session.phase === 'prepare' ? null : battle);
     const fresh = this.battle !== battle || (battle !== null && battle.time < this.battleTime);
     const starting = fresh && this.phase === 'prepare' && session.phase === 'combat';
     const cues = new Set<SoundCue>();
@@ -209,12 +211,20 @@ export class CombatFeedback {
     return this.boarFrames.frame(id, reducedMotion);
   }
 
+  swordEagleFrame(id: number, reducedMotion = false): number {
+    return this.swordEagleFrames.frame(id, reducedMotion);
+  }
+
   mouseMotion(id: number, reducedMotion = false): CharacterMotion {
     return this.characterMotion(this.mouseFrames, id, reducedMotion);
   }
 
   boarMotion(id: number, reducedMotion = false): CharacterMotion {
     return this.characterMotion(this.boarFrames, id, reducedMotion);
+  }
+
+  swordEagleMotion(id: number, reducedMotion = false): CharacterMotion {
+    return this.characterMotion(this.swordEagleFrames, id, reducedMotion);
   }
 
   private characterMotion(

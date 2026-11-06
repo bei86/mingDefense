@@ -1,0 +1,27 @@
+[
+  {
+    "downloadName": "image-1793959955416-1.png",
+    "savedName": "attack-sheet-download-original.png",
+    "action": "attack",
+    "sha256": "97d94e51145d9a62ad0f738a0e4dba9e4d7d448e92dbe2b26ef269413bb29cb2",
+    "note": "Retained download copy, byte-identical to the existing attack-sheet-raw.png."
+  },
+  {
+    "downloadName": "image-1793961384000-1.png",
+    "savedName": "idle-sheet-raw.png",
+    "action": "idle",
+    "sha256": "b0e3ee55b061d0a2422083adfeeabc8b32b9c7216506303052ffade94a04765d"
+  },
+  {
+    "downloadName": "image-1793961389832-1.png",
+    "savedName": "hurt-sheet-raw.png",
+    "action": "hurt",
+    "sha256": "83537d2e099e11cb24e7ac7d3fcde55f2cac6178dc61d599636785ae59a6c687"
+  },
+  {
+    "downloadName": "image-1793961440947-1.png",
+    "savedName": "fallen-sheet-raw.png",
+    "action": "fallen",
+    "sha256": "958d8f74ca60d25071a3a67774fc23257b30b5a0efa8efd503f820751a6676c6"
+  }
+]

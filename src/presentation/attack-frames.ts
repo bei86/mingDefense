@@ -10,7 +10,7 @@ export class AttackFrames {
   private motions = new Map<number, Motion>();
   private flashes = new WeakSet<Flash>();
 
-  constructor(private readonly kind: 'ember_mouse' | 'boar') {}
+  constructor(private readonly kind: 'ember_mouse' | 'boar' | 'sword_eagle') {}
 
   update(battle: Combat | null): void {
     const fresh = battle !== this.battle || (battle !== null && battle.time < this.time);

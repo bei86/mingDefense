@@ -27,6 +27,10 @@ npm.cmd run dev
 
 岩甲豚四组动作已接入：六帧攻击、四帧待机、三帧受击、五帧伏地重伤。真实出手不受受击显示覆盖影响；重伤末帧保持，减少动态时显示稳定姿态，缺动作图降级到可用基准再回退原立绘。可打开 http://127.0.0.1:5173/?playtest=roster 进入八灵试玩并开始守卫观察。原图、[三组提示词与统一参考](docs/art/2026-11-06-boar-remaining-animation-prompts-copy-ready.md)、[原攻击提示词](docs/art/2026-11-05-boar-attack-prompt-copy-ready.md)与处理脚本保留；细节及目视验收边界见[三组动作接入记录](docs/reviews/2026-11-06-boar-motions-integration.md)。
 
+青锋隼四组动作已接入：六帧攻击、四帧悬停待机、三帧受击、五帧收翼降落休息。重伤优先于受击、攻击和待机，降落末帧保持；受击不延误真实出手，剑阵与二次命中保持原规则。跨格羽毛完整保留，活体按胸腹中心对齐，重伤保留下降，共用固定2×2绘制尺度。减少动态取稳定姿态，缺动作图降级到可用基准再回原立绘。可在上述八灵试玩观察；[素材命名与重建说明](docs/img/animations/sword_eagle/README.md)、[三动作接入记录](docs/reviews/2026-11-06-sword-eagle-motions-integration.md)保留来源和实机待验收项。
+
+青锋隼[原三组提示词](docs/art/2026-11-06-sword-eagle-remaining-animation-prompts-copy-ready.md)与[攻击首帧参考画布](docs/img/animations/sword_eagle/motion-reference-canvas.png)保留供修图，不用重复生成。用户下载文件已按动作命名，旧攻击下载副本也已整理，原图内容均保留不变。
+
 胜败结算也可打开「开发试玩」。隔离试玩的菜单另提供「返回正式战役」：离开临时场景，按正常流程载入当前浏览器地址的正式检查点（无存档则新局），不会把试玩阵容带入正式战役。需要保留试玩战报或诊断请先导出。关闭菜单则回到原布阵、暂停或结算，不自动继续战斗或发放奖励。往返验证见 [试玩返回验收](docs/reviews/2026-10-27-playtest-return.md)。
 
 ### 第8关同开局对照试玩

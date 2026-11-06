@@ -1,0 +1,21 @@
+{
+  "source": "public/assets/art/sword_eagle_idle.webp",
+  "sourceSha256": "35da08851433af27a26e3159f7776cc2d5326bfa925fcf055a39dac07a1979a0",
+  "original": "docs/img/sword_eagle_idle.png",
+  "originalSha256": "5b63f070260b70e4d59f96625b906d263652dd408d16eeb698947694ce89f860",
+  "referenceSize": [
+    384,
+    317
+  ],
+  "referenceSha256": "64d8d806362f915e138d7f9b2c50331b7897c69c3bb0765769e4c36179f37ef9",
+  "canvasSize": [
+    512,
+    512
+  ],
+  "canvasOffset": [
+    64,
+    97
+  ],
+  "canvasSha256": "addb71a9d4fe9e3ddecdcab0fa5041c55b2eebf653e91ad65ca1440c34187b3f",
+  "generatedAnimation": false
+}

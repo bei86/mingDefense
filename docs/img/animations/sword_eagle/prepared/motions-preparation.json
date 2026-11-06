@@ -1,0 +1,494 @@
+[
+  {
+    "action": "idle",
+    "sourceSha256": "b0e3ee55b061d0a2422083adfeeabc8b32b9c7216506303052ffade94a04765d",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "sharedScale": 0.5306748466257669,
+    "clearedAlphaMaximum": 8,
+    "frameSize": [
+      448,
+      352
+    ],
+    "frameCount": 4,
+    "referenceBodySize": [
+      348,
+      258
+    ],
+    "originPixels": [
+      240,
+      180
+    ],
+    "bodyAnchorPixels": [
+      240,
+      224
+    ],
+    "verticalMode": "fixed-hover",
+    "frames": [
+      {
+        "frame": 1,
+        "sourceRegion": [
+          0,
+          0,
+          627,
+          627
+        ],
+        "sourceBounds": [
+          62,
+          47,
+          585,
+          524
+        ],
+        "sourceBodyPoint": [
+          382,
+          366
+        ],
+        "offset": [
+          37,
+          30
+        ],
+        "outputBodyPoint": [
+          239.71779141104295,
+          224.2269938650307
+        ],
+        "outputBounds": [
+          70,
+          55,
+          348,
+          308
+        ]
+      },
+      {
+        "frame": 2,
+        "sourceRegion": [
+          627,
+          0,
+          1254,
+          627
+        ],
+        "sourceBounds": [
+          137,
+          47,
+          536,
+          524
+        ],
+        "sourceBodyPoint": [
+          1010,
+          366
+        ],
+        "offset": [
+          37,
+          30
+        ],
+        "outputBodyPoint": [
+          240.24846625766872,
+          224.2269938650307
+        ],
+        "outputBounds": [
+          110,
+          55,
+          322,
+          308
+        ]
+      },
+      {
+        "frame": 3,
+        "sourceRegion": [
+          0,
+          627,
+          627,
+          1254
+        ],
+        "sourceBounds": [
+          88,
+          45,
+          587,
+          524
+        ],
+        "sourceBodyPoint": [
+          381,
+          993
+        ],
+        "offset": [
+          38,
+          30
+        ],
+        "outputBodyPoint": [
+          240.18711656441718,
+          224.2269938650307
+        ],
+        "outputBounds": [
+          85,
+          54,
+          350,
+          308
+        ]
+      },
+      {
+        "frame": 4,
+        "sourceRegion": [
+          627,
+          627,
+          1254,
+          1254
+        ],
+        "sourceBounds": [
+          60,
+          46,
+          587,
+          524
+        ],
+        "sourceBodyPoint": [
+          1013,
+          993
+        ],
+        "offset": [
+          35,
+          30
+        ],
+        "outputBodyPoint": [
+          239.84049079754604,
+          224.2269938650307
+        ],
+        "outputBounds": [
+          67,
+          54,
+          347,
+          308
+        ]
+      }
+    ],
+    "outputSha256": "62496c22acdcc4289dd08d46d2dec3a6ecbcf9915d30a412e0939e90f75d3a75",
+    "published": true
+  },
+  {
+    "action": "hurt",
+    "sourceSha256": "83537d2e099e11cb24e7ac7d3fcde55f2cac6178dc61d599636785ae59a6c687",
+    "sourceSize": [
+      2138,
+      736
+    ],
+    "sharedScale": 0.43986254295532645,
+    "clearedAlphaMaximum": 8,
+    "frameSize": [
+      448,
+      352
+    ],
+    "frameCount": 3,
+    "referenceBodySize": [
+      348,
+      258
+    ],
+    "originPixels": [
+      240,
+      180
+    ],
+    "bodyAnchorPixels": [
+      240,
+      224
+    ],
+    "verticalMode": "fixed-hover",
+    "frames": [
+      {
+        "frame": 1,
+        "sourceRegion": [
+          0,
+          0,
+          713,
+          736
+        ],
+        "sourceBounds": [
+          56,
+          56,
+          690,
+          638
+        ],
+        "sourceBodyPoint": [
+          434,
+          436
+        ],
+        "offset": [
+          49,
+          32
+        ],
+        "outputBodyPoint": [
+          239.9003436426117,
+          223.78006872852234
+        ],
+        "outputBounds": [
+          74,
+          57,
+          353,
+          313
+        ]
+      },
+      {
+        "frame": 2,
+        "sourceRegion": [
+          713,
+          0,
+          1425,
+          736
+        ],
+        "sourceBounds": [
+          115,
+          95,
+          611,
+          636
+        ],
+        "sourceBodyPoint": [
+          1136,
+          439
+        ],
+        "offset": [
+          54,
+          31
+        ],
+        "outputBodyPoint": [
+          240.06185567010309,
+          224.0996563573883
+        ],
+        "outputBounds": [
+          104,
+          73,
+          323,
+          311
+        ]
+      },
+      {
+        "frame": 3,
+        "sourceRegion": [
+          1425,
+          0,
+          2138,
+          736
+        ],
+        "sourceBounds": [
+          34,
+          69,
+          656,
+          638
+        ],
+        "sourceBodyPoint": [
+          1839,
+          437
+        ],
+        "offset": [
+          58,
+          32
+        ],
+        "outputBodyPoint": [
+          240.10309278350516,
+          224.21993127147766
+        ],
+        "outputBounds": [
+          73,
+          62,
+          347,
+          313
+        ]
+      }
+    ],
+    "outputSha256": "ac659b9d2b6eddd74220d43de296fc832c2f4c72fe11a4bba7fce2f320bb0fba",
+    "published": true
+  },
+  {
+    "action": "fallen",
+    "sourceSha256": "958d8f74ca60d25071a3a67774fc23257b30b5a0efa8efd503f820751a6676c6",
+    "sourceSize": [
+      1774,
+      887
+    ],
+    "sharedScale": 0.7071823204419889,
+    "clearedAlphaMaximum": 8,
+    "frameSize": [
+      448,
+      352
+    ],
+    "frameCount": 5,
+    "referenceBodySize": [
+      348,
+      258
+    ],
+    "originPixels": [
+      240,
+      180
+    ],
+    "bodyAnchorPixels": [
+      240,
+      224
+    ],
+    "verticalMode": "preserve-descent",
+    "frames": [
+      {
+        "frame": 1,
+        "sourceRegion": [
+          0,
+          0,
+          432,
+          887
+        ],
+        "sourceBounds": [
+          34,
+          264,
+          421,
+          626
+        ],
+        "sourceBodyPoint": [
+          263,
+          505
+        ],
+        "offset": [
+          54,
+          -133
+        ],
+        "outputBodyPoint": [
+          239.9889502762431,
+          224.1270718232044
+        ],
+        "outputBounds": [
+          78,
+          54,
+          352,
+          310
+        ]
+      },
+      {
+        "frame": 2,
+        "sourceRegion": [
+          432,
+          0,
+          775,
+          887
+        ],
+        "sourceBounds": [
+          11,
+          319,
+          317,
+          657
+        ],
+        "sourceBodyPoint": [
+          619,
+          553
+        ],
+        "offset": [
+          108,
+          -133
+        ],
+        "outputBodyPoint": [
+          240.24309392265192,
+          258.0718232044199
+        ],
+        "outputBounds": [
+          116,
+          93,
+          332,
+          332
+        ]
+      },
+      {
+        "frame": 3,
+        "sourceRegion": [
+          775,
+          0,
+          1064,
+          887
+        ],
+        "sourceBounds": [
+          26,
+          347,
+          276,
+          664
+        ],
+        "sourceBodyPoint": [
+          977,
+          579
+        ],
+        "offset": [
+          97,
+          -133
+        ],
+        "outputBodyPoint": [
+          239.85082872928177,
+          276.4585635359116
+        ],
+        "outputBounds": [
+          116,
+          112,
+          292,
+          337
+        ]
+      },
+      {
+        "frame": 4,
+        "sourceRegion": [
+          1064,
+          0,
+          1419,
+          887
+        ],
+        "sourceBounds": [
+          61,
+          396,
+          306,
+          669
+        ],
+        "sourceBodyPoint": [
+          1289,
+          612
+        ],
+        "offset": [
+          81,
+          -133
+        ],
+        "outputBodyPoint": [
+          240.11602209944752,
+          299.7955801104972
+        ],
+        "outputBounds": [
+          124,
+          147,
+          297,
+          340
+        ]
+      },
+      {
+        "frame": 5,
+        "sourceRegion": [
+          1419,
+          0,
+          1774,
+          887
+        ],
+        "sourceBounds": [
+          56,
+          417,
+          301,
+          670
+        ],
+        "sourceBodyPoint": [
+          1637,
+          620
+        ],
+        "offset": [
+          86,
+          -133
+        ],
+        "outputBodyPoint": [
+          240.1657458563536,
+          305.4530386740331
+        ],
+        "outputBounds": [
+          125,
+          162,
+          299,
+          340
+        ]
+      }
+    ],
+    "outputSha256": "f146ec6e99da449365c968d1b6ef91996488cf2fe90189a3ea039f53ddc07896",
+    "published": true
+  }
+]
